@@ -38,6 +38,7 @@
 
 	<body>
 		
+    <!-- Navigation de choix de difficulté -->
 
 		<nav id="nav">
 			<FORM id="form4" NAME="form4">
@@ -48,6 +49,9 @@
 				<INPUT class="centre" TYPE="button" NAME="but" VALUE="Jouer" onClick="choixprop(form4)">
 			</FORM>
 		</nav>
+
+		    <!-- Zone de jeu -->
+
 		<div id="zone1">
 			<form id="form">
 				<div class="container-input">
@@ -56,10 +60,11 @@
 					<button3 id="chat">Langue au chat</button3>
 				</div>
 				
-				<!--<div id="zoneTemp"></div>-->
+				<!--Message d'erreur pour les mots invalides-->
 				<div id="error"> Ce mot n'appartient pas au dictionnaire</div>
 				<div id="triche"></div>
 				<input type="button2" value="Rejouer ?" id="rejouer" onclick="window.location.reload();">
+				<button id="definition">Définition</button>
 			</form>
 		</div>
 	
@@ -71,16 +76,10 @@
 
 		</div>
 
-		<!--<div class="pp">
-			<p>1 <strong>Test multicolonnes </strong> vos postulo essum magis kohlrabi welsh onion daikon amaranth tatsoi tomatillo melon azuki bean garlic. </p>
-			<p>2 Gumbo beet greens corn soko endive gumbo gourd. Parsley shallot courgette tatsoi pea sprouts fava bean collard greens dandelion okra wakame tomato. </p>
-			<p>3 Dandelion cucumber earthnut pea peanut soko zucchini. Turnip greens yarrow ricebean rutabaga endive cauliflower sea lettuce kohlrabi amaranth water spinach avocado daikon napa cabbage asparagus winter purslane kale. Celery potato scallion desert raisin horseradish spinach carrot soko.</p>
-		  
-		</div>-->
+
 
 		<div class="gagne">Vous avez gagné en <span id="nombreCoups"></span>
 		</div>
-		<button id="definition">Définition</button>
 
 		
     <script type = "text/javascript" src = "Tests.js"></script>
