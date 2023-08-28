@@ -10,16 +10,20 @@ let dico02 = ['ABLE', 'ACAI', 'ACON', 'ACUL', 'ADAC', 'ADAS', 'ADAV', 'ADNE', 'A
 
 //_____________ Détermination du mot à deviner ______________
 
+// Fonction déclenchée lorsque l'utilisateur choisit le niveau de difficulté
 
 function choixprop(form4){
+	    // Si le niveau facile est sélectionné, utiliser dico01 ; sinon, utiliser dico02
+
 	if (form4.choix[0].checked){
 	dico02 = dico01;
 	}
-	
+    // Masquer l'élément de navigation	
 	const nav = document.getElementById("nav");
 	nav.style.visibility= "hidden";
 	//affichExp.style.display= "none"; 
 
+    // Générer un mot aléatoire à partir de la liste de mots choisie
 
 let choixMot = Math.floor(Math.random() * dico01.length);
 let choixMot02 = Math.floor(Math.random() * dico02.length);
@@ -27,10 +31,14 @@ let motUltime = [dico01[choixMot], dico02[choixMot02]];
 let choixMotUltime = Math.floor(Math.random() * motUltime.length);
 let myString = motUltime[choixMotUltime];
 
+    // Extraire les caractères individuels du mot sélectionné
+
 let premier = myString.charAt(0);
 let deuxieme = myString.charAt(1);
 let troisieme = myString.charAt(2);
 let quatrieme = myString.charAt(3);
+
+    // Initialiser les variables pour compter les tentatives et suivre les longueurs des listes de mots
 
 let cpt = 0;
 let number = 4;
@@ -38,25 +46,31 @@ const longueur01 = (dico01.length);
 const longueur02 = ((dico01.length) + (dico02.length));
 
 
+    // Obtenir les éléments DOM pour l'entrée de l'utilisateur et la sortie du jeu
 
 const form = document.getElementById('form');
 const input1 = document.getElementById('input1');
 const output = document.getElementById('output');
-/* const resultat = document.querySelector('.result');  */
+/* const ligne = document.querySelector('.ligne');  */
 const resultat = document.getElementById('result');
 const err = document.getElementById('error');
 const gagne = document.querySelector('.gagne');
 const rejouer = document.getElementById('rejouer');
 const chat = document.getElementById('chat');
 const triche = document.getElementById('triche');
-const definition = document.getElementById("def");
+const definition = document.getElementById("definition");
+
+// Afficher le mot sélectionné à des fins de triche
 triche.textContent = myString;
 
+// Gérer le clic sur le bouton "Définition"
 
 chat.onclick = function() {
 	triche.style.visibility= 'visible';
 	rejouer.style.visibility = 'visible';
 	definition.style.visibility = 'visible';
+// Ouvrir une nouvelle fenêtre/onglet avec la définition du mot
+
 	definition.addEventListener('click', () =>{
 		window.open('https://www.cnrtl.fr/definition/'+ (myString) +'', 'définition');
 		
@@ -68,14 +82,18 @@ chat.onclick = function() {
 
 
 
+    // Gérer la soumission de l'entrée de l'utilisateur
 
 form.onsubmit = (e) => {
 	e.preventDefault(); //empeche le rafraichissement de la page
 	err.style.visibility = 'hidden';
 	//resultat.innerHTML = ''; //on efface resultat
 	
+	// Obtenir le mot soumis par l'utilisateur
 	const proposition = input1.value.toUpperCase();
 	//	cpt++;
+	// Vérifier si le mot soumis est dans les listes de mots
+
 	const indice = dico01.includes(proposition) || dico02.includes(proposition);
 	cpt++;
 	
@@ -84,20 +102,25 @@ form.onsubmit = (e) => {
 		err.style.visibility = 'visible';
 		
 	}
-	
+	// Afficher la soumission de l'utilisateur dans la zone de sortie
 	output.innerHTML += proposition + '<br>';
 	
 	const first = proposition.charAt(0);
 	const second = proposition.charAt(1);
 	const third = proposition.charAt(2);
 	const fourth = proposition.charAt(3);
-	
+
+	 // Initialiser une variable pour compter les lettres correctement devinées
 	let count = 0;
 	console.log(count);
-	
+        
+	// Comparer la soumission de l'utilisateur avec le mot sélectionné
 	for (let i = 0; i < myString.length; i++) {
 		if (proposition[i] == myString[i]) count++;
 	}
+
+    // Afficher les commentaires en fonction de la justesse de la soumission de l'utilisateur
+
     if (!indice) {
 		resultat.innerHTML += "non pris en compte" +'<br>' ;
 	}else{
@@ -111,6 +134,7 @@ form.onsubmit = (e) => {
 			resultat.innerHTML += count + " lettres" +'<br>' ;
 		}
     }
+    // Afficher le message "Félicitations" si le mot est correctement deviné
 	if (count == 4) {
 		gagne.style.visibility = 'visible';
 		gagne.style.transition = "1s";
@@ -122,8 +146,8 @@ form.onsubmit = (e) => {
 			
 		});
 	}
-	
-	input1.value = ''; //on efface le contenu de l'input
+        // Effacer le contenu du champ d'entrée	input et affichage du nombre de tentatives
+	input1.value = '';
 	const nombreCoups = document.getElementById("nombreCoups");
 	nombreCoups.innerHTML = " " + cpt + " coups ! Bravo !";
 	//rejouer.addEventListener("click", resetGame);
