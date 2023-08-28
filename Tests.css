@@ -129,7 +129,7 @@ body {
 	box-shadow: inset 0 0 0.2em rgb(15, 15, 15), 0 0 2em black;
 	width: 90%;
 /*	width: 500px;   */
-	height: 150px
+	height: 150px;
 }
 
 .container-input{
@@ -178,29 +178,23 @@ button3 {
 .pave {
 	/*border: 2px solid red;*/
 	column-count: 2;
-	column-gap: 20px; 
-	margin: 30px;
+	column-gap: 10px; 
+	margin: 20px;
 	display: flex;
 	flex-direction: row;
+	align-items:normal;
 	box-shadow: inset 0 0 0.2em rgb(15, 15, 15), 0 0 2em black;
 	padding: 10px;
 	background: transparent;
 	width: 100%;
-	height: 180px;
-	font-family: 'Impact', Haettenschweiler, "Arial Narrow Bold", sans-serif;
+	height: 350px;
+	font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 	font-size: 16px;
 
-	/*resize: both;*/
-  	/*overflow: auto;*/
-	  /* width */
 	}
 
 
-	.pp {
-		color: white;
-		column-count: 2;
-		column-fill: balance;
-	}
+
  ::-webkit-scrollbar {
 	width: 20px;
  }
@@ -224,14 +218,20 @@ button3 {
 	color: deepskyblue;
 }
 #output{
-
 	color: deepskyblue;
+}
+.output, .result
+{
+	display: flex; /* Utilisation du modèle de flexbox */
+    flex-direction: row; /* Disposition des éléments sur une ligne */
+    justify-content: left; /* Centrer les éléments horizontalement */
+    margin: 5px 0; /* Marge entre chaque ligne */
 }
 #result {
 	display: flex;
 	width: 200px;
-	margin-left: 15px; 
-	font-family: 'Impact', Haettenschweiler, "Arial Narrow Bold", sans-serif;
+	margin-left: 0px; 
+	font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 	font-size: 16px;
 	text-align: left;
 	color: rgb(82, 212, 147);
@@ -286,7 +286,7 @@ button2 {
 }
 #triche{
 	font-family: 'Impact', Haettenschweiler, "Arial Narrow Bold", sans-serif;
-	font-size: 2rem;
+	font-size: 1.5rem;
 	font-weight: bold;
 	color: rgb(52, 92, 98, 1);
 	visibility:hidden;
