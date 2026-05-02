@@ -10,12 +10,10 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="application-name" content="SaintEx">
     <meta name="apple-mobile-web-app-title" content="SaintEx">
-
     <link rel="stylesheet" href="saintex.css">
     <link rel="shortcut icon" href="Images/favicon-32x32.png">
     <link rel="apple-touch-icon" href="Images/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.webmanifest">
-
     <title>SaintEx</title>
 </head>
 
@@ -26,10 +24,11 @@
         <div class="entete">
             <img class="logo" src="Images/Logo.png" alt="Logo SaintEx">
             <p id="titrePartie" class="titre-partie"></p>
+            <button id="btn-retour" onclick="retourAccueil()">← Mode</button>
         </div>
     </header>
 
-    <!-- ===== ÉCRAN D'ACCUEIL — Choix du mode ===== -->
+    <!-- ===== ÉCRAN D'ACCUEIL ===== -->
     <nav id="nav">
         <form id="form4" name="form4">
 
@@ -57,37 +56,40 @@
                 </label>
             </fieldset>
 
-            <button type="button" class="btn-jouer" onclick="choixprop(form4)">Jouer</button>
+            <button type="button" class="btn-jouer" onclick="choixprop()">Jouer</button>
 
         </form>
     </nav>
 
     <!-- ===== ZONE DE JEU ===== -->
-    <div id="zone1" style="display:none;">
-        <form id="form">
-            <div class="container-input">
-                <input type="text" autocomplete="off" id="input1"
-                       placeholder="Entrez un mot" maxlength="5">
-                <button type="submit">Proposez</button>
-                <button type="button" id="chat">Langue au chat</button>
-            </div>
+    <div id="zone-jeu" style="display:none;">
 
-            <div id="error">Ce mot n'appartient pas au dictionnaire</div>
-            <div id="triche"></div>
+        <!-- Liste des propositions (défile, en haut) -->
+        <div id="pave" class="pave"></div>
 
-            <button type="button" id="rejouer" onclick="window.location.reload();">Rejouer ?</button>
-        </form>
+        <!-- Message victoire -->
+        <div class="gagne" id="gagne">
+            Gagné en <span id="nombreCoups"></span>
+        </div>
+
+        <!-- Saisie fixée en bas -->
+        <div class="saisie-fixe">
+            <form id="form">
+                <div class="container-input">
+                    <input type="text" autocomplete="off" id="input1"
+                           placeholder="Mot de 4 lettres" maxlength="4">
+                    <button type="submit">OK</button>
+                    <button type="button" id="chat">Langue au chat</button>
+                </div>
+                <div id="error">Ce mot n'appartient pas au dictionnaire</div>
+                <div id="triche"></div>
+                <button type="button" id="rejouer"
+                        onclick="window.location.reload();">Rejouer ?</button>
+            </form>
+        </div>
+
     </div>
 
-    <!-- ===== LISTE DES PROPOSITIONS ===== -->
-    <div id="pave" class="pave"></div>
-
-    <!-- ===== MESSAGE VICTOIRE ===== -->
-    <div class="gagne" id="gagne">
-        Vous avez gagné en <span id="nombreCoups"></span>
-    </div>
-
-    <!-- ===== SCRIPTS ===== -->
     <script src="saintex.js"></script>
     <script src="app.js"></script>
 
