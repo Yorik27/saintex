@@ -1,0 +1,331 @@
+/* ============================================================
+   FONTS
+   ============================================================ */
+@font-face {
+    font-family: 'bigelowrules';
+    src: url('fonts/bigelowrules-regular.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'UpperEastSide';
+    src: url('fonts/UpperEastSide-webfont.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'rockwen';
+    src: url('fonts/rockwen.ttf') format('truetype');
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #2c3e50;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 60px; /* espace footer */
+}
+
+/* ============================================================
+   EN-TÊTE
+   ============================================================ */
+header {
+    width: 100%;
+    padding: 12px 16px 0;
+}
+
+.entete {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.logo {
+    width: 80px;
+    height: 80px;
+}
+
+.titre-partie {
+    font-family: 'UpperEastSide', serif;
+    font-size: 1.1rem;
+    color: deepskyblue;
+    text-align: right;
+    padding-right: 8px;
+}
+
+/* ============================================================
+   ÉCRAN D'ACCUEIL
+   ============================================================ */
+#nav {
+    margin: 24px auto 16px;
+    width: 90%;
+    max-width: 480px;
+}
+
+#form4 {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    box-shadow: 0 0 2em black;
+}
+
+.choix-groupe {
+    border: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.choix-groupe legend {
+    font-family: 'UpperEastSide', serif;
+    font-size: 1rem;
+    color: deepskyblue;
+    margin-bottom: 8px;
+}
+
+.choix-label {
+    display: block;
+    cursor: pointer;
+}
+
+.choix-label input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.choix-btn {
+    display: block;
+    padding: 10px 20px;
+    border: 1px solid deepskyblue;
+    border-radius: 8px;
+    font-family: 'UpperEastSide', serif;
+    font-size: 1.1rem;
+    color: deepskyblue;
+    text-align: center;
+    transition: background 0.2s, color 0.2s;
+}
+
+.choix-label input[type="radio"]:checked + .choix-btn {
+    background: deepskyblue;
+    color: #2c3e50;
+}
+
+.choix-label input[type="radio"]:focus + .choix-btn {
+    outline: 2px solid white;
+}
+
+.btn-jouer {
+    padding: 12px;
+    background: deepskyblue;
+    color: #2c3e50;
+    border: none;
+    border-radius: 10px;
+    font-family: 'UpperEastSide', serif;
+    font-size: 1.4rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    box-shadow: 0 0 1em rgba(0,191,255,0.4);
+}
+
+.btn-jouer:hover {
+    opacity: 0.85;
+}
+
+/* ============================================================
+   ZONE DE JEU
+   ============================================================ */
+#zone1 {
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid black;
+    background: deepskyblue;
+    padding: 10px;
+    margin: 16px auto;
+    box-shadow: inset 0 0 0.2em rgb(15,15,15), 0 0 2em black;
+    width: 90%;
+    max-width: 480px;
+    border-radius: 8px;
+}
+
+.container-input {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+#input1 {
+    flex: 1;
+    min-width: 120px;
+    background: transparent;
+    font-family: 'rockwen', 'Gill Sans', Calibri, sans-serif;
+    font-size: 1.4rem;
+    text-align: left;
+    border: none;
+    border-bottom: black 2px solid;
+    text-transform: uppercase;
+    outline: none;
+    color: #2c3e50;
+}
+
+#input1::placeholder {
+    font-size: 1rem;
+    color: rgba(44,62,80,0.6);
+}
+
+/* Boutons de jeu */
+button[type="submit"],
+#chat,
+#rejouer {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 10px;
+    font-family: 'UpperEastSide', serif;
+    font-size: 1.1rem;
+    cursor: pointer;
+    box-shadow: inset 0 0 0.2em rgb(15,15,15), 0 0 1em black;
+    background: transparent;
+    color: #2c3e50;
+    transition: background 0.2s;
+}
+
+button[type="submit"]:hover,
+#chat:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+#rejouer {
+    display: block;
+    margin-top: 10px;
+    background: white;
+    border: 1px solid black;
+    visibility: hidden;
+    transition: visibility 0s, opacity 0.5s;
+}
+
+/* Messages */
+#error {
+    font-family: Impact, 'Arial Narrow Bold', sans-serif;
+    font-size: 1.1rem;
+    color: #8b0000;
+    visibility: hidden;
+    text-align: center;
+    margin-top: 8px;
+    width: 100%;
+}
+
+#triche {
+    font-family: Impact, 'Arial Narrow Bold', sans-serif;
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: rgba(52,92,98,0.9);
+    visibility: hidden;
+    text-align: center;
+    margin-top: 4px;
+    width: 100%;
+}
+
+/* ============================================================
+   LISTE DES PROPOSITIONS (multi-colonnes)
+   ============================================================ */
+.pave {
+    column-count: 3;
+    column-gap: 12px;
+    width: 90%;
+    max-width: 480px;
+    margin: 0 auto 16px;
+    padding: 10px;
+    background: transparent;
+    box-shadow: inset 0 0 0.2em rgb(15,15,15), 0 0 2em black;
+    font-family: 'Gill Sans', Calibri, sans-serif;
+    font-size: 1.1rem;
+    border-radius: 8px;
+}
+
+/* Sur petit écran ou mots longs (5 lettres) : 2 colonnes */
+@media (max-width: 400px) {
+    .pave { column-count: 2; }
+}
+
+.lignes {
+    display: block;
+    color: deepskyblue;
+    break-inside: avoid;
+    margin-bottom: 2px;
+}
+
+/* Couleurs selon le score */
+.zero   { color: deepskyblue; }
+.une    { color: rgb(255, 247, 0); }
+.deux   { color: rgb(255, 153, 0); }
+.trois  { color: rgb(255, 34, 0); }
+.quatre { color: rgb(82, 212, 147); }
+
+/* Dégradé victoire */
+.degrade {
+    font-size: 1.1rem;
+    background: linear-gradient(79deg,
+        rgb(0,191,255), rgb(255,247,0),
+        rgb(255,153,0), rgb(255,34,0)) text;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    break-inside: avoid;
+}
+
+/* ============================================================
+   MESSAGE VICTOIRE
+   ============================================================ */
+.gagne {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Impact, 'Arial Narrow Bold', sans-serif;
+    font-size: 1.2rem;
+    color: #784d4d;
+    visibility: hidden;
+    background: rgb(231, 148, 148);
+    box-shadow: inset 0 0 0.2em rgb(15,15,15), 0 0 2em black;
+    padding: 20px 30px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 480px;
+    margin: 8px auto;
+    text-align: center;
+    transition: visibility 0s, opacity 1s;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer {
+    border-top: 4px solid black;
+    position: fixed;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.2);
+    height: auto;
+    width: 100%;
+}
+
+.copyright {
+    color: deepskyblue;
+    text-align: center;
+    padding: 6px 0;
+    font-size: 0.85rem;
+}

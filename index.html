@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#2c3e50">
+    <meta name="description" content="SaintEx — Jeu de lettres">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="SaintEx">
+    <meta name="apple-mobile-web-app-title" content="SaintEx">
+
+    <link rel="stylesheet" href="saintex.css">
+    <link rel="shortcut icon" href="Images/favicon-32x32.png">
+    <link rel="apple-touch-icon" href="Images/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.webmanifest">
+
+    <title>SaintEx</title>
+</head>
+
+<body>
+
+    <!-- ===== EN-TÊTE ===== -->
+    <header>
+        <div class="entete">
+            <img class="logo" src="Images/Logo.png" alt="Logo SaintEx">
+            <p id="titrePartie" class="titre-partie"></p>
+        </div>
+    </header>
+
+    <!-- ===== ÉCRAN D'ACCUEIL — Choix du mode ===== -->
+    <nav id="nav">
+        <form id="form4" name="form4">
+
+            <fieldset class="choix-groupe">
+                <legend>Longueur du mot</legend>
+                <label class="choix-label">
+                    <input type="radio" name="longueur" value="4" checked>
+                    <span class="choix-btn">4 lettres</span>
+                </label>
+                <label class="choix-label">
+                    <input type="radio" name="longueur" value="5">
+                    <span class="choix-btn">5 lettres</span>
+                </label>
+            </fieldset>
+
+            <fieldset class="choix-groupe">
+                <legend>Niveau</legend>
+                <label class="choix-label">
+                    <input type="radio" name="niveau" value="facile" checked>
+                    <span class="choix-btn">Facile</span>
+                </label>
+                <label class="choix-label">
+                    <input type="radio" name="niveau" value="difficile">
+                    <span class="choix-btn">Difficile</span>
+                </label>
+            </fieldset>
+
+            <button type="button" class="btn-jouer" onclick="choixprop(form4)">Jouer</button>
+
+        </form>
+    </nav>
+
+    <!-- ===== ZONE DE JEU ===== -->
+    <div id="zone1" style="display:none;">
+        <form id="form">
+            <div class="container-input">
+                <input type="text" autocomplete="off" id="input1"
+                       placeholder="Entrez un mot" maxlength="5">
+                <button type="submit">Proposez</button>
+                <button type="button" id="chat">Langue au chat</button>
+            </div>
+
+            <div id="error">Ce mot n'appartient pas au dictionnaire</div>
+            <div id="triche"></div>
+
+            <button type="button" id="rejouer" onclick="window.location.reload();">Rejouer ?</button>
+        </form>
+    </div>
+
+    <!-- ===== LISTE DES PROPOSITIONS ===== -->
+    <div id="pave" class="pave"></div>
+
+    <!-- ===== MESSAGE VICTOIRE ===== -->
+    <div class="gagne" id="gagne">
+        Vous avez gagné en <span id="nombreCoups"></span>
+    </div>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script src="saintex.js"></script>
+    <script src="app.js"></script>
+
+</body>
+
+<footer>
+    <p class="copyright">© François Denivet — Décembre 2021</p>
+</footer>
+
+</html>
