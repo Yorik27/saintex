@@ -2,14 +2,6 @@
    FONTS
    ============================================================ */
 @font-face {
-    font-family: 'bigelowrules';
-    src: url('fonts/bigelowrules-regular.ttf') format('truetype');
-}
-@font-face {
-    font-family: 'UpperEastSide';
-    src: url('fonts/UpperEastSide-webfont.ttf') format('truetype');
-}
-@font-face {
     font-family: 'rockwen';
     src: url('fonts/rockwen.ttf') format('truetype');
 }
@@ -59,7 +51,7 @@ header {
 }
 
 .titre-partie {
-    font-family: 'UpperEastSide', serif;
+    font-family: 'Finger Paint', cursive;
     font-size: 1.1rem;
     color: deepskyblue;
     flex: 1;
@@ -68,7 +60,7 @@ header {
 }
 
 #btn-retour {
-    font-family: 'UpperEastSide', serif;
+    font-family: 'Finger Paint', cursive;
     font-size: 1rem;
     padding: 6px 12px;
     background: transparent;
@@ -111,7 +103,7 @@ header {
 }
 
 .choix-groupe legend {
-    font-family: 'UpperEastSide', serif;
+    font-family: 'Finger Paint', cursive;
     font-size: 1.2rem;
     color: deepskyblue;
     margin-bottom: 10px;
@@ -134,7 +126,7 @@ header {
     padding: 14px 20px;
     border: 1.5px solid deepskyblue;
     border-radius: 10px;
-    font-family: 'UpperEastSide', serif;
+    font-family: 'Finger Paint', cursive;
     font-size: 1.3rem;
     color: deepskyblue;
     text-align: center;
@@ -153,7 +145,7 @@ header {
     color: #2c3e50;
     border: none;
     border-radius: 12px;
-    font-family: 'UpperEastSide', serif;
+    font-family: 'Finger Paint', cursive;
     font-size: 1.6rem;
     font-weight: bold;
     cursor: pointer;
@@ -283,7 +275,7 @@ header {
     padding: 8px 14px;
     border: none;
     border-radius: 10px;
-    font-family: 'UpperEastSide', serif;
+    font-family: 'Finger Paint', cursive;
     font-size: 1.2rem;
     cursor: pointer;
     background: rgba(44,62,80,0.15);
@@ -304,7 +296,7 @@ header {
     background: white;
     border: 1.5px solid #2c3e50;
     border-radius: 10px;
-    font-family: 'UpperEastSide', serif;
+    font-family: 'Finger Paint', cursive;
     font-size: 1.2rem;
     cursor: pointer;
     color: #2c3e50;
