@@ -116,13 +116,19 @@ header {
 .choix-label {
     display: block;
     cursor: pointer;
+    position: relative;
 }
 
 .choix-label input[type="radio"] {
     position: absolute;
     opacity: 0;
-    width: 0;
-    height: 0;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    cursor: pointer;
+    margin: 0;
+    z-index: 1;
 }
 
 .choix-btn {
@@ -154,20 +160,24 @@ header {
 .choix-label input[type="checkbox"] {
     position: absolute;
     opacity: 0;
-    width: 0;
-    height: 0;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    cursor: pointer;
+    margin: 0;
+    z-index: 1;
 }
 
 /* Ligne de boutons flexible */
 .choix-ligne {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 10px;
 }
 
 .choix-ligne .choix-label {
-    flex: 1;
-    min-width: 80px;
+    width: 100%;
 }
 
 .btn-jouer {
