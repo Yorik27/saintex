@@ -170,7 +170,7 @@ html, body {
 }
 
 body {
-    background: #2c3e50;
+    background: #111;
     width: 100%;
     min-height: 100vh;
     display: flex;
@@ -240,8 +240,9 @@ header {
     flex-direction: column;
     gap: 24px;
     padding: 24px;
-    background: rgba(0, 0, 0, 0.25);
-    border-radius: 14px;
+    background: transparent;
+    border: 1px solid rgba(0,191,255,0.2);
+    border-radius: 18px;
     box-shadow: 0 0 2em black;
 }
 
@@ -254,8 +255,9 @@ header {
 
 .choix-groupe legend {
     font-family: 'Finger Paint', cursive;
-    font-size: 1.2rem;
-    color: deepskyblue;
+    font-size: 1.1rem;
+    color: rgba(0,191,255,0.75);
+    letter-spacing: 2px;
     margin-bottom: 10px;
 }
 
@@ -280,18 +282,19 @@ header {
 .choix-btn {
     display: block;
     padding: 14px 20px;
-    border: 1.5px solid deepskyblue;
+    border: 1.5px solid rgba(0,191,255,0.45);
     border-radius: 10px;
     font-family: 'Finger Paint', cursive;
     font-size: 1.3rem;
     color: deepskyblue;
     text-align: center;
-    transition: background 0.2s, color 0.2s;
+    background: transparent;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
 
 .choix-label input[type="radio"]:checked + .choix-btn {
     background: deepskyblue;
-    color: #2c3e50;
+    color: #111;
     font-weight: bold;
 }
 
@@ -299,7 +302,7 @@ header {
 /* Cases à cocher — même style que les radios */
 .choix-label input[type="checkbox"]:checked + .choix-btn {
     background: deepskyblue;
-    color: #2c3e50;
+    color: #111;
     font-weight: bold;
 }
 
@@ -329,7 +332,7 @@ header {
 .btn-jouer {
     padding: 16px;
     background: deepskyblue;
-    color: #2c3e50;
+    color: #111;
     border: none;
     border-radius: 12px;
     font-family: 'Finger Paint', cursive;
@@ -341,8 +344,11 @@ header {
 }
 
 .btn-jouer:hover {
-    opacity: 0.85;
+    border-color: rgba(0,191,255,0.9);
+    box-shadow: 0 0 24px rgba(0,191,255,0.3);
+    transform: scale(1.04);
 }
+.btn-jouer:active { transform: scale(0.97); }
 
 /* ============================================================
    ZONE DE JEU
@@ -443,10 +449,10 @@ header {
     font-size: 1.6rem;
     text-align: left;
     border: none;
-    border-bottom: 2px solid #2c3e50;
+    border-bottom: 2px solid #111;
     text-transform: uppercase;
     outline: none;
-    color: #2c3e50;
+    color: #111;
     padding: 2px 4px;
 }
 
@@ -466,7 +472,7 @@ header {
     font-size: 1.2rem;
     cursor: pointer;
     background: rgba(44,62,80,0.15);
-    color: #2c3e50;
+    color: #111;
     white-space: nowrap;
     transition: background 0.15s;
 }
@@ -481,12 +487,12 @@ header {
     margin-top: 8px;
     padding: 8px 18px;
     background: white;
-    border: 1.5px solid #2c3e50;
+    border: 1.5px solid #111;
     border-radius: 10px;
     font-family: 'Finger Paint', cursive;
     font-size: 1.2rem;
     cursor: pointer;
-    color: #2c3e50;
+    color: #111;
 }
 
 /* Messages d'état */
