@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#2c3e50">
+    <meta name="theme-color" content="#111111">
     <meta name="description" content="SaintEx — Jeu de lettres">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16,11 +16,29 @@
     <link rel="manifest" href="/manifest.webmanifest">
     <title>SaintEx</title>
 </head>
-
 <body>
 
+    <!-- ===== ÉCRAN SPLASH ===== -->
+    <div id="splash">
+        <div class="bg-circle c1"></div>
+        <div class="bg-circle c2"></div>
+        <div class="bg-circle c3"></div>
+        <div class="bg-circle c4"></div>
+        <div class="cadre"></div>
+        <div class="splash-titre">SaintEx</div>
+        <div class="splash-sous">Jeu de lettres</div>
+        <div class="splash-cercles">
+            <div class="sc sc1"></div>
+            <div class="sc sc2"></div>
+            <div class="sc sc3"></div>
+            <div class="sc sc4"></div>
+        </div>
+        <button class="btn-splash" onclick="cacherSplash()">Jouer</button>
+        <div class="splash-copy">© François Denivet</div>
+    </div>
+
     <!-- ===== EN-TÊTE ===== -->
-    <header>
+    <header id="header" style="display:none;">
         <div class="entete">
             <img class="logo" src="Images/Logo.png" alt="Logo SaintEx">
             <p id="titrePartie" class="titre-partie"></p>
@@ -29,10 +47,9 @@
     </header>
 
     <!-- ===== ÉCRAN D'ACCUEIL ===== -->
-    <nav id="nav">
+    <nav id="nav" style="display:none;">
         <form id="form4" name="form4">
 
-            <!-- Longueur -->
             <fieldset class="choix-groupe">
                 <legend>Longueur du mot</legend>
                 <div class="choix-ligne">
@@ -47,7 +64,6 @@
                 </div>
             </fieldset>
 
-            <!-- Catégories -->
             <fieldset class="choix-groupe">
                 <legend>Catégories</legend>
                 <div class="choix-ligne">
@@ -67,7 +83,7 @@
                         <input type="checkbox" name="categorie" value="adverbes">
                         <span class="choix-btn">Adverbes</span>
                     </label>
-                    <label class="choix-label check-label" title="Prépositions (avec, dans, chez…), pronoms (ceux, rien, tout…), conjonctions (donc, mais…), onomatopées (bravo, hélas…)">
+                    <label class="choix-label check-label" title="Prépositions (avec, dans…), pronoms (ceux, rien…), conjonctions (donc, mais…), onomatopées (bravo…)">
                         <input type="checkbox" name="categorie" value="autres">
                         <span class="choix-btn">Autres ⓘ</span>
                     </label>
@@ -81,13 +97,10 @@
 
     <!-- ===== ZONE DE JEU ===== -->
     <div id="zone-jeu" style="display:none;">
-
         <div id="pave" class="pave"></div>
-
         <div class="gagne" id="gagne">
             Gagné en <span id="nombreCoups"></span>
         </div>
-
         <div class="saisie-fixe">
             <form id="form">
                 <div class="container-input">
@@ -102,16 +115,20 @@
                         onclick="window.location.reload();">Rejouer ?</button>
             </form>
         </div>
-
     </div>
 
     <script src="saintex.js"></script>
     <script src="app.js"></script>
+    <script>
+        function cacherSplash() {
+            document.getElementById('splash').style.display = 'none';
+            document.getElementById('header').style.display = 'block';
+            document.getElementById('nav').style.display    = 'block';
+        }
+    </script>
 
 </body>
-
 <footer>
     <p class="copyright">© François Denivet — Décembre 2021</p>
 </footer>
-
 </html>
