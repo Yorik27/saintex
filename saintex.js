@@ -93,8 +93,8 @@ function demarrerPartie(nbLettres, categories) {
     document.getElementById('footer').style.display     = 'none';
     document.getElementById('pave').innerHTML            = '';
     document.getElementById('error').style.visibility   = 'hidden';
-    document.getElementById('triche').style.visibility  = 'hidden';
-    document.getElementById('triche').textContent       = motSecret;
+    document.getElementById('triche').style.display  = 'none';
+    document.getElementById('triche').textContent    = '';
     document.getElementById('gagne').style.visibility   = 'hidden';
     document.getElementById('rejouer').style.display    = 'none';
     document.getElementById('btn-retour').style.display = 'inline-block';
