@@ -200,7 +200,8 @@ header {
 
 .titre-partie {
     font-family: 'bigelowrules', Georgia, serif;
-    font-size: 1.1rem;
+    font-size: 1.25rem;
+    letter-spacing: 2px;
     color: deepskyblue;
     flex: 1;
     text-align: center;
