@@ -90,6 +90,7 @@ function demarrerPartie(nbLettres, categories) {
     // Interface
     document.getElementById('nav').style.display        = 'none';
     document.getElementById('zone-jeu').style.display   = 'flex';
+    document.getElementById('footer').style.display     = 'none';
     document.getElementById('pave').innerHTML            = '';
     document.getElementById('error').style.visibility   = 'hidden';
     document.getElementById('triche').style.visibility  = 'hidden';
@@ -116,6 +117,7 @@ function retourAccueil() {
     partieEnCours = false;
     document.getElementById('zone-jeu').style.display   = 'none';
     document.getElementById('nav').style.display        = 'block';
+    document.getElementById('footer').style.display     = 'block';
     document.getElementById('titrePartie').textContent  = '';
     document.getElementById('btn-retour').style.display = 'none';
 }
@@ -144,10 +146,11 @@ function choixprop() {
 
 let motEnCours = '';
 
-function mettreAJourAffichage() {
+function mettreAJourAffichage(cacherErreur = true) {
     const n   = nbLettresPartie;
-    const err = document.getElementById('error');
-    err.style.visibility = 'hidden';
+    if (cacherErreur) {
+        document.getElementById('error').style.visibility = 'hidden';
+    }
 
     // Affichage du mot en cours : lettres saisies + tirets bas
     let affichage = '';
@@ -182,6 +185,7 @@ function valider() {
     if (proposition.length !== nbLettresPartie) {
         err.textContent      = 'Mot incomplet';
         err.style.visibility = 'visible';
+        // L'erreur disparaît à la prochaine lettre tapée
         return;
     }
 
@@ -189,7 +193,7 @@ function valider() {
         err.textContent      = 'Mot inconnu';
         err.style.visibility = 'visible';
         motEnCours = '';
-        mettreAJourAffichage();
+        mettreAJourAffichage(false); // ne pas cacher le message d'erreur
         return;
     }
 
@@ -221,11 +225,26 @@ function valider() {
     // Victoire
     if (count === nbLettresPartie) {
         ligne.classList.add('degrade');
-        document.getElementById('nombreCoups').textContent =
-            cpt + ' coup' + (cpt > 1 ? 's' : '') + ' !';
-        document.getElementById('gagne').style.visibility = 'visible';
-        document.getElementById('rejouer').style.display  = 'inline-block';
-        document.getElementById('chat').style.display     = 'none';
+
+        // Construire le message lettre par lettre pour l'animation
+        const gagne   = document.getElementById('gagne');
+        const message = 'Gagné en ' + cpt + ' coup' + (cpt > 1 ? 's' : '') + ' !';
+        gagne.innerHTML = '';
+        message.split('').forEach((car, i) => {
+            const span = document.createElement('span');
+            if (car === ' ') {
+                span.innerHTML = '&nbsp;';
+            } else {
+                span.textContent = car;
+                span.classList.add('lettre-danse');
+                span.style.animationDelay = (i * 0.08) + 's';
+            }
+            gagne.appendChild(span);
+        });
+
+        gagne.classList.add('visible');
+        document.getElementById('rejouer').style.display = 'inline-block';
+        document.getElementById('chat').style.display    = 'none';
         partieEnCours = false;
     }
 
