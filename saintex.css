@@ -370,13 +370,15 @@ header {
 .pave {
     flex: 1;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     padding: 10px 14px;
     column-count: 3;
     column-gap: 10px;
-    font-family: 'bigelowrules', Georgia, serif;
+    font-family: 'rockwen', 'Gill Sans', Calibri, sans-serif;
     font-size: 1.1rem;
     letter-spacing: 1px;
     background: #111;
+    min-height: 80px;
 }
 
 @media (max-width: 360px) {
