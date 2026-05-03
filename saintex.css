@@ -12,11 +12,6 @@
     src: url('fonts/bigelowrules-regular.ttf') format('truetype');
 }
 
-@font-face {
-    font-family: 'rockwen';
-    src: url('fonts/rockwen.ttf') format('truetype');
-}
-
 /* ============================================================
    ÉCRAN SPLASH
    ============================================================ */
@@ -380,7 +375,7 @@ header {
     padding: 10px 14px;
     column-count: 3;
     column-gap: 10px;
-    font-family: 'rockwen', 'Gill Sans', Calibri, sans-serif;
+    font-family: 'Roboto', sans-serif;
     font-size: 1.1rem;
     letter-spacing: 1px;
     background: #111;
@@ -474,7 +469,7 @@ header {
 }
 
 .affichage-mot {
-    font-family: 'rockwen', Georgia, serif;
+    font-family: 'Roboto', sans-serif;
     font-size: 1.7rem;
     letter-spacing: 6px;
     color: white;
@@ -483,7 +478,7 @@ header {
 }
 
 .triche-msg {
-    font-family: 'rockwen', Georgia, serif;
+    font-family: 'Roboto', sans-serif;
     font-size: 1.4rem;
     color: rgba(0,191,255,0.7);
     display: none;
@@ -518,7 +513,7 @@ header {
     border: 1px solid rgba(0,191,255,0.25);
     border-radius: 6px;
     color: white;
-    font-family: 'rockwen', 'Gill Sans', Calibri, sans-serif;
+    font-family: 'Roboto', sans-serif;
     font-size: 0.95rem;
     cursor: pointer;
     transition: background 0.1s, transform 0.1s;
