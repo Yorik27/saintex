@@ -143,6 +143,33 @@ header {
     font-weight: bold;
 }
 
+
+/* Cases à cocher — même style que les radios */
+.choix-label input[type="checkbox"]:checked + .choix-btn {
+    background: deepskyblue;
+    color: #2c3e50;
+    font-weight: bold;
+}
+
+.choix-label input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* Ligne de boutons flexible */
+.choix-ligne {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.choix-ligne .choix-label {
+    flex: 1;
+    min-width: 80px;
+}
+
 .btn-jouer {
     padding: 16px;
     background: deepskyblue;

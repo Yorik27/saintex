@@ -32,28 +32,42 @@
     <nav id="nav">
         <form id="form4" name="form4">
 
+            <!-- Longueur -->
             <fieldset class="choix-groupe">
                 <legend>Longueur du mot</legend>
-                <label class="choix-label">
-                    <input type="radio" name="longueur" value="4" checked>
-                    <span class="choix-btn">4 lettres</span>
-                </label>
-                <label class="choix-label">
-                    <input type="radio" name="longueur" value="5">
-                    <span class="choix-btn">5 lettres</span>
-                </label>
+                <div class="choix-ligne">
+                    <label class="choix-label">
+                        <input type="radio" name="longueur" value="4" checked>
+                        <span class="choix-btn">4 lettres</span>
+                    </label>
+                    <label class="choix-label">
+                        <input type="radio" name="longueur" value="5">
+                        <span class="choix-btn">5 lettres</span>
+                    </label>
+                </div>
             </fieldset>
 
+            <!-- Catégories -->
             <fieldset class="choix-groupe">
-                <legend>Niveau</legend>
-                <label class="choix-label">
-                    <input type="radio" name="niveau" value="facile" checked>
-                    <span class="choix-btn">Facile</span>
-                </label>
-                <label class="choix-label">
-                    <input type="radio" name="niveau" value="difficile">
-                    <span class="choix-btn">Difficile</span>
-                </label>
+                <legend>Catégories</legend>
+                <div class="choix-ligne">
+                    <label class="choix-label check-label">
+                        <input type="checkbox" name="categorie" value="noms" checked>
+                        <span class="choix-btn">Noms</span>
+                    </label>
+                    <label class="choix-label check-label">
+                        <input type="checkbox" name="categorie" value="verbes" checked>
+                        <span class="choix-btn">Verbes</span>
+                    </label>
+                    <label class="choix-label check-label">
+                        <input type="checkbox" name="categorie" value="adjectifs" checked>
+                        <span class="choix-btn">Adjectifs</span>
+                    </label>
+                    <label class="choix-label check-label">
+                        <input type="checkbox" name="categorie" value="adverbes">
+                        <span class="choix-btn">Adverbes</span>
+                    </label>
+                </div>
             </fieldset>
 
             <button type="button" class="btn-jouer" onclick="choixprop()">Jouer</button>
@@ -64,15 +78,12 @@
     <!-- ===== ZONE DE JEU ===== -->
     <div id="zone-jeu" style="display:none;">
 
-        <!-- Liste des propositions (défile, en haut) -->
         <div id="pave" class="pave"></div>
 
-        <!-- Message victoire -->
         <div class="gagne" id="gagne">
             Gagné en <span id="nombreCoups"></span>
         </div>
 
-        <!-- Saisie fixée en bas -->
         <div class="saisie-fixe">
             <form id="form">
                 <div class="container-input">
