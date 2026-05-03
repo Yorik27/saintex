@@ -209,8 +209,9 @@ header {
 
 #btn-retour {
     font-family: 'bigelowrules', Georgia, serif;
-    font-size: 1rem;
-    padding: 6px 12px;
+    font-size: 1.15rem;
+    letter-spacing: 1px;
+    padding: 6px 14px;
     background: transparent;
     color: deepskyblue;
     border: 1px solid deepskyblue;
@@ -253,9 +254,9 @@ header {
 
 .choix-groupe legend {
     font-family: 'bigelowrules', Georgia, serif;
-    font-size: 1.1rem;
+    font-size: 1.3rem;
     color: rgba(0,191,255,0.75);
-    letter-spacing: 2px;
+    letter-spacing: 3px;
     margin-bottom: 10px;
 }
 
@@ -279,11 +280,12 @@ header {
 
 .choix-btn {
     display: block;
-    padding: 14px 20px;
+    padding: 16px 20px;
     border: 1.5px solid rgba(0,191,255,0.45);
     border-radius: 10px;
     font-family: 'bigelowrules', Georgia, serif;
-    font-size: 1.3rem;
+    font-size: 1.5rem;
+    letter-spacing: 2px;
     color: deepskyblue;
     text-align: center;
     background: transparent;
@@ -371,7 +373,8 @@ header {
     column-count: 3;
     column-gap: 10px;
     font-family: 'bigelowrules', Georgia, serif;
-    font-size: 1rem;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
     background: #111;
 }
 
@@ -410,7 +413,8 @@ header {
 .gagne {
     visibility: hidden;
     font-family: 'bigelowrules', Georgia, serif;
-    font-size: 1.3rem;
+    font-size: 1.4rem;
+    letter-spacing: 2px;
     color: deepskyblue;
     background: transparent;
     border: 1.5px solid rgba(0,191,255,0.4);
