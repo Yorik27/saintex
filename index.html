@@ -83,7 +83,8 @@
                         <input type="checkbox" name="categorie" value="adverbes">
                         <span class="choix-btn">Adverbes</span>
                     </label>
-                    <label class="choix-label check-label" title="Prépositions (avec, dans…), pronoms (ceux, rien…), conjonctions (donc, mais…), onomatopées (bravo…)">
+                    <label class="choix-label check-label"
+                           title="Prépositions, pronoms, conjonctions, onomatopées">
                         <input type="checkbox" name="categorie" value="autres">
                         <span class="choix-btn">Autres ⓘ</span>
                     </label>
@@ -97,33 +98,75 @@
 
     <!-- ===== ZONE DE JEU ===== -->
     <div id="zone-jeu" style="display:none;">
+
+        <!-- Liste des propositions -->
         <div id="pave" class="pave"></div>
+
+        <!-- Message victoire -->
         <div class="gagne" id="gagne">
             Gagné en <span id="nombreCoups"></span>
         </div>
-        <div class="saisie-fixe">
-            <form id="form">
-                <div class="container-input">
-                    <input type="text" autocomplete="off" id="input1"
-                           placeholder="Mot de 4 lettres" maxlength="4" autocorrect="off" autocapitalize="characters" spellcheck="false" inputmode="text">
-                    <button type="submit">OK</button>
-                    <button type="button" id="chat">Langue au chat</button>
-                </div>
-                <div id="error">Ce mot n'appartient pas au dictionnaire</div>
-                <div id="triche"></div>
-                <button type="button" id="rejouer"
-                        onclick="window.location.reload();">Rejouer ?</button>
-            </form>
+
+        <!-- Mot en cours de saisie -->
+        <div class="mot-en-cours">
+            <div id="affichage-mot" class="affichage-mot">_ _ _ _</div>
+            <div id="error" class="error-msg">Mot inconnu</div>
+            <div id="triche" class="triche-msg"></div>
         </div>
+
+        <!-- Clavier AZERTY intégré -->
+        <div class="clavier">
+            <div class="clavier-rangee">
+                <button class="touche" onclick="ajouterLettre('A')">A</button>
+                <button class="touche" onclick="ajouterLettre('Z')">Z</button>
+                <button class="touche" onclick="ajouterLettre('E')">E</button>
+                <button class="touche" onclick="ajouterLettre('R')">R</button>
+                <button class="touche" onclick="ajouterLettre('T')">T</button>
+                <button class="touche" onclick="ajouterLettre('Y')">Y</button>
+                <button class="touche" onclick="ajouterLettre('U')">U</button>
+                <button class="touche" onclick="ajouterLettre('I')">I</button>
+                <button class="touche" onclick="ajouterLettre('O')">O</button>
+                <button class="touche" onclick="ajouterLettre('P')">P</button>
+            </div>
+            <div class="clavier-rangee">
+                <button class="touche" onclick="ajouterLettre('Q')">Q</button>
+                <button class="touche" onclick="ajouterLettre('S')">S</button>
+                <button class="touche" onclick="ajouterLettre('D')">D</button>
+                <button class="touche" onclick="ajouterLettre('F')">F</button>
+                <button class="touche" onclick="ajouterLettre('G')">G</button>
+                <button class="touche" onclick="ajouterLettre('H')">H</button>
+                <button class="touche" onclick="ajouterLettre('J')">J</button>
+                <button class="touche" onclick="ajouterLettre('K')">K</button>
+                <button class="touche" onclick="ajouterLettre('L')">L</button>
+                <button class="touche" onclick="ajouterLettre('M')">M</button>
+            </div>
+            <div class="clavier-rangee">
+                <button class="touche touche-large" onclick="effacer()">⌫</button>
+                <button class="touche" onclick="ajouterLettre('W')">W</button>
+                <button class="touche" onclick="ajouterLettre('X')">X</button>
+                <button class="touche" onclick="ajouterLettre('C')">C</button>
+                <button class="touche" onclick="ajouterLettre('V')">V</button>
+                <button class="touche" onclick="ajouterLettre('B')">B</button>
+                <button class="touche" onclick="ajouterLettre('N')">N</button>
+                <button class="touche touche-large touche-ok" onclick="valider()">✓</button>
+            </div>
+            <div class="clavier-rangee clavier-actions">
+                <button class="touche-action" id="chat" onclick="langueAuChat()">Langue au chat</button>
+                <button class="touche-action" id="rejouer"
+                        style="display:none"
+                        onclick="window.location.reload()">Rejouer ?</button>
+            </div>
+        </div>
+
     </div>
 
     <script src="saintex.js"></script>
     <script src="app.js"></script>
     <script>
         function cacherSplash() {
-            document.getElementById('splash').style.display = 'none';
-            document.getElementById('header').style.display = 'block';
-            document.getElementById('nav').style.display    = 'block';
+            document.getElementById('splash').style.display  = 'none';
+            document.getElementById('header').style.display  = 'block';
+            document.getElementById('nav').style.display     = 'block';
         }
     </script>
 

@@ -431,95 +431,130 @@ header {
 /* ============================================================
    ZONE DE SAISIE — fixée en bas
    ============================================================ */
-.saisie-fixe {
+/* ============================================================
+   MOT EN COURS
+   ============================================================ */
+
+.mot-en-cours {
     flex-shrink: 0;
-    background: deepskyblue;
-    padding: 10px 12px;
-    border-top: 2px solid rgba(0,0,0,0.2);
-    /* Sur mobile, laisse de la place au footer fixe */
-    padding-bottom: max(10px, env(safe-area-inset-bottom));
+    text-align: center;
+    padding: 8px 10px 4px;
+    background: #111;
+    border-top: 1px solid rgba(0,191,255,0.2);
 }
 
-.container-input {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-#input1 {
-    flex: 1;
-    min-width: 100px;
-    background: transparent;
-    font-family: 'rockwen', 'Gill Sans', Calibri, sans-serif;
-    font-size: 1.6rem;
-    text-align: left;
-    border: none;
-    border-bottom: 2px solid #111;
+.affichage-mot {
+    font-family: 'rockwen', Georgia, serif;
+    font-size: 2rem;
+    letter-spacing: 8px;
+    color: white;
     text-transform: uppercase;
-    outline: none;
-    color: #111;
-    padding: 2px 4px;
+    min-height: 2.5rem;
 }
 
-#input1::placeholder {
-    font-size: 1rem;
-    color: rgba(0,191,255,0.4);
-    text-transform: none;
+.triche-msg {
+    font-family: 'rockwen', Georgia, serif;
+    font-size: 1.4rem;
+    color: rgba(0,191,255,0.7);
+    display: none;
+    letter-spacing: 4px;
+    min-height: 1.6rem;
 }
 
-/* Boutons dans la zone de saisie */
-.saisie-fixe button[type="submit"],
-#chat {
-    padding: 8px 14px;
-    border: none;
-    border-radius: 10px;
+/* ============================================================
+   CLAVIER TACTILE
+   ============================================================ */
+
+.clavier {
+    flex-shrink: 0;
+    background: #111;
+    padding: 6px 4px 8px;
+    border-top: 1px solid rgba(0,191,255,0.15);
+}
+
+.clavier-rangee {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 4px;
+}
+
+.touche {
+    flex: 1;
+    max-width: 38px;
+    height: 42px;
+    background: rgba(0,191,255,0.08);
+    border: 1px solid rgba(0,191,255,0.25);
+    border-radius: 7px;
+    color: white;
     font-family: 'bigelowrules', Georgia, serif;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     cursor: pointer;
-    background: rgba(44,62,80,0.15);
-    color: #111;
-    white-space: nowrap;
-    transition: background 0.15s;
+    transition: background 0.1s, transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
 }
 
-.saisie-fixe button[type="submit"]:hover,
-#chat:hover {
-    background: rgba(44,62,80,0.3);
+.touche:active {
+    background: rgba(0,191,255,0.35);
+    transform: scale(0.92);
+}
+
+.touche-large {
+    max-width: 52px;
+    font-size: 1rem;
+}
+
+.touche-ok {
+    background: rgba(0,191,255,0.2);
+    color: deepskyblue;
+    font-size: 1.3rem;
+}
+
+.touche-ok:active {
+    background: rgba(0,191,255,0.5);
+}
+
+.clavier-actions {
+    margin-top: 4px;
+    gap: 8px;
+}
+
+.touche-action {
+    flex: 1;
+    height: 38px;
+    background: transparent;
+    border: 1.5px solid rgba(0,191,255,0.4);
+    border-radius: 50px;
+    color: deepskyblue;
+    font-family: 'bigelowrules', Georgia, serif;
+    font-size: 1.05rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+.touche-action:active {
+    border-color: deepskyblue;
+    box-shadow: 0 0 10px rgba(0,191,255,0.3);
 }
 
 #rejouer {
     display: none;
-    margin-top: 8px;
-    padding: 8px 18px;
-    background: white;
-    border: 1.5px solid #111;
-    border-radius: 10px;
-    font-family: 'bigelowrules', Georgia, serif;
-    font-size: 1.2rem;
-    cursor: pointer;
-    color: #111;
 }
 
-/* Messages d'état */
+/* Messages — gérés via .mot-en-cours */
 #error {
-    font-family: Impact, 'Arial Narrow Bold', sans-serif;
-    font-size: 1.1rem;
-    color: #8b0000;
+    font-family: 'bigelowrules', Georgia, serif;
+    font-size: 1rem;
+    color: #ff4444;
     visibility: hidden;
     text-align: center;
-    margin-top: 6px;
-    width: 100%;
-}
-
-#triche {
-    font-family: Impact, 'Arial Narrow Bold', sans-serif;
-    font-size: 1.5rem;
-    color: rgba(44,62,80,0.85);
-    visibility: hidden;
-    text-align: center;
-    margin-top: 4px;
-    width: 100%;
+    margin-top: 2px;
+    letter-spacing: 1px;
+    min-height: 1.2rem;
 }
 
 /* ============================================================
