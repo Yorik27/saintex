@@ -34,7 +34,7 @@
             <div class="sc sc4"></div>
         </div>
         <button class="btn-splash" onclick="cacherSplash()">Jouer</button>
-        <div class="splash-copy">© François Denivet</div>
+
     </div>
 
     <!-- ===== EN-TÊTE ===== -->
@@ -90,6 +90,13 @@
                     </label>
                 </div>
             </fieldset>
+
+            <div class="btn-comment-wrap">
+                <button type="button" class="btn-comment"
+                        data-tooltip="Devinez un mot de 4 ou 5 lettres. Tapez avec le clavier et validez avec ✓. Le jeu indique combien de lettres sont bien placées. Langue au chat révèle le mot."
+                        onclick="this.classList.toggle('actif')"
+                        onblur="this.classList.remove('actif')">? Comment jouer</button>
+            </div>
 
             <button type="button" class="btn-jouer" onclick="choixprop()">Jouer</button>
 
@@ -160,6 +167,10 @@
 
     </div>
 
+    <footer id="footer" style="display:none;">
+        <p class="copyright">© François Denivet — Décembre 2021</p>
+    </footer>
+
     <script src="saintex.js"></script>
     <script src="app.js"></script>
     <script>
@@ -167,11 +178,11 @@
             document.getElementById('splash').style.display  = 'none';
             document.getElementById('header').style.display  = 'block';
             document.getElementById('nav').style.display     = 'block';
+            document.getElementById('footer').style.display  = 'block';
         }
+
     </script>
 
 </body>
-<footer>
-    <p class="copyright">© François Denivet — Décembre 2021</p>
-</footer>
+
 </html>

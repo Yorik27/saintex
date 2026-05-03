@@ -421,11 +421,35 @@ header {
     color: deepskyblue;
     background: transparent;
     border: 1.5px solid rgba(0,191,255,0.4);
-    padding: 14px 20px;
-    margin: 6px 10px;
+    padding: 10px 20px;
+    margin: 4px 10px;
     border-radius: 50px;
     text-align: center;
     flex-shrink: 0;
+}
+
+/* Lettres animées dans le message de victoire */
+.gagne.visible {
+    visibility: visible;
+}
+
+.gagne .lettre-danse {
+    display: inline-block;
+    animation: danser 0.6s ease-in-out infinite alternate,
+               couleurs 2s linear infinite;
+}
+
+@keyframes danser {
+    0%   { transform: translateY(0) rotate(-3deg) scale(1);   }
+    100% { transform: translateY(-6px) rotate(3deg) scale(1.15); }
+}
+
+@keyframes couleurs {
+    0%   { color: #00bfff; }
+    25%  { color: #fff700; }
+    50%  { color: #ff9900; }
+    75%  { color: #ff2200; }
+    100% { color: #00bfff; }
 }
 
 /* ============================================================
@@ -438,15 +462,15 @@ header {
 .mot-en-cours {
     flex-shrink: 0;
     text-align: center;
-    padding: 8px 10px 4px;
+    padding: 5px 10px 2px;
     background: #111;
     border-top: 1px solid rgba(0,191,255,0.2);
 }
 
 .affichage-mot {
     font-family: 'rockwen', Georgia, serif;
-    font-size: 2rem;
-    letter-spacing: 8px;
+    font-size: 1.7rem;
+    letter-spacing: 6px;
     color: white;
     text-transform: uppercase;
     min-height: 2.5rem;
@@ -468,27 +492,28 @@ header {
 .clavier {
     flex-shrink: 0;
     background: #111;
-    padding: 6px 4px 8px;
+    padding: 4px 4px;
+    padding-bottom: max(6px, env(safe-area-inset-bottom));
     border-top: 1px solid rgba(0,191,255,0.15);
 }
 
 .clavier-rangee {
     display: flex;
     justify-content: center;
-    gap: 4px;
-    margin-bottom: 4px;
+    gap: 3px;
+    margin-bottom: 3px;
 }
 
 .touche {
     flex: 1;
-    max-width: 38px;
-    height: 42px;
+    max-width: 36px;
+    height: 36px;
     background: rgba(0,191,255,0.08);
     border: 1px solid rgba(0,191,255,0.25);
-    border-radius: 7px;
+    border-radius: 6px;
     color: white;
     font-family: 'rockwen', 'Gill Sans', Calibri, sans-serif;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     cursor: pointer;
     transition: background 0.1s, transform 0.1s;
     -webkit-tap-highlight-color: transparent;
@@ -501,8 +526,8 @@ header {
 }
 
 .touche-large {
-    max-width: 52px;
-    font-size: 1rem;
+    max-width: 46px;
+    font-size: 0.9rem;
 }
 
 .touche-ok {
@@ -522,7 +547,7 @@ header {
 
 .touche-action {
     flex: 1;
-    height: 38px;
+    height: 36px;
     background: transparent;
     border: 1.5px solid rgba(0,191,255,0.4);
     border-radius: 50px;
@@ -562,16 +587,100 @@ header {
    ============================================================ */
 footer {
     border-top: 1px solid rgba(0,191,255,0.2);
-    position: fixed;
-    bottom: 0;
-    background-color: #111;
+    background: #111;
     width: 100%;
-    z-index: 10;
+    text-align: center;
+    padding: 6px 0;
+    display: none; /* affiché via JS sur l'accueil */
 }
 
 .copyright {
-    color: deepskyblue;
+    color: rgba(0,191,255,0.45);
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    font-family: Georgia, serif;
+}
+
+/* ============================================================
+   BOUTON COMMENT JOUER — INFOBULLE
+   ============================================================ */
+
+.btn-comment-wrap {
     text-align: center;
-    padding: 6px 0;
+    position: relative;
+}
+
+.btn-comment {
+    background: transparent;
+    border: 1px solid rgba(0,191,255,0.3);
+    border-radius: 50px;
+    padding: 8px 20px;
+    color: rgba(0,191,255,0.65);
+    font-family: 'bigelowrules', Georgia, serif;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+    position: relative;
+}
+
+.btn-comment:hover,
+.btn-comment:focus {
+    border-color: rgba(0,191,255,0.8);
+    color: deepskyblue;
+}
+
+/* Infobulle */
+.btn-comment::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1a2535;
+    border: 1px solid rgba(0,191,255,0.35);
+    border-radius: 12px;
+    padding: 12px 16px;
+    width: 260px;
+    font-family: Georgia, serif;
     font-size: 0.85rem;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.6;
+    text-align: left;
+    letter-spacing: 0;
+    white-space: normal;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s, visibility 0.25s;
+    z-index: 100;
+    pointer-events: none;
+}
+
+/* Petite flèche sous l'infobulle */
+.btn-comment::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: rgba(0,191,255,0.35);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s, visibility 0.25s;
+    z-index: 101;
+}
+
+.btn-comment:hover::after,
+.btn-comment:focus::after,
+.btn-comment.actif::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+.btn-comment:hover::before,
+.btn-comment:focus::before,
+.btn-comment.actif::before {
+    opacity: 1;
+    visibility: visible;
 }
