@@ -25,14 +25,22 @@ let cpt            = 0;
    ============================================================ */
 
 function construireDico(nbLettres, categories) {
-    const prefix = nbLettres === 4 ? 'd4' : 'd5';
-    const dicos = {
-        noms:      window[prefix + '_noms']      || [],
-        verbes:    window[prefix + '_verbes']    || [],
-        adjectifs: window[prefix + '_adjectifs'] || [],
-        adverbes:  window[prefix + '_adverbes']  || [],
+    const tous = {
+        4: {
+            noms:      d4_noms,
+            verbes:    d4_verbes,
+            adjectifs: d4_adjectifs,
+            adverbes:  d4_adverbes,
+        },
+        5: {
+            noms:      d5_noms,
+            verbes:    d5_verbes,
+            adjectifs: d5_adjectifs,
+            adverbes:  d5_adverbes,
+        }
     };
 
+    const dicos = tous[nbLettres];
     let pioche = [];
     categories.forEach(cat => {
         if (dicos[cat]) pioche = pioche.concat(dicos[cat]);
