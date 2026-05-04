@@ -58,7 +58,7 @@ function construireDico(nbLettres, categories) {
    DÉMARRER UNE PARTIE
    ============================================================ */
 
-function demarrerPartie(nbLettres, categories) {
+function demarrerPartie(nbLettres, categories, theme) {
     nbLettresPartie = nbLettres;
 
     // Construire le dico de pioche ET de validation
@@ -68,11 +68,19 @@ function demarrerPartie(nbLettres, categories) {
     const toutLeDico = construireDico(nbLettres, toutesCategories);
     dicoValidation = new Set(toutLeDico);
 
-    // Pioche = uniquement les catégories choisies
-    const dicoPioche = construireDico(nbLettres, categories);
+    // Pioche : thème OU catégories
+    let dicoPioche;
+    if (theme && typeof THEMES !== 'undefined' && THEMES[theme]) {
+        // Mode thème : on pioche dans le thème
+        dicoPioche = construireTheme(nbLettres, theme);
+        // La validation reste sur tout le dico
+    } else {
+        // Mode catégories classique
+        dicoPioche = construireDico(nbLettres, categories);
+    }
 
     if (dicoPioche.length === 0) {
-        alert('Sélectionnez au moins une catégorie.');
+        alert('Aucun mot disponible pour cette sélection.');
         return;
     }
 
@@ -98,8 +106,13 @@ function demarrerPartie(nbLettres, categories) {
     document.getElementById('gagne').style.visibility   = 'hidden';
     document.getElementById('rejouer').style.display    = 'none';
     document.getElementById('btn-retour').style.display = 'inline-block';
-    document.getElementById('titrePartie').textContent  =
-        nbLettres + ' lettres · ' + catLabel + ' (' + dicoPioche.length + ')';
+    let titreLabel;
+    if (theme && typeof THEMES !== 'undefined' && THEMES[theme]) {
+        titreLabel = THEMES[theme].label + ' · ' + nbLettres + 'L (' + dicoPioche.length + ')';
+    } else {
+        titreLabel = nbLettres + ' lettres · ' + catLabel + ' (' + dicoPioche.length + ')';
+    }
+    document.getElementById('titrePartie').textContent = titreLabel;
 
     motEnCours = '';
     // Initialiser l'affichage du mot
@@ -128,12 +141,14 @@ function choixprop() {
     );
     const cases = document.querySelectorAll('input[name="categorie"]:checked');
     const categories = Array.from(cases).map(c => c.value);
+    const themeEl = document.querySelector('input[name="theme"]:checked');
+    const theme = themeEl ? themeEl.value : '';
 
-    if (categories.length === 0) {
-        alert('Sélectionnez au moins une catégorie.');
+    if (categories.length === 0 && !theme) {
+        alert('Sélectionnez au moins une catégorie ou un thème.');
         return;
     }
-    demarrerPartie(nbLettres, categories);
+    demarrerPartie(nbLettres, categories, theme);
 }
 
 /* ============================================================

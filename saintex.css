@@ -713,3 +713,26 @@ footer {
     opacity: 1;
     visibility: visible;
 }
+
+/* ============================================================
+   SÉLECTEUR DE THÈME
+   ============================================================ */
+
+.opt-label {
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.75rem;
+    color: rgba(0,191,255,0.45);
+    letter-spacing: 1px;
+}
+
+/* Grille 3 colonnes pour les thèmes */
+#groupe-theme .choix-ligne {
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+/* Thème sélectionné — même style que les autres boutons actifs */
+.choix-label input[type="radio"]:checked + .choix-btn {
+    background: deepskyblue;
+    color: #111;
+    border-color: deepskyblue;
+}

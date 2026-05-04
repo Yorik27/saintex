@@ -91,7 +91,49 @@
                 </div>
             </fieldset>
 
-            <div class="btn-comment-wrap">
+            <fieldset class="choix-groupe" id="groupe-theme">
+                <legend>Thème <span class="opt-label">(optionnel)</span></legend>
+                <div class="choix-ligne">
+                    <label class="choix-label check-label theme-label">
+                        <input type="radio" name="theme" value="" checked>
+                        <span class="choix-btn">Tous</span>
+                    </label>
+                    <label class="choix-label check-label theme-label">
+                        <input type="radio" name="theme" value="cuisine">
+                        <span class="choix-btn">🍽️ Cuisine</span>
+                    </label>
+                    <label class="choix-label check-label theme-label">
+                        <input type="radio" name="theme" value="nature">
+                        <span class="choix-btn">🌿 Nature</span>
+                    </label>
+                    <label class="choix-label check-label theme-label">
+                        <input type="radio" name="theme" value="sport">
+                        <span class="choix-btn">⚽ Sport</span>
+                    </label>
+                    <label class="choix-label check-label theme-label">
+                        <input type="radio" name="theme" value="animaux">
+                        <span class="choix-btn">🐾 Animaux</span>
+                    </label>
+                    <label class="choix-label check-label theme-label">
+                        <input type="radio" name="theme" value="vetements">
+                        <span class="choix-btn">👗 Vêtements</span>
+                    </label>
+                    <label class="choix-label check-label theme-label">
+                        <input type="radio" name="theme" value="corps">
+                        <span class="choix-btn">🫀 Corps</span>
+                    </label>
+                    <label class="choix-label check-label theme-label">
+                        <input type="radio" name="theme" value="maison">
+                        <span class="choix-btn">🏠 Maison</span>
+                    </label>
+                    <label class="choix-label check-label theme-label">
+                        <input type="radio" name="theme" value="mer">
+                        <span class="choix-btn">🌊 Mer</span>
+                    </label>
+                </div>
+            </fieldset>
+
+                        <div class="btn-comment-wrap">
                 <button type="button" class="btn-comment"
                         data-tooltip="Devinez un mot de 4 ou 5 lettres. Tapez avec le clavier et validez avec ✓. Le jeu indique combien de lettres sont bien placées. Langue au chat révèle le mot."
                         onclick="this.classList.toggle('actif')"
@@ -171,6 +213,7 @@
         <p class="copyright">© François Denivet — Décembre 2021</p>
     </footer>
 
+    <script src="themes.js"></script>
     <script src="saintex.js"></script>
     <script src="app.js"></script>
     <script>
