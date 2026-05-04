@@ -91,47 +91,62 @@
                 </div>
             </fieldset>
 
-            <fieldset class="choix-groupe" id="groupe-theme">
-                <legend>Thème <span class="opt-label">(optionnel)</span></legend>
-                <div class="choix-ligne">
-                    <label class="choix-label check-label theme-label">
-                        <input type="radio" name="theme" value="" checked>
-                        <span class="choix-btn">Tous</span>
-                    </label>
-                    <label class="choix-label check-label theme-label">
-                        <input type="radio" name="theme" value="cuisine">
-                        <span class="choix-btn">🍽️ Cuisine</span>
-                    </label>
-                    <label class="choix-label check-label theme-label">
-                        <input type="radio" name="theme" value="nature">
-                        <span class="choix-btn">🌿 Nature</span>
-                    </label>
-                    <label class="choix-label check-label theme-label">
-                        <input type="radio" name="theme" value="sport">
-                        <span class="choix-btn">⚽ Sport</span>
-                    </label>
-                    <label class="choix-label check-label theme-label">
-                        <input type="radio" name="theme" value="animaux">
-                        <span class="choix-btn">🐾 Animaux</span>
-                    </label>
-                    <label class="choix-label check-label theme-label">
-                        <input type="radio" name="theme" value="vetements">
-                        <span class="choix-btn">👗 Vêtements</span>
-                    </label>
-                    <label class="choix-label check-label theme-label">
-                        <input type="radio" name="theme" value="corps">
-                        <span class="choix-btn">🫀 Corps</span>
-                    </label>
-                    <label class="choix-label check-label theme-label">
-                        <input type="radio" name="theme" value="maison">
-                        <span class="choix-btn">🏠 Maison</span>
-                    </label>
-                    <label class="choix-label check-label theme-label">
-                        <input type="radio" name="theme" value="mer">
-                        <span class="choix-btn">🌊 Mer</span>
-                    </label>
+            <!-- Dossier thèmes dépliable -->
+            <div class="dossier" id="dossier-theme">
+                <button type="button" class="dossier-btn" onclick="toggleThemes()">
+                    <span id="dossier-icone">▶</span> Thèmes
+                    <span class="dossier-actif" id="theme-actif-label"></span>
+                </button>
+                <div class="dossier-contenu" id="dossier-contenu" style="display:none;">
+                    <div class="choix-ligne themes-grille">
+                        <label class="choix-label theme-label">
+                            <input type="radio" name="theme" value="" checked
+                                   onchange="majThemeLabel('')">
+                            <span class="choix-btn">Aucun</span>
+                        </label>
+                        <label class="choix-label theme-label">
+                            <input type="radio" name="theme" value="cuisine"
+                                   onchange="majThemeLabel('🍽️ Cuisine')">
+                            <span class="choix-btn">🍽️ Cuisine</span>
+                        </label>
+                        <label class="choix-label theme-label">
+                            <input type="radio" name="theme" value="nature"
+                                   onchange="majThemeLabel('🌿 Nature')">
+                            <span class="choix-btn">🌿 Nature</span>
+                        </label>
+                        <label class="choix-label theme-label">
+                            <input type="radio" name="theme" value="sport"
+                                   onchange="majThemeLabel('⚽ Sport')">
+                            <span class="choix-btn">⚽ Sport</span>
+                        </label>
+                        <label class="choix-label theme-label">
+                            <input type="radio" name="theme" value="animaux"
+                                   onchange="majThemeLabel('🐾 Animaux')">
+                            <span class="choix-btn">🐾 Animaux</span>
+                        </label>
+                        <label class="choix-label theme-label">
+                            <input type="radio" name="theme" value="vetements"
+                                   onchange="majThemeLabel('👗 Vêtements')">
+                            <span class="choix-btn">👗 Vêtements</span>
+                        </label>
+                        <label class="choix-label theme-label">
+                            <input type="radio" name="theme" value="corps"
+                                   onchange="majThemeLabel('🫀 Corps')">
+                            <span class="choix-btn">🫀 Corps</span>
+                        </label>
+                        <label class="choix-label theme-label">
+                            <input type="radio" name="theme" value="maison"
+                                   onchange="majThemeLabel('🏠 Maison')">
+                            <span class="choix-btn">🏠 Maison</span>
+                        </label>
+                        <label class="choix-label theme-label">
+                            <input type="radio" name="theme" value="mer"
+                                   onchange="majThemeLabel('🌊 Mer')">
+                            <span class="choix-btn">🌊 Mer</span>
+                        </label>
+                    </div>
                 </div>
-            </fieldset>
+            </div>
 
                         <div class="btn-comment-wrap">
                 <button type="button" class="btn-comment"
@@ -217,6 +232,23 @@
     <script src="saintex.js"></script>
     <script src="app.js"></script>
     <script>
+        function toggleThemes() {
+            const c = document.getElementById('dossier-contenu');
+            const i = document.getElementById('dossier-icone');
+            if (c.style.display === 'none') {
+                c.style.display = 'block';
+                i.textContent = '▼';
+            } else {
+                c.style.display = 'none';
+                i.textContent = '▶';
+            }
+        }
+
+        function majThemeLabel(label) {
+            document.getElementById('theme-actif-label').textContent =
+                label ? '· ' + label : '';
+        }
+
         function cacherSplash() {
             document.getElementById('splash').style.display  = 'none';
             document.getElementById('header').style.display  = 'block';
