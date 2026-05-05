@@ -83,11 +83,20 @@
                         <input type="checkbox" name="categorie" value="adverbes">
                         <span class="choix-btn">Adverbes</span>
                     </label>
-                    <label class="choix-label check-label"
-                           title="Prépositions, pronoms, conjonctions, onomatopées">
+                    <label class="choix-label check-label">
                         <input type="checkbox" name="categorie" value="autres">
-                        <span class="choix-btn">Autres ⓘ</span>
+                        <span class="choix-btn" onclick="toggleAutres(event)">Autres ⓘ</span>
                     </label>
+                    <div id="popup-autres" style="display:none;" class="popup-regle" onclick="fermerAutres()">
+                        <div class="popup-regle-contenu" onclick="event.stopPropagation()">
+                            <p><strong>Autres</strong> regroupe les mots-outils :</p>
+                            <p>· Prépositions : <em>avec, dans, chez, pour…</em></p>
+                            <p>· Pronoms : <em>ceux, celle, rien, tout…</em></p>
+                            <p>· Conjonctions : <em>donc, mais, sinon…</em></p>
+                            <p>· Onomatopées : <em>bravo, hélas, chut…</em></p>
+                            <p class="popup-fermer">Tap pour fermer</p>
+                        </div>
+                    </div>
                 </div>
             </fieldset>
 
@@ -232,6 +241,16 @@
     <script src="saintex.js"></script>
     <script src="app.js"></script>
     <script>
+        function toggleAutres(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const p = document.getElementById('popup-autres');
+            p.style.display = p.style.display === 'none' ? 'flex' : 'none';
+        }
+        function fermerAutres() {
+            document.getElementById('popup-autres').style.display = 'none';
+        }
+
         function toggleThemes() {
             const c = document.getElementById('dossier-contenu');
             const i = document.getElementById('dossier-icone');

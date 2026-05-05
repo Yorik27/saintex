@@ -631,12 +631,11 @@ footer {
 }
 
 /* ============================================================
-   BOUTON COMMENT JOUER — INFOBULLE
+   BOUTON COMMENT JOUER — POPUP MOBILE
    ============================================================ */
 
 .btn-comment-wrap {
     text-align: center;
-    position: relative;
 }
 
 .btn-comment {
@@ -650,7 +649,6 @@ footer {
     letter-spacing: 1px;
     cursor: pointer;
     transition: border-color 0.2s, color 0.2s;
-    position: relative;
 }
 
 .btn-comment:hover,
@@ -659,11 +657,104 @@ footer {
     color: deepskyblue;
 }
 
-/* Infobulle */
 .btn-comment::after {
     content: attr(data-tooltip);
     position: absolute;
     bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1a2535;
+    border: 1px solid rgba(0,191,255,0.35);
+    border-radius: 12px;
+    padding: 12px 16px;
+    width: 260px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.6;
+    text-align: left;
+    letter-spacing: 0;
+    white-space: normal;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s, visibility 0.25s;
+    z-index: 100;
+    pointer-events: none;
+}
+
+.btn-comment::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: rgba(0,191,255,0.35);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s, visibility 0.25s;
+    z-index: 101;
+}
+
+.btn-comment:hover::after,
+.btn-comment:focus::after,
+.btn-comment.actif::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+.btn-comment:hover::before,
+.btn-comment:focus::before,
+.btn-comment.actif::before {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Popup plein écran */
+.popup-regle {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 20px;
+}
+
+.popup-regle-contenu {
+    background: #1a2535;
+    border: 1px solid rgba(0,191,255,0.3);
+    border-radius: 16px;
+    padding: 24px 20px;
+    max-width: 320px;
+    width: 100%;
+}
+
+.popup-regle-contenu p {
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.95rem;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+.popup-regle-contenu strong {
+    color: deepskyblue;
+}
+
+.popup-regle-contenu em {
+    color: rgba(0,191,255,0.7);
+    font-style: normal;
+}
+
+.popup-fermer {
+    text-align: center;
+    color: rgba(0,191,255,0.4) !important;
+    font-size: 0.8rem !important;
+    margin-top: 16px !important;
+    margin-bottom: 0 !important;
+}   bottom: calc(100% + 10px);
     left: 50%;
     transform: translateX(-50%);
     background: #1a2535;
