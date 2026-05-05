@@ -83,10 +83,13 @@
                         <input type="checkbox" name="categorie" value="adverbes">
                         <span class="choix-btn">Adverbes</span>
                     </label>
-                    <label class="choix-label check-label">
-                        <input type="checkbox" name="categorie" value="autres">
-                        <span class="choix-btn" onclick="toggleAutres(event)">Autres ⓘ</span>
-                    </label>
+                    <div class="autres-wrap">
+                        <label class="choix-label check-label">
+                            <input type="checkbox" name="categorie" value="autres">
+                            <span class="choix-btn">Autres</span>
+                        </label>
+                        <button type="button" class="btn-info-autres" onclick="toggleAutres(event)">––»ⓘ</button>
+                    </div>
                     <div id="popup-autres" style="display:none;" class="popup-regle" onclick="fermerAutres()">
                         <div class="popup-regle-contenu" onclick="event.stopPropagation()">
                             <p><strong>Autres</strong> regroupe les mots-outils :</p>
