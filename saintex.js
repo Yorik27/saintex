@@ -64,7 +64,7 @@ function demarrerPartie(nbLettres, categories, theme) {
     // Construire le dico de pioche ET de validation
     // La validation accepte TOUJOURS toutes les catégories
     const prefix = nbLettres === 4 ? 'd4' : 'd5';
-    const toutesCategories = ['noms','verbes','adjectifs','adverbes'];
+    const toutesCategories = ['noms','verbes','adjectifs','adverbes','autres'];
     const toutLeDico = construireDico(nbLettres, toutesCategories);
     dicoValidation = new Set(toutLeDico);
 
