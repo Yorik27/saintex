@@ -213,7 +213,7 @@ function valider() {
     }
 
     if (!dicoValidation.has(proposition)) {
-        err.textContent      = 'Mot inconnu';
+        err.textContent      = 'Mot inconnu ou hors catégorie';
         err.style.visibility = 'visible';
         motEnCours = '';
         mettreAJourAffichage(false); // ne pas cacher le message d'erreur
