@@ -247,6 +247,21 @@
     <script src="saintex.js"></script>
     <script src="app.js"></script>
     <script>
+    // Force la mise à jour du Service Worker à chaque chargement
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(regs => {
+            regs.forEach(reg => {
+                reg.update(); // vérifie si une nouvelle version est dispo
+            });
+        });
+        // Si le SW contrôle la page et qu'une mise à jour est disponible, recharge
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            console.log('SW mis à jour — rechargement');
+            window.location.reload();
+        });
+    }
+    </script>
+    <script>
         function toggleAutres(e) {
             e.preventDefault();
             e.stopPropagation();
