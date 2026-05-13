@@ -196,16 +196,25 @@ function valider() {
     partieTerminee = true;
     const gagneEl = document.getElementById('gagne');
     gagneEl.style.display = 'block';
-    document.getElementById('nombreCoups').textContent = cpt + (cpt > 1 ? ' coups' : ' coup');
+    const msg = cpt === 1 ? '1 coup ! Parfait !' : cpt + ' coups ! Bravo !';
+    document.getElementById('nombreCoups').textContent = msg;
     document.getElementById('rejouer').style.display = 'inline-block';
+    // Retirer l'indice éclairé
+    document.querySelectorAll('.touche').forEach(btn => btn.classList.remove('indice-eclaire'));
   }
 }
 
 // ─── Langue au chat ───────────────────────────────────────────
 function langueAuChat() {
   partieTerminee = true;
-  document.getElementById('triche').textContent = motSecret;
+  const tricheEl = document.getElementById('triche');
+  if (tricheEl) {
+    tricheEl.textContent = 'Le mot était : ' + motSecret;
+    tricheEl.style.display = 'block';
+  }
   document.getElementById('rejouer').style.display = 'inline-block';
+  // Retirer l'indice éclairé
+  document.querySelectorAll('.touche').forEach(btn => btn.classList.remove('indice-eclaire'));
 }
 
 // ─── Ajouter une ligne de résultat ───────────────────────────
