@@ -1,4 +1,4 @@
-const cacheName = "fichier-cache"
+const cacheName = "fichier-cache-v2"
 const contentToCache = ["/", "Images", "fonts"];
 
 // Installing Service Worker
@@ -17,12 +17,10 @@ self.addEventListener("fetch", (e) => {
     
     e.respondWith(
         caches.match(e.request).then((r) => {
-            // console.log("Service Worker-Récupération de la ressource: " + e.request.url);
             return (
                 r ||
                 fetch(e.request,{cache: "no-store"}).then((response) => {
                     return caches.open(cacheName).then((cache) => {
-                        // console.log( "Service Worker-Mise en cache de la nouvelle ressource: " +    e.request.url );
                         cache.put(e.request, response.clone());
                         return response;
                     });
