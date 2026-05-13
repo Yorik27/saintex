@@ -907,3 +907,41 @@ footer {
     background: rgba(0,191,255,0.1);
     color: deepskyblue;
 }
+
+/* ============================================================
+   BOUTON INDICE
+   ============================================================ */
+
+.touche-indice {
+    position: relative;
+    min-width: 48px;
+    font-size: 1.1rem;
+}
+
+.compteur-indice {
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: rgba(0, 191, 255, 0.9);
+    line-height: 1;
+}
+
+.touche-indice.indice-epuise {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.touche.indice-eclaire {
+    background: rgba(255, 200, 0, 0.45) !important;
+    border-color: gold !important;
+    color: gold !important;
+    box-shadow: 0 0 8px rgba(255, 200, 0, 0.6);
+    animation: pulse-indice 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse-indice {
+    0%, 100% { box-shadow: 0 0 6px rgba(255,200,0,0.4); }
+    50%       { box-shadow: 0 0 14px rgba(255,200,0,0.9); }
+}

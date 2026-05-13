@@ -20,6 +20,8 @@ let motSecret   = '';
 let saisieEnCours = '';
 let cpt         = 0;
 let partieTerminee = false;
+let indicesRestants = 1;
+const lettresProposees = new Set(); // lettres déjà vues dans les propositions
 
 // ─── Lancement de la partie ──────────────────────────────────
 function choixprop() {
@@ -69,6 +71,8 @@ function choixprop() {
   saisieEnCours = '';
   cpt = 0;
   partieTerminee = false;
+  indicesRestants = 1;
+  lettresProposees.clear();
 
   // Afficher le titre de la partie
   const titre = document.getElementById('titrePartie');
@@ -83,6 +87,12 @@ function choixprop() {
   document.getElementById('zone-jeu').style.display = 'block';
   document.getElementById('header').style.display   = 'block';
   document.getElementById('footer').style.display   = 'block';
+
+  // Réinitialiser le bouton indice
+  const btnIndice = document.getElementById('btn-indice');
+  const compteur  = document.getElementById('compteur-indice');
+  if (btnIndice) { btnIndice.disabled = false; btnIndice.classList.remove('indice-epuise'); }
+  if (compteur)  { compteur.textContent = indicesRestants; }
 
   // Réinitialiser la zone de jeu
   document.getElementById('pave').innerHTML = '';
@@ -168,6 +178,9 @@ function valider() {
 
   errEl.style.display = 'none';
 
+  // Enregistrer les lettres proposées
+  for (const lettre of proposition) lettresProposees.add(lettre);
+
   // Compter les lettres bien placées
   let count = 0;
   for (let i = 0; i < motSecret.length; i++) {
@@ -210,12 +223,48 @@ function ajouterLigne(proposition, count) {
 
   const score = document.createElement('span');
   score.classList.add(cls);
-  score.textContent = count < 0 ? 'Inconnu' : count;
+  score.textContent = count < 0 ? '🚫' : count;
 
   ligne.appendChild(label);
   ligne.appendChild(score);
   pave.appendChild(ligne);
   pave.scrollTop = pave.scrollHeight;
+}
+
+
+// ─── Bouton indice ────────────────────────────────────────────
+function demanderIndice() {
+  if (partieTerminee || indicesRestants <= 0) return;
+
+  // Lettres du mot secret non encore proposées
+  const lettresSecret = [...new Set(motSecret.split(''))];
+  const candidates = lettresSecret.filter(l => !lettresProposees.has(l));
+
+  if (candidates.length === 0) return; // toutes les lettres ont été vues
+
+  // Choisir une lettre aléatoire parmi les candidates
+  const lettreIndice = candidates[Math.floor(Math.random() * candidates.length)];
+
+  // Éclairer la touche correspondante
+  document.querySelectorAll('.touche').forEach(btn => {
+    btn.classList.remove('indice-eclaire');
+    if (btn.textContent.trim() === lettreIndice) {
+      btn.classList.add('indice-eclaire');
+    }
+  });
+
+  // Décrémenter
+  indicesRestants--;
+  const compteur = document.getElementById('compteur-indice');
+  if (compteur) compteur.textContent = indicesRestants;
+
+  if (indicesRestants <= 0) {
+    const btnIndice = document.getElementById('btn-indice');
+    if (btnIndice) {
+      btnIndice.disabled = true;
+      btnIndice.classList.add('indice-epuise');
+    }
+  }
 }
 
 // ─── Support clavier physique ─────────────────────────────────
