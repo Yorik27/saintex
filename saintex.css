@@ -909,36 +909,47 @@ footer {
 }
 
 /* ============================================================
-   BOUTON INDICE
+   BOUTON INDICE (dans le header)
    ============================================================ */
 
-.touche-indice {
+.btn-indice-header {
     position: relative;
-    min-width: 48px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 8px;
+    padding: 4px 10px;
     font-size: 1.1rem;
+    cursor: pointer;
+    color: inherit;
+    line-height: 1;
+}
+
+.btn-indice-header:active {
+    opacity: 0.7;
+}
+
+.btn-indice-header.indice-epuise {
+    opacity: 0.3;
+    cursor: not-allowed;
 }
 
 .compteur-indice {
     position: absolute;
-    top: 2px;
-    right: 4px;
-    font-size: 0.65rem;
+    top: 1px;
+    right: 3px;
+    font-size: 0.6rem;
     font-weight: 700;
-    color: rgba(0, 191, 255, 0.9);
+    color: rgba(0, 200, 255, 0.95);
     line-height: 1;
 }
 
-.touche-indice.indice-epuise {
-    opacity: 0.35;
-    cursor: not-allowed;
-}
-
+/* Touche éclairée par l'indice */
 .touche.indice-eclaire {
     background: rgba(255, 200, 0, 0.45) !important;
     border-color: gold !important;
     color: gold !important;
     box-shadow: 0 0 8px rgba(255, 200, 0, 0.6);
-    animation: pulse-indice 1.2s ease-in-out infinite;
+    animation: pulse-indice 1.4s ease-in-out infinite;
 }
 
 @keyframes pulse-indice {

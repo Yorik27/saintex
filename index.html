@@ -42,6 +42,9 @@
         <div class="entete">
             <img class="logo" src="Images/Logo.png" alt="Logo SaintEx">
             <p id="titrePartie" class="titre-partie"></p>
+            <button class="btn-indice-header" id="btn-indice" onclick="demanderIndice()" title="Indice — éclaire une lettre du mot">
+                💡<span id="compteur-indice" class="compteur-indice">1</span>
+            </button>
             <button id="btn-retour" onclick="retourAccueil()">← Mode</button>
         </div>
     </header>
@@ -228,9 +231,6 @@
             </div>
             <div class="clavier-rangee clavier-actions">
                 <button class="touche-action" id="chat" onclick="langueAuChat()">Langue au chat</button>
-                <button class="touche-action touche-indice" id="btn-indice" onclick="demanderIndice()" title="Indice">
-                    💡<span id="compteur-indice" class="compteur-indice">1</span>
-                </button>
                 <button class="touche-action" id="rejouer"
                         style="display:none"
                         onclick="window.location.reload()">Rejouer ?</button>
