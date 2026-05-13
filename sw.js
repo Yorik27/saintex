@@ -1,25 +1,25 @@
-const cacheName = "fichier-cache-v2"
-const contentToCache = ["/", "Images", "fonts"];
+const cacheName = "fichier-cache-v3"
 
-// Installing Service Worker
+// On ne pré-cache rien — tout est mis en cache dynamiquement au premier accès
+const contentToCache = [];
+
+// Installation
 self.addEventListener("install", (e) => {
-    console.log("Service Worker Installation");
-    e.waitUntil(
-        caches.open(cacheName).then((cache) => {
-            console.log("Service Worker-Mise en cache globale");
-            return cache.addAll(contentToCache);
-        })
-    );
+    console.log("Service Worker v3 — installation");
+    self.skipWaiting();
 });
 
-// Fetching content using Service Worker
+// Fetch : cache dynamique
 self.addEventListener("fetch", (e) => {
-    
     e.respondWith(
         caches.match(e.request).then((r) => {
             return (
                 r ||
-                fetch(e.request,{cache: "no-store"}).then((response) => {
+                fetch(e.request, {cache: "no-store"}).then((response) => {
+                    // Ne mettre en cache que les requêtes GET réussies
+                    if (!response || response.status !== 200 || e.request.method !== 'GET') {
+                        return response;
+                    }
                     return caches.open(cacheName).then((cache) => {
                         cache.put(e.request, response.clone());
                         return response;
@@ -30,17 +30,19 @@ self.addEventListener("fetch", (e) => {
     );
 });
 
-//Efface l'ancien cache non utilisé
+// Activation : supprimer les anciens caches
 self.addEventListener("activate", (e) => {
+    console.log("Service Worker v3 — activation");
     e.waitUntil(
         caches.keys().then((keyList) => {
             return Promise.all(
                 keyList.map((key) => {
-                    if (cacheName.indexOf(key) === -1) {
+                    if (key !== cacheName) {
+                        console.log("Suppression ancien cache :", key);
                         return caches.delete(key);
                     }
                 })
             );
-        })
+        }).then(() => self.clients.claim())
     );
 });
