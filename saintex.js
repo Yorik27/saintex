@@ -123,11 +123,19 @@ function majAffichageMot() {
   const el = document.getElementById('affichage-mot');
   if (!el) return;
   const longueur = motSecret.length || 4;
-  let affichage = '';
+  el.innerHTML = '';
   for (let i = 0; i < longueur; i++) {
-    affichage += (saisieEnCours[i] || '_') + (i < longueur - 1 ? ' ' : '');
+    const div = document.createElement('div');
+    div.classList.add('case-lettre');
+    if (saisieEnCours[i]) {
+      div.classList.add('case-saisie');
+      div.textContent = saisieEnCours[i];
+    } else {
+      div.classList.add('case-vide');
+      div.textContent = '';
+    }
+    el.appendChild(div);
   }
-  el.textContent = affichage;
 }
 
 // ─── Validation ───────────────────────────────────────────────
