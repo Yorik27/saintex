@@ -166,9 +166,31 @@
 
                         <div class="btn-comment-wrap">
                 <button type="button" class="btn-comment"
-                        data-tooltip="Devinez un mot de 4 ou 5 lettres. Tapez avec le clavier et validez avec ✓. Le jeu indique combien de lettres sont bien placées. Langue au chat révèle le mot."
-                        onclick="this.classList.toggle('actif')"
-                        onblur="this.classList.remove('actif')">? Comment jouer</button>
+                        onclick="toggleCommentJouer()"
+                        id="btn-comment-jouer">? Comment jouer</button>
+            <div id="popup-comment-jouer" style="display:none;" class="popup-regle" onclick="fermerCommentJouer()">
+                <div class="popup-regle-contenu" onclick="event.stopPropagation()">
+                    <p><strong>Le principe</strong></p>
+                    <p>Un mot est caché. Proposez des mots valides — le jeu indique combien de lettres sont à la bonne place.</p>
+                    <br>
+                    <p><strong>Les scores</strong></p>
+                    <p>· <strong>0, 1, 2…</strong> — lettres bien placées</p>
+                    <p>· <strong>🚫</strong> — mot inconnu du dictionnaire</p>
+                    <br>
+                    <p><strong>Les mots valides</strong></p>
+                    <p>Noms, verbes (infinitifs, participes), adjectifs, adverbes. Les formes conjuguées sont acceptées comme propositions mais jamais soumises comme défi.</p>
+                    <br>
+                    <p><strong>La catégorie "Autres"</strong></p>
+                    <p>Prépositions, pronoms, conjonctions, onomatopées.</p>
+                    <br>
+                    <p><strong>L'indice 💡</strong></p>
+                    <p>Un indice par partie — éclaire une lettre du mot secret non encore proposée.</p>
+                    <br>
+                    <p><strong>Langue au chat</strong></p>
+                    <p>Révèle le mot si vous abandonnez.</p>
+                    <p class="popup-fermer">Tap pour fermer</p>
+                </div>
+            </div>
             </div>
 
             <!-- Bannière pub Proverbia -->
@@ -250,7 +272,7 @@
     </div>
 
     <footer id="footer" style="display:none;">
-        <p class="copyright">© François Denivet — Décembre 2021</p>
+        <p class="copyright">© EspritJeu 2026</p>
     </footer>
 
     <script src="themes.js?v=202605131510"></script>
@@ -292,6 +314,14 @@
                 c.style.display = 'none';
                 i.textContent = '▶';
             }
+        }
+
+        function toggleCommentJouer() {
+            const p = document.getElementById('popup-comment-jouer');
+            p.style.display = p.style.display === 'none' ? 'flex' : 'none';
+        }
+        function fermerCommentJouer() {
+            document.getElementById('popup-comment-jouer').style.display = 'none';
         }
 
         function majThemeLabel(label) {
