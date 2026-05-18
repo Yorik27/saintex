@@ -96,7 +96,7 @@ function choixprop() {
 
   // Réinitialiser la zone de jeu
   document.getElementById('pave').innerHTML = '';
-  document.getElementById('gagne').style.display = 'none';
+  const g = document.getElementById('gagne'); g.style.display = 'none'; g.classList.remove('visible');
   document.getElementById('error').style.display = 'none';
   document.getElementById('triche').textContent  = '';
   document.getElementById('rejouer').style.display = 'none';
@@ -196,7 +196,8 @@ function valider() {
     partieTerminee = true;
     const gagneEl = document.getElementById('gagne');
     gagneEl.style.display = 'block';
-    const msg = cpt === 1 ? '1 coup ! Parfait !' : cpt + ' coups ! Bravo !';
+    gagneEl.classList.add('visible');
+    const msg = cpt === 1 ? 'Parfait !' : cpt + ' coups ! Bravo !';
     document.getElementById('nombreCoups').textContent = msg;
     document.getElementById('rejouer').style.display = 'inline-block';
     // Retirer l'indice éclairé
@@ -249,7 +250,22 @@ function demanderIndice() {
   const lettresSecret = [...new Set(motSecret.split(''))];
   const candidates = lettresSecret.filter(l => !lettresProposees.has(l));
 
-  if (candidates.length === 0) return; // toutes les lettres ont été vues
+  if (candidates.length === 0) {
+    // Toutes les lettres du mot ont déjà été proposées — éclairer une lettre aléatoire du mot
+    const lettreIndice2 = lettresSecret[Math.floor(Math.random() * lettresSecret.length)];
+    document.querySelectorAll('.touche').forEach(btn => {
+      btn.classList.remove('indice-eclaire');
+      if (btn.textContent.trim() === lettreIndice2) btn.classList.add('indice-eclaire');
+    });
+    indicesRestants--;
+    const compteur2 = document.getElementById('compteur-indice');
+    if (compteur2) compteur2.textContent = indicesRestants;
+    if (indicesRestants <= 0) {
+      const btnI = document.getElementById('btn-indice');
+      if (btnI) { btnI.disabled = true; btnI.classList.add('indice-epuise'); }
+    }
+    return;
+  }
 
   // Choisir une lettre aléatoire parmi les candidates
   const lettreIndice = candidates[Math.floor(Math.random() * candidates.length)];
