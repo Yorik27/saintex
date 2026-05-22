@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.espritjeu.saintex",
+        "sha256_cert_fingerprints": ["41:BB:64:FB:82:9B:51:72:FF:80:C7:8F:B3:40:1B:C5:F7:2A:CD:BB:A3:47:8B:B0:CC:0D:39:C2:1A:DC:9F:8E"]
+      }
+    }]
