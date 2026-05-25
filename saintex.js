@@ -21,6 +21,7 @@ let saisieEnCours = '';
 let cpt         = 0;
 let partieTerminee = false;
 let indicesRestants = 1;
+let positionActive = null; // position sélectionnée pour saisie dans le désordre
 const lettresProposees = new Set(); // lettres déjà vues dans les propositions
 
 // ─── Lancement de la partie ──────────────────────────────────
@@ -72,6 +73,7 @@ function choixprop() {
   cpt = 0;
   partieTerminee = false;
   indicesRestants = 1;
+  positionActive = null;
   lettresProposees.clear();
 
   // Afficher le titre de la partie
@@ -117,16 +119,44 @@ function retourAccueil() {
 // ─── Clavier intégré ─────────────────────────────────────────
 function ajouterLettre(lettre) {
   if (partieTerminee) return;
-  if (saisieEnCours.length < motSecret.length) {
-    saisieEnCours += lettre;
+  if (positionActive !== null) {
+    // Saisie dans le désordre : placer à la position cliquée
+    const arr = saisieEnCours.padEnd(motSecret.length, ' ').split('');
+    arr[positionActive] = lettre;
+    saisieEnCours = arr.join('').replace(/\s+$/, '');
+    // Avancer à la prochaine case vide
+    let next = null;
+    for (let i = positionActive + 1; i < motSecret.length; i++) {
+      if (!saisieEnCours[i] || saisieEnCours[i] === ' ') { next = i; break; }
+    }
+    if (next === null) {
+      for (let i = 0; i < positionActive; i++) {
+        if (!saisieEnCours[i] || saisieEnCours[i] === ' ') { next = i; break; }
+      }
+    }
+    positionActive = next;
     majAffichageMot();
+  } else {
+    // Saisie séquentielle normale
+    if (saisieEnCours.length < motSecret.length) {
+      saisieEnCours += lettre;
+      majAffichageMot();
+    }
   }
 }
 
 function effacer() {
   if (partieTerminee) return;
-  saisieEnCours = saisieEnCours.slice(0, -1);
-  majAffichageMot();
+  if (positionActive !== null) {
+    // Effacer la case active
+    const arr = saisieEnCours.padEnd(motSecret.length, ' ').split('');
+    arr[positionActive] = ' ';
+    saisieEnCours = arr.join('').replace(/\s+$/, '');
+    majAffichageMot();
+  } else {
+    saisieEnCours = saisieEnCours.slice(0, -1);
+    majAffichageMot();
+  }
 }
 
 function majAffichageMot() {
@@ -144,6 +174,16 @@ function majAffichageMot() {
       div.classList.add('case-vide');
       div.textContent = '';
     }
+    // Surligner la case active
+    if (positionActive === i) {
+      div.classList.add('case-active');
+    }
+    // Clic sur une case pour la sélectionner
+    div.addEventListener('click', () => {
+      if (partieTerminee) return;
+      positionActive = i;
+      majAffichageMot();
+    });
     el.appendChild(div);
   }
 }
@@ -172,6 +212,7 @@ function valider() {
     // Afficher quand même la ligne
     ajouterLigne(proposition, -1);
     saisieEnCours = '';
+    positionActive = null;
     majAffichageMot();
     return;
   }
@@ -189,6 +230,7 @@ function valider() {
 
   ajouterLigne(proposition, count);
   saisieEnCours = '';
+  positionActive = null;
   majAffichageMot();
 
   // Victoire

@@ -419,9 +419,9 @@ header {
     font-family: 'bigelowrules', Georgia, serif;
     font-size: 1.4rem;
     letter-spacing: 2px;
-    color: deepskyblue;
+    color: #ff4444;
     background: transparent;
-    border: 1.5px solid rgba(0,191,255,0.4);
+    border: 1.5px solid rgba(255,68,68,0.4);
     padding: 10px 20px;
     margin: 4px 10px;
     border-radius: 50px;
@@ -567,7 +567,7 @@ header {
 }
 
 .clavier-actions {
-    margin-top: 4px;
+    margin-top: 16px;
     gap: 8px;
 }
 
@@ -594,6 +594,12 @@ header {
 
 #rejouer {
     display: none;
+}
+
+/* Case sélectionnée pour saisie dans le désordre */
+.case-active {
+    border-color: #ff4444 !important;
+    box-shadow: 0 0 8px rgba(255,68,68,0.5);
 }
 
 /* Message mot inconnu */
