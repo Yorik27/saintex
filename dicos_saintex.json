@@ -47931,5 +47931,19 @@
     ],
     "playable": true,
     "argot": false
+  },
+  "KART": {
+    "cats": [
+      "noms"
+    ],
+    "playable": true,
+    "argot": false
+  },
+  "RAND": {
+    "cats": [
+      "noms"
+    ],
+    "playable": true,
+    "argot": false
   }
 }
