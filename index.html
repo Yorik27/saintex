@@ -286,9 +286,12 @@
                 reg.update(); // vérifie si une nouvelle version est dispo
             });
         });
-        // Si le SW contrôle la page et qu'une mise à jour est disponible, recharge
+        // Recharge une seule fois lors d'une mise à jour SW (évite la boucle infinie)
+        let refreshing = false;
         navigator.serviceWorker.addEventListener('controllerchange', () => {
-            console.log('SW mis à jour — rechargement');
+            if (refreshing) return;
+            refreshing = true;
+            console.log('SW mis à jour — rechargement unique');
             window.location.reload();
         });
     }
