@@ -1,16 +1,22 @@
-const cacheName = "fichier-cache-v3"
+const cacheName = "fichier-cache-v4"
 
 // On ne pré-cache rien — tout est mis en cache dynamiquement au premier accès
 const contentToCache = [];
 
 // Installation
 self.addEventListener("install", (e) => {
-    console.log("Service Worker v3 — installation");
+    console.log("Service Worker v4 — installation");
     self.skipWaiting();
 });
 
 // Fetch : cache dynamique
 self.addEventListener("fetch", (e) => {
+    // Ne pas intercepter les requêtes de navigation (évite la boucle infinie)
+    if (e.request.mode === 'navigate') {
+        e.respondWith(fetch(e.request));
+        return;
+    }
+
     e.respondWith(
         caches.match(e.request).then((r) => {
             return (
@@ -32,7 +38,7 @@ self.addEventListener("fetch", (e) => {
 
 // Activation : supprimer les anciens caches
 self.addEventListener("activate", (e) => {
-    console.log("Service Worker v3 — activation");
+    console.log("Service Worker v4 — activation");
     e.waitUntil(
         caches.keys().then((keyList) => {
             return Promise.all(
