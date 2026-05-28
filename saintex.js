@@ -89,6 +89,7 @@ function choixprop() {
   document.getElementById('zone-jeu').style.display = 'block';
   document.getElementById('header').style.display   = 'block';
   document.getElementById('footer').style.display   = 'block';
+  const zlc = document.getElementById('zone-langue-chat'); if (zlc) zlc.style.display = 'block';
 
   // Réinitialiser le bouton indice
   const btnIndice = document.getElementById('btn-indice');
@@ -112,6 +113,7 @@ function retourAccueil() {
   document.getElementById('nav').style.display      = 'block';
   document.getElementById('zone-jeu').style.display = 'none';
   document.getElementById('header').style.display   = 'block';
+  const zlc2 = document.getElementById('zone-langue-chat'); if (zlc2) zlc2.style.display = 'none';
   motSecret = '';
   saisieEnCours = '';
 }

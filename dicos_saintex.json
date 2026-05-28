@@ -47945,5 +47945,40 @@
     ],
     "playable": true,
     "argot": false
+  },
+  "CIVE": {
+    "cats": [
+      "noms"
+    ],
+    "playable": true,
+    "argot": false
+  },
+  "CIVES": {
+    "cats": [
+      "noms"
+    ],
+    "playable": true,
+    "argot": false
+  },
+  "RIAS": {
+    "cats": [
+      "noms"
+    ],
+    "playable": true,
+    "argot": false
+  },
+  "RIOS": {
+    "cats": [
+      "noms"
+    ],
+    "playable": true,
+    "argot": false
+  },
+  "KIRS": {
+    "cats": [
+      "noms"
+    ],
+    "playable": true,
+    "argot": false
   }
 }
