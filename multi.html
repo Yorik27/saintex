@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="fr" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
+    <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
+    <meta name="theme-color" content="#111111">
+    <title>SaintEx — Défi humain</title>
+    <link rel="stylesheet" href="saintex.css">
+    <style>
+        body {
+            background: #111;
+            color: white;
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .multi-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(0,191,255,0.15);
+        }
+        .multi-header .logo { height: 44px; }
+        .multi-header h1 {
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1.2rem;
+            color: deepskyblue;
+            margin: 0;
+            letter-spacing: 2px;
+        }
+        .btn-retour-multi {
+            background: transparent;
+            border: 1px solid rgba(0,191,255,0.4);
+            color: deepskyblue;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 0.85rem;
+            cursor: pointer;
+            letter-spacing: 1px;
+        }
+        .btn-retour-multi:hover { background: rgba(0,191,255,0.1); }
+
+        /* Pseudo */
+        .pseudo-section {
+            padding: 24px 16px 8px;
+            text-align: center;
+        }
+        .pseudo-section label {
+            font-size: 0.85rem;
+            color: rgba(0,191,255,0.7);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .pseudo-input {
+            background: transparent;
+            border: 1px solid rgba(0,191,255,0.4);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-family: 'Roboto', sans-serif;
+            font-size: 1rem;
+            width: 200px;
+            text-align: center;
+            outline: none;
+        }
+        .pseudo-input:focus {
+            border-color: deepskyblue;
+            box-shadow: 0 0 8px rgba(0,191,255,0.3);
+        }
+        .btn-connecter {
+            display: block;
+            margin: 10px auto 0;
+            background: rgba(0,191,255,0.12);
+            border: 1px solid rgba(0,191,255,0.5);
+            color: deepskyblue;
+            padding: 8px 24px;
+            border-radius: 50px;
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+        }
+        .btn-connecter:hover { background: rgba(0,191,255,0.2); }
+
+        /* Section titre */
+        .section-titre {
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 0.9rem;
+            color: rgba(0,191,255,0.5);
+            letter-spacing: 2px;
+            padding: 16px 16px 8px;
+            text-transform: uppercase;
+        }
+
+        /* Liste joueurs */
+        .liste-joueurs {
+            padding: 0 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .joueur-carte {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 10px 14px;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .joueur-carte:hover {
+            background: rgba(255,255,255,0.06);
+        }
+
+        .joueur-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        /* Point de statut */
+        .point {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .point-ami-ligne  { background: #00cc66; box-shadow: 0 0 6px rgba(0,204,102,0.8); }
+        .point-ligne      { background: #00bfff; box-shadow: 0 0 6px rgba(0,191,255,0.8); }
+        .point-ami-absent { background: #ff3333; box-shadow: 0 0 6px rgba(255,51,51,0.6); }
+
+        .joueur-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .joueur-texte { flex: 1; }
+        .joueur-nom {
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+        .joueur-nom.ami-ligne  { color: #00cc66; }
+        .joueur-nom.en-ligne   { color: #00bfff; }
+        .joueur-nom.ami-absent { color: #ff5555; }
+
+        .joueur-statut {
+            font-size: 0.72rem;
+            color: rgba(255,255,255,0.35);
+            margin-top: 1px;
+        }
+
+        /* Actions droite */
+        .joueur-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Case ami */
+        .label-ami {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.72rem;
+            color: rgba(255,255,255,0.35);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .label-ami input[type="checkbox"] {
+            accent-color: #fff700;
+            width: 14px;
+            height: 14px;
+            cursor: pointer;
+        }
+        .label-ami:hover { color: rgba(255,247,0,0.7); }
+
+        .btn-defier {
+            background: transparent;
+            border: 1px solid rgba(0,191,255,0.4);
+            color: deepskyblue;
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 0.78rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        .btn-defier:hover { background: rgba(0,191,255,0.15); }
+        .btn-defier:disabled {
+            opacity: 0.3;
+            cursor: default;
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30,30,50,0.95);
+            border: 1px solid rgba(0,191,255,0.3);
+            border-radius: 12px;
+            padding: 12px 20px;
+            font-size: 0.88rem;
+            color: white;
+            text-align: center;
+            max-width: 280px;
+            z-index: 200;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .toast.visible { opacity: 1; }
+        .toast .toast-nom { color: deepskyblue; font-weight: bold; }
+        .toast-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 10px;
+            pointer-events: all;
+        }
+        .btn-toast {
+            padding: 5px 14px;
+            border-radius: 50px;
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            border: 1px solid;
+        }
+        .btn-toast-oui {
+            background: rgba(0,204,102,0.15);
+            border-color: rgba(0,204,102,0.5);
+            color: #00cc66;
+        }
+        .btn-toast-non {
+            background: rgba(255,51,51,0.1);
+            border-color: rgba(255,51,51,0.4);
+            color: #ff5555;
+        }
+
+        /* Modal attente défi */
+        .modal-attente {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-attente.visible { display: flex; }
+        .modal-contenu {
+            background: #1a1a2e;
+            border: 1px solid rgba(0,191,255,0.3);
+            border-radius: 20px;
+            padding: 32px 24px;
+            text-align: center;
+            max-width: 300px;
+            width: 90%;
+        }
+        .modal-titre {
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1.2rem;
+            color: deepskyblue;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+        .modal-adversaire {
+            font-size: 1rem;
+            color: white;
+            margin-bottom: 20px;
+        }
+        .modal-info {
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 20px;
+        }
+        .pulse {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: deepskyblue;
+            animation: pulse 1.2s ease-in-out infinite;
+            margin: 0 3px;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        .pulse:nth-child(2) { animation-delay: 0.2s; }
+        .pulse:nth-child(3) { animation-delay: 0.4s; }
+        .btn-annuler {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.4);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-family: 'Roboto', sans-serif;
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-top: 16px;
+        }
+
+        /* Footer */
+        footer {
+            padding: 12px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.2);
+            border-top: 1px solid rgba(0,191,255,0.08);
+            margin-top: auto;
+        }
+
+        #zone-non-connecte { display: block; }
+        #zone-connecte { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="multi-header">
+        <img class="logo" src="Images/Logo.png" alt="Logo SaintEx">
+        <h1>Défi Humain</h1>
+        <button class="btn-retour-multi" onclick="window.location.href='index.html'">← Accueil</button>
+    </div>
+
+    <!-- Non connecté -->
+    <div id="zone-non-connecte">
+        <div class="pseudo-section">
+            <label>Ton pseudo</label>
+            <input class="pseudo-input" type="text" id="pseudo-input" placeholder="Ex : Léonie" maxlength="16">
+            <button class="btn-connecter" onclick="seConnecter()">Entrer</button>
+        </div>
+    </div>
+
+    <!-- Connecté -->
+    <div id="zone-connecte">
+        <div class="section-titre">Joueurs</div>
+        <div class="liste-joueurs" id="liste-joueurs"></div>
+    </div>
+
+    <!-- Toast demande ami -->
+    <div class="toast" id="toast-ami">
+        <div><span class="toast-nom" id="toast-nom-ami"></span> veut t'ajouter en ami</div>
+        <div class="toast-actions">
+            <button class="btn-toast btn-toast-oui" onclick="repondreAmi(true)">Accepter</button>
+            <button class="btn-toast btn-toast-non" onclick="repondreAmi(false)">Refuser</button>
+        </div>
+    </div>
+
+    <!-- Toast réponse -->
+    <div class="toast" id="toast-reponse"></div>
+
+    <!-- Modal attente -->
+    <div class="modal-attente" id="modal-attente">
+        <div class="modal-contenu">
+            <div class="modal-titre">Invitation envoyée</div>
+            <div class="modal-adversaire" id="modal-adversaire-nom"></div>
+            <div class="modal-info">En attente de réponse…</div>
+            <div>
+                <span class="pulse"></span>
+                <span class="pulse"></span>
+                <span class="pulse"></span>
+            </div>
+            <button class="btn-annuler" onclick="annulerDefi()">Annuler</button>
+        </div>
+    </div>
+
+    <footer>© EspritJeu 2026 — <a href="/cgu.html" style="color:inherit;">CGU</a></footer>
+
+    <script>
+        let monPseudo = '';
+        let demandeAmiEnCours = null;
+
+        // Données simulées — sera remplacé par Supabase
+        const joueurs = [
+            { pseudo: 'Léonie',   avatar: '🌸', type: 'ami-ligne',  statut: 'En attente d\'un défi' },
+            { pseudo: 'Marcel42', avatar: '🦊', type: 'en-ligne',   statut: 'En attente d\'un défi' },
+            { pseudo: 'Théo_B',   avatar: '🎯', type: 'en-ligne',   statut: 'En attente d\'un défi' },
+            { pseudo: 'Nathalie', avatar: '🌙', type: 'ami-absent', statut: 'Hors ligne' },
+            { pseudo: 'JeanPaul', avatar: '📚', type: 'ami-absent', statut: 'Hors ligne' },
+        ];
+
+        function seConnecter() {
+            const input = document.getElementById('pseudo-input');
+            const pseudo = input.value.trim();
+            if (!pseudo || pseudo.length < 2) {
+                input.style.borderColor = '#ff4444';
+                setTimeout(() => input.style.borderColor = '', 1000);
+                return;
+            }
+            monPseudo = pseudo;
+            document.getElementById('zone-non-connecte').style.display = 'none';
+            document.getElementById('zone-connecte').style.display = 'block';
+            afficherJoueurs();
+        }
+
+        function afficherJoueurs() {
+            const liste = document.getElementById('liste-joueurs');
+            liste.innerHTML = '';
+
+            // Tri : amis en ligne → joueurs en ligne → amis absents
+            const ordre = { 'ami-ligne': 0, 'en-ligne': 1, 'ami-absent': 2 };
+            const tries = [...joueurs].sort((a, b) => ordre[a.type] - ordre[b.type]);
+
+            tries.forEach(j => {
+                const pointClass = {
+                    'ami-ligne':  'point-ami-ligne',
+                    'en-ligne':   'point-ligne',
+                    'ami-absent': 'point-ami-absent'
+                }[j.type];
+
+                const nomClass = {
+                    'ami-ligne':  'ami-ligne',
+                    'en-ligne':   'en-ligne',
+                    'ami-absent': 'ami-absent'
+                }[j.type];
+
+                const peutDefier = j.type !== 'ami-absent';
+                const estAmi = j.type === 'ami-ligne' || j.type === 'ami-absent';
+
+                const carte = document.createElement('div');
+                carte.classList.add('joueur-carte');
+                carte.innerHTML = `
+                    <div class="joueur-info">
+                        <div class="point ${pointClass}"></div>
+                        <div class="joueur-avatar">${j.avatar}</div>
+                        <div class="joueur-texte">
+                            <div class="joueur-nom ${nomClass}">${j.pseudo}</div>
+                            <div class="joueur-statut">${j.statut}</div>
+                        </div>
+                    </div>
+                    <div class="joueur-actions">
+                        ${!estAmi ? `
+                        <label class="label-ami">
+                            <input type="checkbox" onchange="demanderAmi('${j.pseudo}', this)"> ami
+                        </label>` : ''}
+                        <button class="btn-defier" 
+                            ${!peutDefier ? 'disabled' : ''}
+                            onclick="defier('${j.pseudo}')">
+                            Défier
+                        </button>
+                    </div>
+                `;
+                liste.appendChild(carte);
+            });
+        }
+
+        function demanderAmi(pseudo, checkbox) {
+            if (checkbox.checked) {
+                // Simuler l'envoi d'une demande et la réponse
+                setTimeout(() => {
+                    afficherToastAmi(pseudo);
+                }, 800);
+            }
+        }
+
+        function afficherToastAmi(pseudo) {
+            demandeAmiEnCours = pseudo;
+            document.getElementById('toast-nom-ami').textContent = pseudo;
+            const toast = document.getElementById('toast-ami');
+            toast.classList.add('visible');
+            toast.style.pointerEvents = 'all';
+        }
+
+        function repondreAmi(accepte) {
+            const toast = document.getElementById('toast-ami');
+            toast.classList.remove('visible');
+            toast.style.pointerEvents = 'none';
+
+            const pseudo = demandeAmiEnCours;
+            const msg = accepte
+                ? `${pseudo} a accepté ta demande ! ✅`
+                : `${pseudo} a refusé ta demande.`;
+
+            afficherToastReponse(msg);
+            demandeAmiEnCours = null;
+
+            // TODO : mettre à jour Supabase
+        }
+
+        function afficherToastReponse(msg) {
+            const toast = document.getElementById('toast-reponse');
+            toast.textContent = msg;
+            toast.classList.add('visible');
+            setTimeout(() => toast.classList.remove('visible'), 3000);
+        }
+
+        function defier(pseudo) {
+            document.getElementById('modal-adversaire-nom').textContent = pseudo;
+            document.getElementById('modal-attente').classList.add('visible');
+            // TODO : envoyer invitation via Supabase
+        }
+
+        function annulerDefi() {
+            document.getElementById('modal-attente').classList.remove('visible');
+            // TODO : annuler dans Supabase
+        }
+
+        document.getElementById('pseudo-input').addEventListener('keydown', e => {
+            if (e.key === 'Enter') seConnecter();
+        });
+    </script>
+
+</body>
+</html>
