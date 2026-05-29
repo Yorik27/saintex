@@ -876,10 +876,12 @@
 
     <script>
     // ── Paramètres de la partie (simulés — viendront de Supabase) ──
-    const LONGUEUR = 4;
-    const MON_PSEUDO = 'Joueur A';
-    const ADV_PSEUDO = 'Joueur B';
-    const JE_COMMENCE = true; // le challenger commence
+    // Paramètres lus depuis sessionStorage (passés par multi.html)
+    // Valeurs par défaut pour test direct
+    const LONGUEUR = parseInt(sessionStorage.getItem('longueur') || '4');
+    const MON_PSEUDO = sessionStorage.getItem('mon_pseudo') || 'Joueur A';
+    const ADV_PSEUDO = sessionStorage.getItem('adv_pseudo') || 'Joueur B';
+    const JE_COMMENCE = sessionStorage.getItem('je_commence') !== 'false';
 
     // ── État ──
     let motSecret = '';

@@ -509,14 +509,26 @@
             setTimeout(() => toast.classList.remove('visible'), 3000);
         }
 
+        let defiEnCours = null;
+
         function defier(pseudo) {
             document.getElementById('modal-adversaire-nom').textContent = pseudo;
             document.getElementById('modal-attente').classList.add('visible');
-            // TODO : envoyer invitation via Supabase
+            // Stocker l'adversaire pour le passer à jeu2.html
+            sessionStorage.setItem('adv_pseudo', pseudo);
+            sessionStorage.setItem('mon_pseudo', monPseudo);
+            sessionStorage.setItem('je_commence', 'true'); // le challenger commence
+            sessionStorage.setItem('longueur', '4'); // par défaut, sera choisi plus tard
+            // Simuler acceptation après 2s (sera Supabase)
+            defiEnCours = setTimeout(() => {
+                document.getElementById('modal-attente').classList.remove('visible');
+                window.location.href = 'jeu2.html';
+            }, 2000);
         }
 
         function annulerDefi() {
             document.getElementById('modal-attente').classList.remove('visible');
+            if (defiEnCours) { clearTimeout(defiEnCours); defiEnCours = null; }
             // TODO : annuler dans Supabase
         }
 
