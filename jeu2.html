@@ -152,6 +152,12 @@
 
         /* ── Mes propositions ── */
         .zone-propositions {
+            flex: 1;
+            min-height: 80px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .zone-propositions {
             display: flex !important;
             flex-wrap: wrap !important;
             gap: 2px 8px !important;
@@ -497,9 +503,9 @@
         }
 
         .dialogue-messages {
-            max-height: 100px;
+            max-height: 140px;
             overflow-y: auto;
-            padding: 6px 12px;
+            padding: 8px 12px;
             display: flex;
             flex-direction: column;
             gap: 4px;
@@ -536,7 +542,7 @@
             display: flex;
             gap: 4px;
             flex-wrap: wrap;
-            padding: 4px 12px;
+            padding: 6px 12px;
             border-top: 1px solid rgba(255,255,255,0.06);
         }
         .btn-reaction {
@@ -554,7 +560,7 @@
             display: flex;
             gap: 6px;
             align-items: center;
-            padding: 4px 12px 8px;
+            padding: 8px 12px;
             border-top: 1px solid rgba(255,255,255,0.06);
         }
         .dialogue-input {
@@ -583,7 +589,7 @@
             justify-content: center;
             flex-shrink: 0;
         }
-        .zone-principale { overflow-y: auto; padding: 6px 14px; gap: 6px; }
+        .zone-principale { overflow-y: auto; padding: 8px 14px; gap: 8px; max-height: 45vh; }
 
         /* Case active saisie désordre */
         .case-saisie-active {
@@ -637,7 +643,10 @@
             <div class="header-longueur" id="header-longueur">4 lettres</div>
             <div class="header-tour tour-moi" id="header-tour">Ton tour</div>
         </div>
-        <div class="header-score" id="header-score">0 — 0</div>
+        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px;">
+            <div class="header-score" id="header-score" style="font-size:0.75rem;"></div>
+            <button onclick="proposerAbandon()" style="background:transparent; border:none; color:rgba(255,68,68,0.5); font-size:0.7rem; cursor:pointer; padding:0; font-family:'Roboto',sans-serif;">Abandonner</button>
+        </div>
     </div>
 
     <!-- Phase init : saisie du mot secret -->
@@ -701,7 +710,7 @@
 
             <!-- Avancement adversaire -->
             <div class="zone-adversaire">
-                <div class="section-label" id="label-adversaire">Adversaire</div>
+                <div class="section-label" id="label-adversaire"></div>
                 <div class="adv-progression">
                     <div class="adv-points" id="adv-points"></div>
                     <div class="adv-nb" id="adv-nb">0 lettre trouvée</div>
@@ -878,6 +887,7 @@
     }
 
     function demarrerPartie() {
+        document.getElementById('label-adversaire').textContent = ADV_PSEUDO;
         document.getElementById('phase-init').style.display = 'none';
         document.getElementById('phase-jeu').style.display = 'flex';
         document.getElementById('btn-chat-flottant').style.display = 'flex';
@@ -1029,7 +1039,9 @@
             setTimeout(() => simulerAdversaire(), 2000);
         }
 
-        document.getElementById('header-score').textContent = scoreA + ' — ' + scoreB;
+        const shortA = MON_PSEUDO.substring(0, 3).toUpperCase();
+        const shortB = ADV_PSEUDO.substring(0, 3).toUpperCase();
+        document.getElementById('header-score').textContent = shortA + ' ' + scoreA + ' — ' + shortB + ' ' + scoreB;
         demarrerTimer();
     }
 
@@ -1142,7 +1154,10 @@
         const ligne = document.createElement('div');
         ligne.classList.add('ligne-prop');
         const cls = score === LONGUEUR ? 'score-gagne' : 'score-' + score;
-        ligne.innerHTML = `<span class="prop-mot">${mot}</span><span class="prop-score ${cls}">${score === LONGUEUR ? '🏆' : score}</span>`;
+        ligne.innerHTML = `
+            <span class="prop-mot">${mot}</span>
+            <span class="prop-score ${cls}">${score === LONGUEUR ? '🏆' : score}</span>
+        `;
         liste.appendChild(ligne);
         liste.scrollTop = liste.scrollHeight;
     }
@@ -1269,6 +1284,13 @@
             titre.textContent = 'Adversaire inactif';
             info.textContent = ADV_PSEUDO + ' n\'a pas joué dans les temps.';
         }
+        modal.classList.add('visible');
+    }
+
+    function proposerAbandon() {
+        const modal = document.getElementById('modal-timeout');
+        document.getElementById('timeout-titre').textContent = 'Abandonner ?';
+        document.getElementById('timeout-info').textContent = 'Tu vas quitter la partie en cours.';
         modal.classList.add('visible');
     }
 
