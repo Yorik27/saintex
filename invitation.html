@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
+    <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
+    <meta name="theme-color" content="#111111">
+    <title>SaintEx — Invitation</title>
+    <link rel="stylesheet" href="saintex.css">
+    <style>
+        body {
+            background: #111;
+            color: white;
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            box-sizing: border-box;
+        }
+
+        .invitation-carte {
+            background: #1a1a2e;
+            border: 1px solid rgba(0,191,255,0.25);
+            border-radius: 20px;
+            padding: 32px 24px;
+            text-align: center;
+            max-width: 320px;
+            width: 100%;
+        }
+
+        .logo {
+            height: 48px;
+            margin-bottom: 20px;
+        }
+
+        .invitation-titre {
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1rem;
+            color: rgba(255,255,255,0.45);
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+
+        .invitation-challenger {
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1.5rem;
+            color: deepskyblue;
+            letter-spacing: 2px;
+            margin-bottom: 4px;
+            text-shadow: 0 0 20px rgba(0,191,255,0.3);
+        }
+
+        .invitation-sous {
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.35);
+            margin-bottom: 28px;
+        }
+
+        .invitation-longueur-titre {
+            font-size: 0.8rem;
+            color: rgba(0,191,255,0.6);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+
+        .longueur-boutons {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .btn-longueur {
+            width: 100px;
+            height: 100px;
+            border-radius: 16px;
+            border: 2px solid rgba(0,191,255,0.4);
+            background: rgba(0,191,255,0.06);
+            color: deepskyblue;
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1.6rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+        .btn-longueur span {
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            color: rgba(0,191,255,0.5);
+            font-family: 'Roboto', sans-serif;
+        }
+        .btn-longueur:hover {
+            background: rgba(0,191,255,0.15);
+            border-color: deepskyblue;
+            box-shadow: 0 0 20px rgba(0,191,255,0.2);
+            transform: scale(1.03);
+        }
+        .btn-longueur.prefere {
+            border-color: #00cc66;
+            color: #00cc66;
+            background: rgba(0,204,102,0.08);
+        }
+        .btn-longueur.prefere span { color: rgba(0,204,102,0.5); }
+
+        .btn-refuser {
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.25);
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-family: 'Roboto', sans-serif;
+            padding: 8px;
+            text-decoration: underline;
+        }
+        .btn-refuser:hover { color: rgba(255,68,68,0.6); }
+
+        /* Mode revanche */
+        .badge-revanche {
+            display: inline-block;
+            background: rgba(255,153,0,0.15);
+            border: 1px solid rgba(255,153,0,0.4);
+            color: #ff9900;
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            padding: 3px 10px;
+            border-radius: 50px;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="invitation-carte">
+        <img class="logo" src="Images/Logo.png" alt="Logo SaintEx">
+
+        <!-- Badge revanche (affiché si revanche) -->
+        <div class="badge-revanche" id="badge-revanche" style="display:none;">⚔ Revanche</div>
+
+        <div class="invitation-titre">Invitation de</div>
+        <div class="invitation-challenger" id="challenger-nom">Joueur A</div>
+        <div class="invitation-sous" id="invitation-sous">t'invite à un duel de mots !</div>
+
+        <div class="invitation-longueur-titre">Choisis la longueur du mot</div>
+
+        <div class="longueur-boutons">
+            <button class="btn-longueur" id="btn-4L" onclick="accepter(4)">
+                4L
+                <span>4 lettres</span>
+            </button>
+            <button class="btn-longueur" id="btn-5L" onclick="accepter(5)">
+                5L
+                <span>5 lettres</span>
+            </button>
+        </div>
+
+        <button class="btn-refuser" onclick="refuser()">Décliner l'invitation</button>
+    </div>
+
+    <script>
+        // Lire les paramètres depuis sessionStorage
+        const challengerNom = sessionStorage.getItem('adv_pseudo') || 'Joueur A';
+        const monPseudo = sessionStorage.getItem('mon_pseudo') || 'Joueur B';
+        const longueurPreferee = parseInt(sessionStorage.getItem('longueur_preferee') || '4');
+        const estRevanche = sessionStorage.getItem('revanche') === 'true';
+
+        // Afficher le nom du challenger
+        document.getElementById('challenger-nom').textContent = challengerNom;
+
+        // Mode revanche
+        if (estRevanche) {
+            document.getElementById('badge-revanche').style.display = 'inline-block';
+            document.getElementById('invitation-sous').textContent = 'veut sa revanche !';
+        }
+
+        // Mettre en évidence la longueur préférée du challenger
+        const btnPrefere = document.getElementById('btn-' + longueurPreferee + 'L');
+        if (btnPrefere) {
+            btnPrefere.classList.add('prefere');
+            btnPrefere.querySelector('span').textContent = longueurPreferee + ' lettres ★';
+        }
+
+        function accepter(longueur) {
+            // Stocker la longueur choisie par B
+            sessionStorage.setItem('longueur', longueur);
+            // B ne commence pas (A a défié)
+            sessionStorage.setItem('je_commence', 'false');
+            // Effacer le flag revanche
+            sessionStorage.removeItem('revanche');
+            // Aller vers le jeu
+            window.location.href = 'jeu2.html';
+        }
+
+        function refuser() {
+            // TODO : notifier Supabase
+            sessionStorage.removeItem('revanche');
+            window.location.href = 'multi.html';
+        }
+    </script>
+
+</body>
+</html>

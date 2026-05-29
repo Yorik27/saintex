@@ -337,6 +337,79 @@
 
         #zone-non-connecte { display: block; }
         #zone-connecte { display: none; }
+
+        /* Choix longueur */
+        .longueur-section {
+            margin-top: 14px;
+            text-align: center;
+        }
+        .longueur-section label {
+            font-size: 0.85rem;
+            color: rgba(0,191,255,0.7);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .longueur-cases {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        .case-longueur {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            border: 2px solid rgba(0,191,255,0.3);
+            background: transparent;
+            color: rgba(255,255,255,0.4);
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            position: relative;
+            user-select: none;
+        }
+        /* État 1 : colorié (préféré) */
+        .case-longueur.colorie {
+            border-color: rgba(0,191,255,0.7);
+            background: rgba(0,191,255,0.12);
+            color: deepskyblue;
+        }
+        /* État 2 : coché (préféré ET choix prioritaire) */
+        .case-longueur.coche {
+            border-color: #00cc66;
+            background: rgba(0,204,102,0.15);
+            color: #00cc66;
+            box-shadow: 0 0 12px rgba(0,204,102,0.3);
+        }
+        .case-longueur.coche::after {
+            content: '✓';
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #00cc66;
+            color: #111;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            font-size: 0.65rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700;
+        }
+        .longueur-hint {
+            font-size: 0.72rem;
+            color: rgba(255,255,255,0.25);
+            margin-top: 8px;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -352,6 +425,16 @@
         <div class="pseudo-section">
             <label>Ton pseudo</label>
             <input class="pseudo-input" type="text" id="pseudo-input" placeholder="Ex : Léonie" maxlength="16">
+        </div>
+        <div class="longueur-section">
+            <label>Longueur du mot</label>
+            <div class="longueur-cases">
+                <div class="case-longueur" id="case-4L" onclick="tapperCase('4L')">4L</div>
+                <div class="case-longueur" id="case-5L" onclick="tapperCase('5L')">5L</div>
+            </div>
+            <div class="longueur-hint">1 tap = préféré · 2 taps = prioritaire ✓ · 3 taps = effacer</div>
+        </div>
+        <div class="pseudo-section" style="padding-top:8px;">
             <button class="btn-connecter" onclick="seConnecter()">Entrer</button>
         </div>
     </div>
@@ -403,6 +486,34 @@
             { pseudo: 'Nathalie', avatar: '🌙', type: 'ami-absent', statut: 'Hors ligne' },
             { pseudo: 'JeanPaul', avatar: '📚', type: 'ami-absent', statut: 'Hors ligne' },
         ];
+
+        // États longueur : 0=vide, 1=colorié(accepte), 2=coché(prioritaire)
+        const etatLongueur = { '4L': 0, '5L': 0 };
+
+        function tapperCase(id) {
+            etatLongueur[id] = (etatLongueur[id] + 1) % 3;
+            const el = document.getElementById('case-' + id);
+            el.classList.remove('colorie', 'coche');
+            if (etatLongueur[id] === 1) el.classList.add('colorie');
+            else if (etatLongueur[id] === 2) el.classList.add('coche');
+        }
+
+        function getLongueurChoisie() {
+            // Prioritaire d'abord, sinon accepté, sinon 4 par défaut
+            if (etatLongueur['4L'] === 2) return 4;
+            if (etatLongueur['5L'] === 2) return 5;
+            if (etatLongueur['4L'] === 1) return 4;
+            if (etatLongueur['5L'] === 1) return 5;
+            return 4; // défaut
+        }
+
+        function getLongueurAcceptee() {
+            // Retourne les longueurs acceptées (état 1 ou 2)
+            const acc = [];
+            if (etatLongueur['4L'] > 0) acc.push(4);
+            if (etatLongueur['5L'] > 0) acc.push(5);
+            return acc.length > 0 ? acc : [4]; // défaut 4
+        }
 
         function seConnecter() {
             const input = document.getElementById('pseudo-input');
@@ -509,26 +620,14 @@
             setTimeout(() => toast.classList.remove('visible'), 3000);
         }
 
-        let defiEnCours = null;
-
         function defier(pseudo) {
             document.getElementById('modal-adversaire-nom').textContent = pseudo;
             document.getElementById('modal-attente').classList.add('visible');
-            // Stocker l'adversaire pour le passer à jeu2.html
-            sessionStorage.setItem('adv_pseudo', pseudo);
-            sessionStorage.setItem('mon_pseudo', monPseudo);
-            sessionStorage.setItem('je_commence', 'true'); // le challenger commence
-            sessionStorage.setItem('longueur', '4'); // par défaut, sera choisi plus tard
-            // Simuler acceptation après 2s (sera Supabase)
-            defiEnCours = setTimeout(() => {
-                document.getElementById('modal-attente').classList.remove('visible');
-                window.location.href = 'jeu2.html';
-            }, 2000);
+            // TODO : envoyer invitation via Supabase
         }
 
         function annulerDefi() {
             document.getElementById('modal-attente').classList.remove('visible');
-            if (defiEnCours) { clearTimeout(defiEnCours); defiEnCours = null; }
             // TODO : annuler dans Supabase
         }
 

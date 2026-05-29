@@ -1236,8 +1236,14 @@
     }
 
     function demanderRevanche() {
-        // TODO : envoyer demande de revanche via Supabase
-        alert('Revanche demandée ! (en cours de développement)');
+        // Inverser les rôles pour la revanche
+        const ancienMoi = sessionStorage.getItem('mon_pseudo');
+        const ancienAdv = sessionStorage.getItem('adv_pseudo');
+        sessionStorage.setItem('mon_pseudo', ancienAdv);
+        sessionStorage.setItem('adv_pseudo', ancienMoi);
+        sessionStorage.setItem('revanche', 'true');
+        sessionStorage.setItem('longueur_preferee', LONGUEUR);
+        window.location.href = 'invitation.html';
     }
 
     // Clavier physique
