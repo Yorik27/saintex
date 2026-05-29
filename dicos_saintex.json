@@ -47946,37 +47946,79 @@
     "playable": true,
     "argot": false
   },
-  "CIVE": {
+  "ALLE": {
+    "cats": [
+      "verbes"
+    ],
+    "playable": true,
+    "argot": false
+  },
+  "DROP": {
     "cats": [
       "noms"
     ],
     "playable": true,
     "argot": false
   },
-  "CIVES": {
+  "DROPS": {
     "cats": [
       "noms"
     ],
     "playable": true,
     "argot": false
   },
-  "RIAS": {
+  "FARS": {
     "cats": [
       "noms"
     ],
     "playable": true,
     "argot": false
   },
-  "RIOS": {
+  "HIES": {
     "cats": [
       "noms"
     ],
     "playable": true,
     "argot": false
   },
-  "KIRS": {
+  "SARS": {
     "cats": [
       "noms"
+    ],
+    "playable": true,
+    "argot": false
+  },
+  "TARS": {
+    "cats": [
+      "noms"
+    ],
+    "playable": true,
+    "argot": false
+  },
+  "VANS": {
+    "cats": [
+      "noms"
+    ],
+    "playable": true,
+    "argot": false
+  },
+  "PETA": {
+    "cats": [
+      "verbes"
+    ],
+    "playable": true,
+    "argot": false
+  },
+  "PETAI": {
+    "cats": [
+      "verbes"
+    ],
+    "playable": true,
+    "argot": false
+  },
+  "PETAS": {
+    "cats": [
+      "verbes"
     ],
     "playable": true,
     "argot": false
