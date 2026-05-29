@@ -160,8 +160,9 @@
         .zone-propositions {
             display: flex !important;
             flex-wrap: wrap !important;
-            gap: 4px 8px !important;
-            max-height: 120px !important;
+            gap: 2px 8px !important;
+            max-height: 80px !important;
+            overflow-y: auto !important;
         }
         .ligne-prop {
             display: flex;
@@ -321,11 +322,113 @@
             color: #00cc66 !important;
         }
 
+        /* Phase init - attente adversaire */
+        .init-attente {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 20px;
+        }
+        .init-attente-titre {
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1rem;
+            color: #00cc66;
+            letter-spacing: 2px;
+        }
+        .init-attente-info {
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.4);
+            text-align: center;
+        }
+        .init-adversaire-statut {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: 1px solid rgba(255,153,0,0.3);
+            border-radius: 50px;
+            font-size: 0.85rem;
+        }
+        .init-adversaire-statut.pret {
+            border-color: rgba(0,204,102,0.5);
+            color: #00cc66;
+        }
+        .init-adversaire-statut.attente {
+            border-color: rgba(255,153,0,0.3);
+            color: rgba(255,153,0,0.7);
+        }
+        .dot-anim {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #ff9900;
+            animation: pulse 1s ease-in-out infinite;
+        }
+        .dot-anim.pret { background: #00cc66; animation: none; }
+
+        /* Modal timeout/abandon */
+        .modal-timeout {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.88);
+            z-index: 60;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-timeout.visible { display: flex; }
+        .modal-timeout-contenu {
+            background: #1a1a2e;
+            border: 1px solid rgba(255,68,68,0.3);
+            border-radius: 20px;
+            padding: 28px 24px;
+            text-align: center;
+            max-width: 280px;
+            width: 90%;
+        }
+        .modal-timeout-titre {
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1.1rem;
+            color: #ff4444;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+        .modal-timeout-info {
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 20px;
+        }
+        .btn-timeout {
+            background: rgba(0,191,255,0.12);
+            border: 1px solid rgba(0,191,255,0.4);
+            color: deepskyblue;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+        .btn-abandon {
+            background: transparent;
+            border: 1px solid rgba(255,68,68,0.3);
+            color: rgba(255,68,68,0.7);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-family: 'Roboto', sans-serif;
+            font-size: 0.82rem;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+        }
+
         /* Bouton flottant chat */
         .btn-chat-flottant {
             position: fixed;
-            bottom: 16px;
-            right: 16px;
+            bottom: 130px;
+            right: 10px;
             width: 46px;
             height: 46px;
             border-radius: 50%;
@@ -363,9 +466,9 @@
         /* Popup chat */
         .popup-chat {
             position: fixed;
-            bottom: 70px;
-            right: 12px;
-            width: min(320px, calc(100vw - 24px));
+            bottom: 180px;
+            right: 10px;
+            width: min(300px, calc(100vw - 20px));
             background: #1a1a2e;
             border: 1px solid rgba(0,191,255,0.3);
             border-radius: 16px;
@@ -486,7 +589,7 @@
             justify-content: center;
             flex-shrink: 0;
         }
-        .zone-principale { flex: 1; overflow-y: auto; padding: 8px 14px; gap: 8px; }
+        .zone-principale { overflow-y: auto; padding: 8px 14px; gap: 8px; max-height: 45vh; }
 
         /* Case active saisie désordre */
         .case-saisie-active {
@@ -621,7 +724,7 @@
         </div>
 
         <!-- Affichage mot en saisie -->
-        <div class="zone-saisie" style="padding: 4px 14px;">
+        <div class="zone-saisie" style="padding: 6px 14px; min-height: 56px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
             <div id="affichage-saisie" class="cases-mot"></div>
             <div id="msg-attente" class="msg-attente" style="display:none;">Tour de l'adversaire…</div>
             <div id="error-jeu2" style="display:none; color:#ff4444; text-align:center; font-size:0.85rem; padding:4px;"></div>
@@ -695,6 +798,16 @@
                    placeholder="Message…" maxlength="50"
                    onkeydown="if(event.key==='Enter') envoyerMessage()">
             <button class="btn-envoyer" onclick="envoyerMessage()">➤</button>
+        </div>
+    </div>
+
+    <!-- Modal timeout/abandon -->
+    <div class="modal-timeout" id="modal-timeout">
+        <div class="modal-timeout-contenu">
+            <div class="modal-timeout-titre" id="timeout-titre">Temps écoulé</div>
+            <div class="modal-timeout-info" id="timeout-info">Ton adversaire n'a pas joué à temps.</div>
+            <button class="btn-timeout" onclick="window.location.href='multi.html'">Nouvelle partie</button>
+            <button class="btn-abandon" onclick="confirmerAbandon()">Abandonner la partie</button>
         </div>
     </div>
 
@@ -923,6 +1036,7 @@
         }
 
         document.getElementById('header-score').textContent = scoreA + ' — ' + scoreB;
+        demarrerTimer();
     }
 
     // ── Simulation adversaire (pour tests sans Supabase) ──
@@ -1045,6 +1159,7 @@
     // ── Fin de partie ──
     function finPartie(gagne, motAdv) {
         partieTerminee = true;
+        arreterTimer();
         const overlay = document.getElementById('overlay-fin');
         const titre = document.getElementById('fin-titre');
         const info = document.getElementById('fin-info');
@@ -1129,6 +1244,47 @@
             badge.textContent = messagesNonLus;
             badge.classList.add('visible');
         }
+    }
+
+    // ── Timeout et abandon ──
+    const TIMEOUT_TOUR = 120; // secondes
+    let timerTour = null;
+    let secondesRestantes = TIMEOUT_TOUR;
+
+    function demarrerTimer() {
+        arreterTimer();
+        secondesRestantes = TIMEOUT_TOUR;
+        timerTour = setInterval(() => {
+            secondesRestantes--;
+            if (secondesRestantes <= 0) {
+                arreterTimer();
+                afficherTimeout();
+            }
+        }, 1000);
+    }
+
+    function arreterTimer() {
+        if (timerTour) { clearInterval(timerTour); timerTour = null; }
+    }
+
+    function afficherTimeout() {
+        const modal = document.getElementById('modal-timeout');
+        const titre = document.getElementById('timeout-titre');
+        const info = document.getElementById('timeout-info');
+        if (cMonTour) {
+            titre.textContent = 'Temps écoulé !';
+            info.textContent = 'Tu as mis trop de temps à jouer.';
+        } else {
+            titre.textContent = 'Adversaire inactif';
+            info.textContent = ADV_PSEUDO + ' n\'a pas joué dans les temps.';
+        }
+        modal.classList.add('visible');
+    }
+
+    function confirmerAbandon() {
+        document.getElementById('modal-timeout').classList.remove('visible');
+        // TODO : notifier Supabase
+        window.location.href = 'multi.html';
     }
 
     // Simuler message adversaire (pour tests)
