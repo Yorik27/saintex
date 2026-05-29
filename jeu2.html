@@ -24,30 +24,27 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 6px 12px;
+            padding: 8px 14px;
             border-bottom: 1px solid rgba(0,191,255,0.15);
             flex-shrink: 0;
-            gap: 8px;
         }
-        .header-jeu2 .logo { height: 36px; flex-shrink: 0; }
-
-        .header-centre {
+        .header-jeu2 .logo { height: 38px; }
+        .header-info {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 2px;
-            flex: 1;
         }
         .header-longueur {
             font-family: 'bigelowrules', Georgia, serif;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: deepskyblue;
             letter-spacing: 2px;
         }
         .header-tour {
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             letter-spacing: 1px;
-            padding: 3px 12px;
+            padding: 3px 10px;
             border-radius: 50px;
             font-family: 'bigelowrules', Georgia, serif;
         }
@@ -61,50 +58,24 @@
             border: 1px solid rgba(255,153,0,0.35);
             color: #ff9900;
         }
-        #header-timer {
-            font-family: 'Roboto', sans-serif;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: rgba(0,191,255,0.7);
-            letter-spacing: 1px;
-        }
-
-        .header-droite {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 4px;
-            flex-shrink: 0;
-        }
         .header-score {
-            font-family: 'Roboto', sans-serif;
-            font-weight: 600;
-            font-size: 0.78rem;
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 0.85rem;
             color: rgba(255,255,255,0.5);
             letter-spacing: 1px;
-            white-space: nowrap;
         }
-        .btn-abandon-header {
-            background: transparent;
-            border: 1px solid rgba(255,68,68,0.35);
-            color: rgba(255,68,68,0.7);
-            font-family: 'bigelowrules', Georgia, serif;
-            font-size: 0.78rem;
-            letter-spacing: 1px;
-            padding: 2px 8px;
-            border-radius: 50px;
-            cursor: pointer;
-        }
-        .btn-abandon-header:hover { background: rgba(255,68,68,0.1); }
 
         /* ── Zone principale ── */
         .zone-principale {
-            flex: 1;
+            position: fixed;
+            top: 56px;
+            left: 0; right: 0;
+            bottom: 210px;
+            overflow-y: auto;
+            padding: 8px 14px;
             display: flex;
             flex-direction: column;
-            padding: 10px 14px;
-            gap: 10px;
-            overflow-y: auto;
+            gap: 6px;
         }
 
         /* ── Mon mot secret ── */
@@ -225,13 +196,24 @@
 
         /* ── Affichage mot en saisie ── */
         .zone-saisie {
-            flex-shrink: 0;
+            position: fixed;
+            bottom: 130px;
+            left: 0; right: 0;
+            display: flex;
+            justify-content: center;
+            padding: 4px 0;
+            background: #111;
+            z-index: 10;
         }
 
         /* ── Clavier ── */
         .zone-clavier {
-            flex-shrink: 0;
-            padding-bottom: 8px;
+            position: fixed;
+            bottom: 0;
+            left: 0; right: 0;
+            background: #111;
+            padding: 4px 0 8px;
+            z-index: 10;
         }
 
         /* ── Message tour ── */
@@ -345,7 +327,7 @@
             width: 100%;
         }
 
-        #phase-jeu { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+        #phase-jeu { display: block; }
 
         /* Lettres bien placées en vert pendant scan */
         .case-mot-secret.scan-ok {
@@ -811,7 +793,6 @@
     </button>
 
     <!-- Popup chat -->
-    <div id="overlay-chat" onclick="toggleChat()" style="display:none; position:fixed; inset:0; z-index:44; background:rgba(0,0,0,0.5);"></div>
     <div class="popup-chat" id="popup-chat">
         <div class="popup-chat-header">
             <span class="popup-chat-titre">💬 Discussion</span>
@@ -918,7 +899,7 @@
 
     function demarrerPartie() {
         document.getElementById('phase-init').style.display = 'none';
-        document.getElementById('phase-jeu').style.display = 'flex';
+        document.getElementById('phase-jeu').style.display = 'block';
         document.getElementById('btn-chat-flottant').style.display = 'flex';
         afficherMonMot();
         afficherCasesAdv();
@@ -1235,10 +1216,8 @@
 
     function toggleChat() {
         const popup = document.getElementById('popup-chat');
-        const overlay = document.getElementById('overlay-chat');
         chatOuvert = !chatOuvert;
         popup.classList.toggle('visible', chatOuvert);
-        if (overlay) overlay.style.display = chatOuvert ? 'block' : 'none';
         if (chatOuvert) {
             messagesNonLus = 0;
             const badge = document.getElementById('badge-chat');
