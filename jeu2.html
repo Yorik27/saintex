@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="fr" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
+    <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
+    <meta name="theme-color" content="#111111">
+    <title>SaintEx — Défi Humain</title>
+    <link rel="stylesheet" href="saintex.css">
+    <style>
+        body {
+            background: #111;
+            color: white;
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* ── Header ── */
+        .header-jeu2 {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 14px;
+            border-bottom: 1px solid rgba(0,191,255,0.15);
+            flex-shrink: 0;
+        }
+        .header-jeu2 .logo { height: 38px; }
+        .header-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+        .header-longueur {
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 0.85rem;
+            color: deepskyblue;
+            letter-spacing: 2px;
+        }
+        .header-tour {
+            font-size: 0.72rem;
+            letter-spacing: 1px;
+            padding: 3px 10px;
+            border-radius: 50px;
+            font-family: 'bigelowrules', Georgia, serif;
+        }
+        .tour-moi {
+            background: rgba(0,204,102,0.15);
+            border: 1px solid rgba(0,204,102,0.4);
+            color: #00cc66;
+        }
+        .tour-adversaire {
+            background: rgba(255,153,0,0.12);
+            border: 1px solid rgba(255,153,0,0.35);
+            color: #ff9900;
+        }
+        .header-score {
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.5);
+            letter-spacing: 1px;
+        }
+
+        /* ── Zone principale ── */
+        .zone-principale {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 10px 14px;
+            gap: 10px;
+            overflow-y: auto;
+        }
+
+        /* ── Mon mot secret ── */
+        .section-label {
+            font-size: 0.72rem;
+            color: rgba(0,191,255,0.5);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .cases-mot {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+        }
+
+        .case-mot-secret {
+            width: 44px;
+            height: 44px;
+            border: 1.5px solid rgba(0,191,255,0.4);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1.2rem;
+            color: deepskyblue;
+            background: rgba(0,191,255,0.06);
+            transition: background 0.15s, border-color 0.15s, color 0.15s;
+        }
+        .case-mot-secret.scan {
+            background: rgba(255,153,0,0.25);
+            border-color: rgba(255,153,0,0.8);
+            color: #ff9900;
+        }
+
+        /* ── Proposition adversaire ── */
+        .zone-adversaire {
+            background: rgba(255,153,0,0.05);
+            border: 1px solid rgba(255,153,0,0.2);
+            border-radius: 12px;
+            padding: 10px 14px;
+        }
+        .adversaire-derniere {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .adversaire-mot {
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1.1rem;
+            color: #ff9900;
+            letter-spacing: 2px;
+        }
+        .adversaire-score {
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1.1rem;
+        }
+
+        /* Cases vides adversaire */
+        .cases-adversaire {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+        }
+        .case-adv {
+            width: 36px;
+            height: 36px;
+            border: 1.5px solid rgba(255,153,0,0.25);
+            border-radius: 7px;
+            background: rgba(255,153,0,0.04);
+        }
+
+        /* ── Mes propositions ── */
+        .zone-propositions {
+            flex: 1;
+            min-height: 80px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .ligne-prop {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .prop-mot {
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1rem;
+            color: rgba(255,255,255,0.8);
+            letter-spacing: 2px;
+        }
+        .prop-score {
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1rem;
+        }
+        .score-0 { color: rgba(255,255,255,0.3); }
+        .score-1 { color: #fff700; }
+        .score-2 { color: #ff9900; }
+        .score-3 { color: #ff6600; }
+        .score-4 { color: #ff3300; }
+        .score-5 { color: #ff0000; }
+        .score-gagne { color: #00cc66; }
+
+        /* ── Affichage mot en saisie ── */
+        .zone-saisie {
+            flex-shrink: 0;
+        }
+
+        /* ── Clavier ── */
+        .zone-clavier {
+            flex-shrink: 0;
+            padding-bottom: 8px;
+        }
+
+        /* ── Message tour ── */
+        .msg-attente {
+            text-align: center;
+            color: rgba(255,153,0,0.7);
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            padding: 8px;
+            animation: clignoter 1.5s ease-in-out infinite;
+        }
+        @keyframes clignoter {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        /* ── Saisie du mot secret (phase init) ── */
+        #phase-init {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            padding: 20px;
+            gap: 16px;
+        }
+        .init-titre {
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1.1rem;
+            color: deepskyblue;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+        .init-sous {
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.4);
+            text-align: center;
+        }
+        .init-adversaire {
+            font-size: 0.85rem;
+            color: rgba(255,153,0,0.7);
+            text-align: center;
+        }
+
+        /* ── Fin de partie ── */
+        .overlay-fin {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.88);
+            z-index: 50;
+            align-items: center;
+            justify-content: center;
+        }
+        .overlay-fin.visible { display: flex; }
+        .fin-contenu {
+            background: #1a1a2e;
+            border: 1px solid rgba(0,191,255,0.3);
+            border-radius: 20px;
+            padding: 32px 24px;
+            text-align: center;
+            max-width: 300px;
+            width: 90%;
+        }
+        .fin-titre {
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1.6rem;
+            letter-spacing: 3px;
+            margin-bottom: 8px;
+        }
+        .fin-gagne { color: #00cc66; }
+        .fin-perdu { color: #ff4444; }
+        .fin-info {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.45);
+            margin-bottom: 20px;
+        }
+        .fin-mot-secret {
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1.3rem;
+            color: deepskyblue;
+            letter-spacing: 4px;
+            margin-bottom: 20px;
+        }
+        .btn-fin {
+            background: rgba(0,191,255,0.12);
+            border: 1px solid rgba(0,191,255,0.4);
+            color: deepskyblue;
+            padding: 10px 24px;
+            border-radius: 50px;
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+        .btn-fin:hover { background: rgba(0,191,255,0.2); }
+        .btn-fin-retour {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.4);
+            padding: 8px 24px;
+            border-radius: 50px;
+            font-family: 'Roboto', sans-serif;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+        }
+
+        #phase-jeu { display: none; flex-direction: column; flex: 1; }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header-jeu2">
+        <img class="logo" src="Images/Logo.png" alt="Logo SaintEx">
+        <div class="header-info">
+            <div class="header-longueur" id="header-longueur">4 lettres</div>
+            <div class="header-tour tour-moi" id="header-tour">Ton tour</div>
+        </div>
+        <div class="header-score" id="header-score">0 — 0</div>
+    </div>
+
+    <!-- Phase init : saisie du mot secret -->
+    <div id="phase-init">
+        <div class="init-titre">Choisis ton mot secret</div>
+        <div class="init-sous" id="init-sous">Ton adversaire ne le verra pas</div>
+        <div class="init-adversaire" id="init-adversaire"></div>
+
+        <!-- Cases de saisie du mot secret -->
+        <div id="cases-init" class="cases-mot"></div>
+
+        <!-- Clavier pour saisir le mot secret -->
+        <div class="clavier" id="clavier-init">
+            <div class="clavier-rangee">
+                <button class="touche" onclick="ajouterLettreInit('A')">A</button>
+                <button class="touche" onclick="ajouterLettreInit('Z')">Z</button>
+                <button class="touche" onclick="ajouterLettreInit('E')">E</button>
+                <button class="touche" onclick="ajouterLettreInit('R')">R</button>
+                <button class="touche" onclick="ajouterLettreInit('T')">T</button>
+                <button class="touche" onclick="ajouterLettreInit('Y')">Y</button>
+                <button class="touche" onclick="ajouterLettreInit('U')">U</button>
+                <button class="touche" onclick="ajouterLettreInit('I')">I</button>
+                <button class="touche" onclick="ajouterLettreInit('O')">O</button>
+                <button class="touche" onclick="ajouterLettreInit('P')">P</button>
+            </div>
+            <div class="clavier-rangee">
+                <button class="touche" onclick="ajouterLettreInit('Q')">Q</button>
+                <button class="touche" onclick="ajouterLettreInit('S')">S</button>
+                <button class="touche" onclick="ajouterLettreInit('D')">D</button>
+                <button class="touche" onclick="ajouterLettreInit('F')">F</button>
+                <button class="touche" onclick="ajouterLettreInit('G')">G</button>
+                <button class="touche" onclick="ajouterLettreInit('H')">H</button>
+                <button class="touche" onclick="ajouterLettreInit('J')">J</button>
+                <button class="touche" onclick="ajouterLettreInit('K')">K</button>
+                <button class="touche" onclick="ajouterLettreInit('L')">L</button>
+                <button class="touche" onclick="ajouterLettreInit('M')">M</button>
+            </div>
+            <div class="clavier-rangee">
+                <button class="touche touche-large" onclick="effacerInit()">⌫</button>
+                <button class="touche" onclick="ajouterLettreInit('W')">W</button>
+                <button class="touche" onclick="ajouterLettreInit('X')">X</button>
+                <button class="touche" onclick="ajouterLettreInit('C')">C</button>
+                <button class="touche" onclick="ajouterLettreInit('V')">V</button>
+                <button class="touche" onclick="ajouterLettreInit('B')">B</button>
+                <button class="touche" onclick="ajouterLettreInit('N')">N</button>
+                <button class="touche touche-large touche-ok" onclick="validerMotSecret()">✓</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phase jeu -->
+    <div id="phase-jeu">
+
+        <div class="zone-principale">
+
+            <!-- Mon mot secret -->
+            <div>
+                <div class="section-label">Mon mot</div>
+                <div class="cases-mot" id="cases-mon-mot"></div>
+            </div>
+
+            <!-- Dernière proposition adversaire -->
+            <div class="zone-adversaire">
+                <div class="section-label" id="label-adversaire">Adversaire</div>
+                <div class="adversaire-derniere">
+                    <div class="adversaire-mot" id="adv-derniere-prop">—</div>
+                    <div class="adversaire-score" id="adv-derniere-score"></div>
+                </div>
+                <div class="cases-adversaire" id="cases-adv"></div>
+            </div>
+
+            <!-- Mes propositions -->
+            <div>
+                <div class="section-label">Mes propositions</div>
+                <div class="zone-propositions" id="liste-props"></div>
+            </div>
+
+        </div>
+
+        <!-- Affichage mot en saisie -->
+        <div class="zone-saisie" style="padding: 4px 14px;">
+            <div id="affichage-saisie" class="cases-mot"></div>
+            <div id="msg-attente" class="msg-attente" style="display:none;">Tour de l'adversaire…</div>
+            <div id="error-jeu2" style="display:none; color:#ff4444; text-align:center; font-size:0.85rem; padding:4px;"></div>
+        </div>
+
+        <!-- Clavier jeu -->
+        <div class="zone-clavier">
+            <div class="clavier" id="clavier-jeu">
+                <div class="clavier-rangee">
+                    <button class="touche" onclick="ajouterLettre('A')">A</button>
+                    <button class="touche" onclick="ajouterLettre('Z')">Z</button>
+                    <button class="touche" onclick="ajouterLettre('E')">E</button>
+                    <button class="touche" onclick="ajouterLettre('R')">R</button>
+                    <button class="touche" onclick="ajouterLettre('T')">T</button>
+                    <button class="touche" onclick="ajouterLettre('Y')">Y</button>
+                    <button class="touche" onclick="ajouterLettre('U')">U</button>
+                    <button class="touche" onclick="ajouterLettre('I')">I</button>
+                    <button class="touche" onclick="ajouterLettre('O')">O</button>
+                    <button class="touche" onclick="ajouterLettre('P')">P</button>
+                </div>
+                <div class="clavier-rangee">
+                    <button class="touche" onclick="ajouterLettre('Q')">Q</button>
+                    <button class="touche" onclick="ajouterLettre('S')">S</button>
+                    <button class="touche" onclick="ajouterLettre('D')">D</button>
+                    <button class="touche" onclick="ajouterLettre('F')">F</button>
+                    <button class="touche" onclick="ajouterLettre('G')">G</button>
+                    <button class="touche" onclick="ajouterLettre('H')">H</button>
+                    <button class="touche" onclick="ajouterLettre('J')">J</button>
+                    <button class="touche" onclick="ajouterLettre('K')">K</button>
+                    <button class="touche" onclick="ajouterLettre('L')">L</button>
+                    <button class="touche" onclick="ajouterLettre('M')">M</button>
+                </div>
+                <div class="clavier-rangee">
+                    <button class="touche touche-large" onclick="effacer()">⌫</button>
+                    <button class="touche" onclick="ajouterLettre('W')">W</button>
+                    <button class="touche" onclick="ajouterLettre('X')">X</button>
+                    <button class="touche" onclick="ajouterLettre('C')">C</button>
+                    <button class="touche" onclick="ajouterLettre('V')">V</button>
+                    <button class="touche" onclick="ajouterLettre('B')">B</button>
+                    <button class="touche" onclick="ajouterLettre('N')">N</button>
+                    <button class="touche touche-large touche-ok" onclick="valider()">✓</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Overlay fin de partie -->
+    <div class="overlay-fin" id="overlay-fin">
+        <div class="fin-contenu">
+            <div class="fin-titre" id="fin-titre"></div>
+            <div class="fin-info" id="fin-info"></div>
+            <div class="fin-mot-secret" id="fin-mot-adv"></div>
+            <button class="btn-fin" onclick="demanderRevanche()">Revanche ⚔</button>
+            <button class="btn-fin-retour" onclick="window.location.href='multi.html'">← Retour</button>
+        </div>
+    </div>
+
+    <script>
+    // ── Paramètres de la partie (simulés — viendront de Supabase) ──
+    const LONGUEUR = 4;
+    const MON_PSEUDO = 'Joueur A';
+    const ADV_PSEUDO = 'Joueur B';
+    const JE_COMMENCE = true; // le challenger commence
+
+    // ── État ──
+    let motSecret = '';
+    let saisieInit = '';
+    let saisieEnCours = '';
+    let cMonTour = JE_COMMENCE;
+    let partieTerminee = false;
+    let scoreA = 0, scoreB = 0;
+    let derniereAdvProp = '';
+    let derniereAdvScore = null;
+
+    // Mot de l'adversaire simulé pour les tests
+    const MOT_ADVERSAIRE = 'LAIT'; // sera fourni par Supabase
+
+    // ── Init ──
+    document.getElementById('header-longueur').textContent = LONGUEUR + ' lettres';
+    document.getElementById('init-adversaire').textContent = 'Contre : ' + ADV_PSEUDO;
+    document.getElementById('label-adversaire').textContent = ADV_PSEUDO;
+    afficherCasesInit();
+
+    function afficherCasesInit() {
+        const el = document.getElementById('cases-init');
+        el.innerHTML = '';
+        for (let i = 0; i < LONGUEUR; i++) {
+            const div = document.createElement('div');
+            div.classList.add('case-mot-secret');
+            div.textContent = saisieInit[i] || '';
+            el.appendChild(div);
+        }
+    }
+
+    function ajouterLettreInit(l) {
+        if (saisieInit.length < LONGUEUR) {
+            saisieInit += l;
+            afficherCasesInit();
+        }
+    }
+
+    function effacerInit() {
+        saisieInit = saisieInit.slice(0, -1);
+        afficherCasesInit();
+    }
+
+    function validerMotSecret() {
+        if (saisieInit.length !== LONGUEUR) return;
+        if (!(saisieInit in (window.DICO || {})) && Object.keys(window.DICO || {}).length > 0) {
+            document.getElementById('init-sous').textContent = 'Mot inconnu du dictionnaire';
+            document.getElementById('init-sous').style.color = '#ff4444';
+            return;
+        }
+        motSecret = saisieInit;
+        demarrerPartie();
+    }
+
+    function demarrerPartie() {
+        document.getElementById('phase-init').style.display = 'none';
+        document.getElementById('phase-jeu').style.display = 'flex';
+        afficherMonMot();
+        afficherCasesAdv();
+        afficherSaisie();
+        majTour();
+        // TODO : envoyer motSecret à Supabase (chiffré)
+    }
+
+    // ── Affichage mon mot secret ──
+    function afficherMonMot() {
+        const el = document.getElementById('cases-mon-mot');
+        el.innerHTML = '';
+        for (let i = 0; i < LONGUEUR; i++) {
+            const div = document.createElement('div');
+            div.classList.add('case-mot-secret');
+            div.id = 'mon-mot-' + i;
+            div.textContent = motSecret[i];
+            el.appendChild(div);
+        }
+    }
+
+    // ── Animation scan quand l'adversaire propose ──
+    function animerScan(proposition, score) {
+        return new Promise(resolve => {
+            for (let i = 0; i < LONGUEUR; i++) {
+                const el = document.getElementById('mon-mot-' + i);
+                if (!el) continue;
+                setTimeout(() => {
+                    el.classList.add('scan');
+                    setTimeout(() => el.classList.remove('scan'), 500);
+                }, i * 150);
+            }
+            // Afficher le résultat après la fin de l'animation
+            setTimeout(() => {
+                afficherDerniereAdvProp(proposition, score);
+                resolve();
+            }, LONGUEUR * 150 + 600);
+        });
+    }
+
+    function afficherDerniereAdvProp(proposition, score) {
+        document.getElementById('adv-derniere-prop').textContent = proposition;
+        const scoreEl = document.getElementById('adv-derniere-score');
+        if (score === LONGUEUR) {
+            scoreEl.textContent = '🏆';
+            scoreEl.className = 'adversaire-score score-gagne';
+        } else {
+            scoreEl.textContent = score;
+            scoreEl.className = 'adversaire-score score-' + score;
+        }
+    }
+
+    // ── Cases vides adversaire ──
+    function afficherCasesAdv() {
+        const el = document.getElementById('cases-adv');
+        el.innerHTML = '';
+        for (let i = 0; i < LONGUEUR; i++) {
+            const div = document.createElement('div');
+            div.classList.add('case-adv');
+            el.appendChild(div);
+        }
+    }
+
+    // ── Affichage saisie ──
+    function afficherSaisie() {
+        const el = document.getElementById('affichage-saisie');
+        el.innerHTML = '';
+        for (let i = 0; i < LONGUEUR; i++) {
+            const div = document.createElement('div');
+            div.classList.add('case-lettre');
+            if (saisieEnCours[i]) {
+                div.classList.add('case-saisie');
+                div.textContent = saisieEnCours[i];
+            } else {
+                div.classList.add('case-vide');
+            }
+            el.appendChild(div);
+        }
+    }
+
+    // ── Tour ──
+    function majTour() {
+        const tourEl = document.getElementById('header-tour');
+        const clavier = document.getElementById('clavier-jeu');
+        const saisieEl = document.getElementById('affichage-saisie');
+        const msgEl = document.getElementById('msg-attente');
+
+        if (cMonTour) {
+            tourEl.textContent = 'Ton tour';
+            tourEl.className = 'header-tour tour-moi';
+            clavier.style.opacity = '1';
+            clavier.style.pointerEvents = 'all';
+            saisieEl.style.display = 'flex';
+            msgEl.style.display = 'none';
+        } else {
+            tourEl.textContent = 'Tour de ' + ADV_PSEUDO;
+            tourEl.className = 'header-tour tour-adversaire';
+            clavier.style.opacity = '0.3';
+            clavier.style.pointerEvents = 'none';
+            saisieEl.style.display = 'none';
+            msgEl.style.display = 'block';
+            // Simuler la proposition adversaire après 2s (sera remplacé par Supabase)
+            setTimeout(() => simulerAdversaire(), 2000);
+        }
+
+        document.getElementById('header-score').textContent = scoreA + ' — ' + scoreB;
+    }
+
+    // ── Simulation adversaire (pour tests sans Supabase) ──
+    const propositionsAdv = ['ABAT', 'BALS', 'CAVE', 'DARD', 'GAIN', 'LAIT'];
+    let indexAdv = 0;
+
+    function simulerAdversaire() {
+        if (partieTerminee) return;
+        const prop = propositionsAdv[indexAdv % propositionsAdv.length];
+        indexAdv++;
+        let score = 0;
+        for (let i = 0; i < LONGUEUR; i++) {
+            if (prop[i] === motSecret[i]) score++;
+        }
+        recevoirPropositionAdversaire(prop, score);
+    }
+
+    async function recevoirPropositionAdversaire(proposition, score) {
+        await animerScan(proposition, score);
+        if (score === LONGUEUR) {
+            scoreB++;
+            finPartie(false, proposition);
+            return;
+        }
+        cMonTour = true;
+        majTour();
+    }
+
+    // ── Saisie joueur ──
+    function ajouterLettre(l) {
+        if (!cMonTour || partieTerminee) return;
+        if (saisieEnCours.length < LONGUEUR) {
+            saisieEnCours += l;
+            afficherSaisie();
+        }
+    }
+
+    function effacer() {
+        if (!cMonTour || partieTerminee) return;
+        saisieEnCours = saisieEnCours.slice(0, -1);
+        afficherSaisie();
+    }
+
+    function valider() {
+        if (!cMonTour || partieTerminee) return;
+        const prop = saisieEnCours.toUpperCase();
+        const errEl = document.getElementById('error-jeu2');
+
+        if (prop.length !== LONGUEUR) {
+            errEl.textContent = 'Mot trop court';
+            errEl.style.display = 'block';
+            setTimeout(() => errEl.style.display = 'none', 1500);
+            return;
+        }
+
+        if (Object.keys(window.DICO || {}).length > 0 && !(prop in window.DICO)) {
+            errEl.textContent = 'Mot inconnu du dictionnaire';
+            errEl.style.display = 'block';
+            setTimeout(() => errEl.style.display = 'none', 1500);
+            return;
+        }
+
+        errEl.style.display = 'none';
+
+        // Compter lettres bien placées contre le mot de l'adversaire
+        let score = 0;
+        for (let i = 0; i < LONGUEUR; i++) {
+            if (prop[i] === MOT_ADVERSAIRE[i]) score++;
+        }
+
+        // Ajouter à mes propositions
+        ajouterLigneProp(prop, score);
+        saisieEnCours = '';
+        afficherSaisie();
+
+        if (score === LONGUEUR) {
+            scoreA++;
+            finPartie(true, MOT_ADVERSAIRE);
+            return;
+        }
+
+        // Passer le tour
+        cMonTour = false;
+        majTour();
+        // TODO : envoyer prop + score à Supabase
+    }
+
+    function ajouterLigneProp(mot, score) {
+        const liste = document.getElementById('liste-props');
+        const ligne = document.createElement('div');
+        ligne.classList.add('ligne-prop');
+        const cls = score === LONGUEUR ? 'score-gagne' : 'score-' + score;
+        ligne.innerHTML = `
+            <span class="prop-mot">${mot}</span>
+            <span class="prop-score ${cls}">${score === LONGUEUR ? '🏆' : score}</span>
+        `;
+        liste.appendChild(ligne);
+        liste.scrollTop = liste.scrollHeight;
+    }
+
+    // ── Fin de partie ──
+    function finPartie(gagne, motAdv) {
+        partieTerminee = true;
+        const overlay = document.getElementById('overlay-fin');
+        const titre = document.getElementById('fin-titre');
+        const info = document.getElementById('fin-info');
+        const motEl = document.getElementById('fin-mot-adv');
+
+        if (gagne) {
+            titre.textContent = 'Gagné !';
+            titre.className = 'fin-titre fin-gagne';
+            info.textContent = 'Tu as trouvé le mot de ' + ADV_PSEUDO;
+        } else {
+            titre.textContent = 'Perdu !';
+            titre.className = 'fin-titre fin-perdu';
+            info.textContent = ADV_PSEUDO + ' a trouvé ton mot';
+        }
+        motEl.textContent = motAdv;
+        overlay.classList.add('visible');
+    }
+
+    function demanderRevanche() {
+        // TODO : envoyer demande de revanche via Supabase
+        alert('Revanche demandée ! (en cours de développement)');
+    }
+
+    // Clavier physique
+    document.addEventListener('keydown', e => {
+        if (document.getElementById('phase-init').style.display !== 'none') {
+            if (e.key === 'Enter') validerMotSecret();
+            else if (e.key === 'Backspace') effacerInit();
+            else if (/^[a-zA-Z]$/.test(e.key)) ajouterLettreInit(e.key.toUpperCase());
+        } else {
+            if (e.key === 'Enter') valider();
+            else if (e.key === 'Backspace') effacer();
+            else if (/^[a-zA-Z]$/.test(e.key)) ajouterLettre(e.key.toUpperCase());
+        }
+    });
+
+    // Charger le dico
+    window.DICO = {};
+    fetch('dicos_saintex.json')
+        .then(r => r.json())
+        .then(d => { window.DICO = d; })
+        .catch(() => {});
+    </script>
+
+</body>
+</html>
