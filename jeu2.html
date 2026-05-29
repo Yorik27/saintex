@@ -24,27 +24,30 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 8px 14px;
+            padding: 6px 12px;
             border-bottom: 1px solid rgba(0,191,255,0.15);
             flex-shrink: 0;
+            gap: 8px;
         }
-        .header-jeu2 .logo { height: 38px; }
-        .header-info {
+        .header-jeu2 .logo { height: 36px; flex-shrink: 0; }
+
+        .header-centre {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 2px;
+            flex: 1;
         }
         .header-longueur {
             font-family: 'bigelowrules', Georgia, serif;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: deepskyblue;
             letter-spacing: 2px;
         }
         .header-tour {
-            font-size: 0.72rem;
+            font-size: 0.75rem;
             letter-spacing: 1px;
-            padding: 3px 10px;
+            padding: 3px 12px;
             border-radius: 50px;
             font-family: 'bigelowrules', Georgia, serif;
         }
@@ -58,12 +61,41 @@
             border: 1px solid rgba(255,153,0,0.35);
             color: #ff9900;
         }
-        .header-score {
-            font-family: 'bigelowrules', Georgia, serif;
-            font-size: 0.85rem;
-            color: rgba(255,255,255,0.5);
+        #header-timer {
+            font-family: 'Roboto', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: rgba(0,191,255,0.7);
             letter-spacing: 1px;
         }
+
+        .header-droite {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .header-score {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 600;
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.5);
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+        .btn-abandon-header {
+            background: transparent;
+            border: 1px solid rgba(255,68,68,0.35);
+            color: rgba(255,68,68,0.7);
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 0.78rem;
+            letter-spacing: 1px;
+            padding: 2px 8px;
+            border-radius: 50px;
+            cursor: pointer;
+        }
+        .btn-abandon-header:hover { background: rgba(255,68,68,0.1); }
 
         /* ── Zone principale ── */
         .zone-principale {
@@ -643,10 +675,7 @@
             <div class="header-longueur" id="header-longueur">4 lettres</div>
             <div class="header-tour tour-moi" id="header-tour">Ton tour</div>
         </div>
-        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px;">
-            <div class="header-score" id="header-score" style="font-size:0.75rem;"></div>
-            <button onclick="proposerAbandon()" style="background:transparent; border:none; color:rgba(255,68,68,0.5); font-size:0.7rem; cursor:pointer; padding:0; font-family:'Roboto',sans-serif;">Abandonner</button>
-        </div>
+        <div class="header-score" id="header-score">0 — 0</div>
     </div>
 
     <!-- Phase init : saisie du mot secret -->
@@ -710,7 +739,7 @@
 
             <!-- Avancement adversaire -->
             <div class="zone-adversaire">
-                <div class="section-label" id="label-adversaire"></div>
+                <div class="section-label" id="label-adversaire">Adversaire</div>
                 <div class="adv-progression">
                     <div class="adv-points" id="adv-points"></div>
                     <div class="adv-nb" id="adv-nb">0 lettre trouvée</div>
@@ -782,6 +811,7 @@
     </button>
 
     <!-- Popup chat -->
+    <div id="overlay-chat" onclick="toggleChat()" style="display:none; position:fixed; inset:0; z-index:44; background:rgba(0,0,0,0.5);"></div>
     <div class="popup-chat" id="popup-chat">
         <div class="popup-chat-header">
             <span class="popup-chat-titre">💬 Discussion</span>
@@ -887,7 +917,6 @@
     }
 
     function demarrerPartie() {
-        document.getElementById('label-adversaire').textContent = ADV_PSEUDO;
         document.getElementById('phase-init').style.display = 'none';
         document.getElementById('phase-jeu').style.display = 'flex';
         document.getElementById('btn-chat-flottant').style.display = 'flex';
@@ -1039,9 +1068,7 @@
             setTimeout(() => simulerAdversaire(), 2000);
         }
 
-        const shortA = MON_PSEUDO.substring(0, 3).toUpperCase();
-        const shortB = ADV_PSEUDO.substring(0, 3).toUpperCase();
-        document.getElementById('header-score').textContent = shortA + ' ' + scoreA + ' — ' + shortB + ' ' + scoreB;
+        document.getElementById('header-score').textContent = scoreA + ' — ' + scoreB;
         demarrerTimer();
     }
 
@@ -1208,8 +1235,10 @@
 
     function toggleChat() {
         const popup = document.getElementById('popup-chat');
+        const overlay = document.getElementById('overlay-chat');
         chatOuvert = !chatOuvert;
         popup.classList.toggle('visible', chatOuvert);
+        if (overlay) overlay.style.display = chatOuvert ? 'block' : 'none';
         if (chatOuvert) {
             messagesNonLus = 0;
             const badge = document.getElementById('badge-chat');
@@ -1284,13 +1313,6 @@
             titre.textContent = 'Adversaire inactif';
             info.textContent = ADV_PSEUDO + ' n\'a pas joué dans les temps.';
         }
-        modal.classList.add('visible');
-    }
-
-    function proposerAbandon() {
-        const modal = document.getElementById('modal-timeout');
-        document.getElementById('timeout-titre').textContent = 'Abandonner ?';
-        document.getElementById('timeout-info').textContent = 'Tu vas quitter la partie en cours.';
         modal.classList.add('visible');
     }
 
