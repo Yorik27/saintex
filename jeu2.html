@@ -191,6 +191,34 @@
         .score-5 { color: #ff0000; }
         .score-gagne { color: #00cc66; }
 
+        /* ── Cases de saisie jeu2 (override saintex.css) ── */
+        #affichage-saisie {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            padding: 4px 0;
+        }
+        #affichage-saisie .case-lettre {
+            width: 44px !important;
+            height: 44px !important;
+            min-width: 44px !important;
+            border: 1.5px solid rgba(0,191,255,0.4) !important;
+            border-radius: 8px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-family: 'Roboto', sans-serif !important;
+            font-weight: 700 !important;
+            font-size: 1.1rem !important;
+            color: white !important;
+            background: rgba(0,191,255,0.06) !important;
+            cursor: pointer;
+        }
+        #affichage-saisie .case-saisie-active {
+            border-color: #ff4444 !important;
+            box-shadow: 0 0 8px rgba(255,68,68,0.4) !important;
+        }
+
         /* ── Affichage mot en saisie ── */
         .zone-saisie {
             flex-shrink: 0;
@@ -427,8 +455,8 @@
         /* Bouton flottant chat */
         .btn-chat-flottant {
             position: fixed;
-            bottom: 130px;
-            right: 10px;
+            bottom: 150px;
+            right: 12px;
             width: 46px;
             height: 46px;
             border-radius: 50%;
@@ -466,9 +494,11 @@
         /* Popup chat */
         .popup-chat {
             position: fixed;
-            bottom: 180px;
-            right: 10px;
-            width: min(300px, calc(100vw - 20px));
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            border-radius: 16px 16px 0 0;
             background: #1a1a2e;
             border: 1px solid rgba(0,191,255,0.3);
             border-radius: 16px;
@@ -642,6 +672,7 @@
         <div class="header-info">
             <div class="header-longueur" id="header-longueur">4 lettres</div>
             <div class="header-tour tour-moi" id="header-tour">Ton tour</div>
+            <div id="header-timer" style="font-size:0.7rem; color:rgba(255,255,255,0.35); font-family:'Roboto',sans-serif; letter-spacing:1px;"></div>
         </div>
         <div class="header-score" id="header-score">0 — 0</div>
     </div>
@@ -1037,6 +1068,7 @@
 
         document.getElementById('header-score').textContent = scoreA + ' — ' + scoreB;
         demarrerTimer();
+        majTimerAffichage();
     }
 
     // ── Simulation adversaire (pour tests sans Supabase) ──
@@ -1251,11 +1283,21 @@
     let timerTour = null;
     let secondesRestantes = TIMEOUT_TOUR;
 
+    function majTimerAffichage() {
+        const el = document.getElementById('header-timer');
+        if (!el) return;
+        const m = Math.floor(secondesRestantes / 60);
+        const s = secondesRestantes % 60;
+        el.textContent = m + ':' + String(s).padStart(2, '0');
+        el.style.color = secondesRestantes <= 30 ? '#ff4444' : 'rgba(255,255,255,0.35)';
+    }
+
     function demarrerTimer() {
         arreterTimer();
         secondesRestantes = TIMEOUT_TOUR;
         timerTour = setInterval(() => {
             secondesRestantes--;
+            majTimerAffichage();
             if (secondesRestantes <= 0) {
                 arreterTimer();
                 afficherTimeout();
