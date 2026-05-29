@@ -152,12 +152,6 @@
 
         /* ── Mes propositions ── */
         .zone-propositions {
-            flex: 1;
-            min-height: 80px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        .zone-propositions {
             display: flex !important;
             flex-wrap: wrap !important;
             gap: 2px 8px !important;
@@ -190,34 +184,6 @@
         .score-4 { color: #ff3300; }
         .score-5 { color: #ff0000; }
         .score-gagne { color: #00cc66; }
-
-        /* ── Cases de saisie jeu2 (override saintex.css) ── */
-        #affichage-saisie {
-            display: flex;
-            gap: 6px;
-            justify-content: center;
-            padding: 4px 0;
-        }
-        #affichage-saisie .case-lettre {
-            width: 44px !important;
-            height: 44px !important;
-            min-width: 44px !important;
-            border: 1.5px solid rgba(0,191,255,0.4) !important;
-            border-radius: 8px !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            font-family: 'Roboto', sans-serif !important;
-            font-weight: 700 !important;
-            font-size: 1.1rem !important;
-            color: white !important;
-            background: rgba(0,191,255,0.06) !important;
-            cursor: pointer;
-        }
-        #affichage-saisie .case-saisie-active {
-            border-color: #ff4444 !important;
-            box-shadow: 0 0 8px rgba(255,68,68,0.4) !important;
-        }
 
         /* ── Affichage mot en saisie ── */
         .zone-saisie {
@@ -455,8 +421,8 @@
         /* Bouton flottant chat */
         .btn-chat-flottant {
             position: fixed;
-            bottom: 150px;
-            right: 12px;
+            bottom: 130px;
+            right: 10px;
             width: 46px;
             height: 46px;
             border-radius: 50%;
@@ -494,11 +460,9 @@
         /* Popup chat */
         .popup-chat {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            width: 100%;
-            border-radius: 16px 16px 0 0;
+            bottom: 180px;
+            right: 10px;
+            width: min(300px, calc(100vw - 20px));
             background: #1a1a2e;
             border: 1px solid rgba(0,191,255,0.3);
             border-radius: 16px;
@@ -533,9 +497,9 @@
         }
 
         .dialogue-messages {
-            max-height: 140px;
+            max-height: 100px;
             overflow-y: auto;
-            padding: 8px 12px;
+            padding: 6px 12px;
             display: flex;
             flex-direction: column;
             gap: 4px;
@@ -572,7 +536,7 @@
             display: flex;
             gap: 4px;
             flex-wrap: wrap;
-            padding: 6px 12px;
+            padding: 4px 12px;
             border-top: 1px solid rgba(255,255,255,0.06);
         }
         .btn-reaction {
@@ -590,7 +554,7 @@
             display: flex;
             gap: 6px;
             align-items: center;
-            padding: 8px 12px;
+            padding: 4px 12px 8px;
             border-top: 1px solid rgba(255,255,255,0.06);
         }
         .dialogue-input {
@@ -619,7 +583,7 @@
             justify-content: center;
             flex-shrink: 0;
         }
-        .zone-principale { overflow-y: auto; padding: 8px 14px; gap: 8px; max-height: 45vh; }
+        .zone-principale { overflow-y: auto; padding: 6px 14px; gap: 6px; }
 
         /* Case active saisie désordre */
         .case-saisie-active {
@@ -672,7 +636,6 @@
         <div class="header-info">
             <div class="header-longueur" id="header-longueur">4 lettres</div>
             <div class="header-tour tour-moi" id="header-tour">Ton tour</div>
-            <div id="header-timer" style="font-size:0.7rem; color:rgba(255,255,255,0.35); font-family:'Roboto',sans-serif; letter-spacing:1px;"></div>
         </div>
         <div class="header-score" id="header-score">0 — 0</div>
     </div>
@@ -1068,7 +1031,6 @@
 
         document.getElementById('header-score').textContent = scoreA + ' — ' + scoreB;
         demarrerTimer();
-        majTimerAffichage();
     }
 
     // ── Simulation adversaire (pour tests sans Supabase) ──
@@ -1180,10 +1142,7 @@
         const ligne = document.createElement('div');
         ligne.classList.add('ligne-prop');
         const cls = score === LONGUEUR ? 'score-gagne' : 'score-' + score;
-        ligne.innerHTML = `
-            <span class="prop-mot">${mot}</span>
-            <span class="prop-score ${cls}">${score === LONGUEUR ? '🏆' : score}</span>
-        `;
+        ligne.innerHTML = `<span class="prop-mot">${mot}</span><span class="prop-score ${cls}">${score === LONGUEUR ? '🏆' : score}</span>`;
         liste.appendChild(ligne);
         liste.scrollTop = liste.scrollHeight;
     }
@@ -1283,21 +1242,11 @@
     let timerTour = null;
     let secondesRestantes = TIMEOUT_TOUR;
 
-    function majTimerAffichage() {
-        const el = document.getElementById('header-timer');
-        if (!el) return;
-        const m = Math.floor(secondesRestantes / 60);
-        const s = secondesRestantes % 60;
-        el.textContent = m + ':' + String(s).padStart(2, '0');
-        el.style.color = secondesRestantes <= 30 ? '#ff4444' : 'rgba(255,255,255,0.35)';
-    }
-
     function demarrerTimer() {
         arreterTimer();
         secondesRestantes = TIMEOUT_TOUR;
         timerTour = setInterval(() => {
             secondesRestantes--;
-            majTimerAffichage();
             if (secondesRestantes <= 0) {
                 arreterTimer();
                 afficherTimeout();
