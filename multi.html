@@ -559,18 +559,19 @@
             abonnerInvitations();
         }
 
-        async function afficherJoueurs() {
-            const liste = document.getElementById('liste-joueurs');
-            liste.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.3);padding:16px;">Chargement...</div>';
+        let derniereListeIds = '';
 
+        async function afficherJoueurs() {
             const { data: joueurs } = await supabase
                 .from('joueurs')
                 .select('*')
                 .eq('en_ligne', true)
                 .neq('id', monJoueur.id)
                 .order('pseudo');
-            const { data: joueurs } = await supabase...
-            console.log('Joueurs trouvés:', joueurs);
+            const nouvelleIds = (joueurs||[]).map(j=>j.id).join(',');
+            if (nouvelleIds === derniereListeIds) return;
+            derniereListeIds = nouvelleIds;
+            const liste = document.getElementById('liste-joueurs');
             liste.innerHTML = '';
 
             if (!joueurs || joueurs.length === 0) {
