@@ -531,7 +531,7 @@
                 .from('joueurs')
                 .select('*')
                 .eq('pseudo', pseudo)
-                .single();
+                .maybeSingle();
 
             if (existing) {
                 await supabase.from('joueurs')
@@ -541,7 +541,7 @@
             } else {
                 const { data } = await supabase.from('joueurs')
                     .insert({ pseudo, en_ligne: true })
-                    .select().single();
+                    .select().maybeSingle();
                 monJoueur = data;
         console.log('Connecté:', monJoueur);
         console.log('Mon ID:', monJoueur?.id);
@@ -563,13 +563,11 @@
             const liste = document.getElementById('liste-joueurs');
             liste.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.3);padding:16px;">Chargement...</div>';
 
-            const cinqMinutesAvant = new Date(Date.now() - 5 * 60 * 1000).toISOString();
             const { data: joueurs } = await supabase
                 .from('joueurs')
                 .select('*')
                 .eq('en_ligne', true)
                 .neq('id', monJoueur.id)
-                .gte('last_seen', cinqMinutesAvant)
                 .order('pseudo');
             const { data: joueurs } = await supabase...
             console.log('Joueurs trouvés:', joueurs);
@@ -603,21 +601,9 @@
 
         }
 
-        // Heartbeat : mettre à jour last_seen toutes les 30s
-        setInterval(async () => {
-            if (monJoueur) {
-                await supabase.from('joueurs')
-                    .update({ last_seen: new Date().toISOString() })
-                    .eq('id', monJoueur.id);
-            }
-        }, 30000);
-
         function abonnerJoueursEnLigne() {
-            if (canalJoueurs) {
-                supabase.removeChannel(canalJoueurs);
-                canalJoueurs = null;
-            }
-            canalJoueurs = supabase.channel('joueurs-ligne-' + monJoueur.id)
+            if (canalJoueurs) supabase.removeChannel(canalJoueurs);
+            canalJoueurs = supabase.channel('joueurs-ligne')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'joueurs' },
                     () => afficherJoueurs())
                 .subscribe();
@@ -680,7 +666,7 @@
                     longueur: inv.longueur_preferee,
                     tour_actuel: 'a',
                     statut: 'en_cours'
-                }).select().single();
+                }).select().maybeSingle();
 
                 // Mettre à jour l'invitation
                 await supabase.from('invitations')
