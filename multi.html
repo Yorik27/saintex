@@ -405,10 +405,11 @@
             font-weight: 700;
         }
         .longueur-hint {
-            font-size: 0.72rem;
-            color: rgba(255,255,255,0.25);
-            margin-top: 8px;
-            font-style: italic;
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.55);
+            margin-top: 10px;
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.5;
         }
     </style>
 </head>
@@ -432,7 +433,9 @@
                 <div class="case-longueur" id="case-4L" onclick="tapperCase('4L')">4L</div>
                 <div class="case-longueur" id="case-5L" onclick="tapperCase('5L')">5L</div>
             </div>
-            <div class="longueur-hint">1 tap = préféré · 2 taps = prioritaire ✓ · 3 taps = effacer</div>
+            <div class="longueur-hint">
+                1 tap = accepté &nbsp;·&nbsp; 2 taps = prioritaire ✓<br>3 taps = effacer
+            </div>
         </div>
         <div class="pseudo-section" style="padding-top:8px;">
             <button class="btn-connecter" onclick="seConnecter()">Entrer</button>
