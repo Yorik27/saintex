@@ -602,6 +602,11 @@
 
         }
 
+        // Polling toutes les 10s
+        setInterval(async () => {
+            if (monJoueur) await afficherJoueurs();
+        }, 10000);
+
         function abonnerJoueursEnLigne() {
             if (canalJoueurs) supabase.removeChannel(canalJoueurs);
             canalJoueurs = supabase.channel('joueurs-ligne')
