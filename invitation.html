@@ -167,45 +167,90 @@
         <button class="btn-refuser" onclick="refuser()">Décliner l'invitation</button>
     </div>
 
-    <script>
-        // Lire les paramètres depuis sessionStorage
-        const challengerNom = sessionStorage.getItem('adv_pseudo') || 'Joueur A';
-        const monPseudo = sessionStorage.getItem('mon_pseudo') || 'Joueur B';
-        const longueurPreferee = parseInt(sessionStorage.getItem('longueur_preferee') || '4');
-        const estRevanche = sessionStorage.getItem('revanche') === 'true';
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-        // Afficher le nom du challenger
+        const SUPABASE_URL = 'https://vrdjytcbiddvvvielcdz.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_f8VIFlJD4LasEWwLgSttZw_Gn7RFwLz';
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Simulation si pas de vraie session
+        const estSimulation = !sessionStorage.getItem('depuis_multi');
+        if (estSimulation) {
+            sessionStorage.setItem('adv_pseudo', 'Léonie');
+            sessionStorage.setItem('mon_pseudo', 'François');
+            sessionStorage.setItem('longueur_preferee', '4');
+            sessionStorage.setItem('je_commence', 'true');
+        }
+
+        const challengerNom = sessionStorage.getItem('adv_pseudo');
+        const monPseudo     = sessionStorage.getItem('mon_pseudo');
+        const longueurPref  = parseInt(sessionStorage.getItem('longueur_preferee') || '4');
+        const estRevanche   = sessionStorage.getItem('revanche') === 'true';
+        const invitationId  = sessionStorage.getItem('invitation_id');
+
+        // Affichage
         document.getElementById('challenger-nom').textContent = challengerNom;
 
-        // Mode revanche
         if (estRevanche) {
             document.getElementById('badge-revanche').style.display = 'inline-block';
             document.getElementById('invitation-sous').textContent = 'veut sa revanche !';
         }
 
-        // Mettre en évidence la longueur préférée du challenger
-        const btnPrefere = document.getElementById('btn-' + longueurPreferee + 'L');
-        if (btnPrefere) {
-            btnPrefere.classList.add('prefere');
-            btnPrefere.querySelector('span').textContent = longueurPreferee + ' lettres ★';
+        const btnPref = document.getElementById('btn-' + longueurPref + 'L');
+        if (btnPref) {
+            btnPref.classList.add('prefere');
+            btnPref.querySelector('span').textContent = longueurPref + ' lettres ★';
         }
 
-        function accepter(longueur) {
-            // Stocker la longueur choisie par B
+        // ── Accepter ──
+        window.accepter = async function(longueur) {
             sessionStorage.setItem('longueur', longueur);
-            // B ne commence pas (A a défié)
-            sessionStorage.setItem('je_commence', 'false');
-            // Effacer le flag revanche
             sessionStorage.removeItem('revanche');
-            // Aller vers le jeu
-            window.location.href = 'jeu2.html';
-        }
 
-        function refuser() {
-            // TODO : notifier Supabase
-            sessionStorage.removeItem('revanche');
+            if (invitationId && !estSimulation) {
+                // Créer la partie dans Supabase
+                const joueurId = sessionStorage.getItem('joueur_id');
+                const advId    = sessionStorage.getItem('adv_id');
+
+                const { data: partie } = await supabase.from('parties').insert({
+                    joueur_a: advId,       // A = celui qui a défié
+                    joueur_b: joueurId,    // B = moi (l'invité)
+                    pseudo_a: challengerNom,
+                    pseudo_b: monPseudo,
+                    longueur: longueur,
+                    tour_actuel: 'a',      // le challenger commence
+                    statut: 'en_cours'
+                }).select().single();
+
+                // Mettre à jour l'invitation
+                await supabase.from('invitations')
+                    .update({ statut: 'acceptee', partie_id: partie.id })
+                    .eq('id', invitationId);
+
+                sessionStorage.setItem('partie_id', partie.id);
+                sessionStorage.setItem('je_commence', 'false'); // B ne commence pas
+            } else {
+                sessionStorage.setItem('je_commence', 'false');
+            }
+
+            window.location.href = 'jeu2.html';
+        };
+
+        // ── Refuser ──
+        window.refuser = async function() {
+            if (invitationId && !estSimulation) {
+                await supabase.from('invitations')
+                    .update({ statut: 'refusee' })
+                    .eq('id', invitationId);
+                sessionStorage.removeItem('invitation_id');
+            }
+            // Nettoyer sessionStorage
+            ['adv_pseudo', 'adv_id', 'partie_id', 'depuis_multi', 'revanche',
+             'invitation_id', 'longueur', 'longueur_preferee'].forEach(k =>
+                sessionStorage.removeItem(k));
             window.location.href = 'multi.html';
-        }
+        };
     </script>
 
 </body>

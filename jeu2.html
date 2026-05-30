@@ -103,7 +103,7 @@
             position: fixed;
             top: 54px;
             left: 0; right: 0;
-            bottom: 208px;
+            bottom: 196px;
             overflow-y: auto;
             padding: 8px 14px;
             display: flex;
@@ -184,21 +184,32 @@
             border: 1.5px solid rgba(0,191,255,0.2);
             border-radius: 7px;
             background: rgba(0,191,255,0.04);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            color: transparent;
+            transition: all 0.4s;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .case-adv.decouverte {
+            border-color: #00cc66;
+            background: rgba(0,204,102,0.15);
+            color: #00cc66;
+            box-shadow: 0 0 8px rgba(0,204,102,0.3);
         }
 
         /* ── Mes propositions ── */
         .zone-propositions {
-            flex: 1;
-            min-height: 80px;
-            max-height: 200px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px 8px;
+            max-height: 80px;
             overflow-y: auto;
-        }
-        .zone-propositions {
-            display: flex !important;
-            flex-wrap: wrap !important;
-            gap: 2px 8px !important;
-            max-height: 80px !important;
-            overflow-y: auto !important;
         }
         .ligne-prop {
             display: flex;
@@ -230,13 +241,17 @@
         /* ── Affichage mot en saisie ── */
         .zone-saisie {
             position: fixed;
-            bottom: 128px;
+            bottom: 136px;
             left: 0; right: 0;
             background: #111;
             display: flex;
+            flex-direction: column;
+            align-items: center;
             justify-content: center;
-            padding: 4px 0;
+            min-height: 54px;
+            padding: 6px 0;
             z-index: 20;
+            border-top: 1px solid rgba(0,191,255,0.08);
         }
 
         /* ── Clavier ── */
@@ -775,7 +790,7 @@
         </div>
 
         <!-- Affichage mot en saisie -->
-        <div class="zone-saisie" style="padding: 6px 14px; min-height: 56px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+        <div class="zone-saisie">
             <div id="affichage-saisie" class="cases-mot"></div>
             <div id="msg-attente" class="msg-attente" style="display:none;">Tour de l'adversaire…</div>
             <div id="error-jeu2" style="display:none; color:#ff4444; text-align:center; font-size:0.85rem; padding:4px;"></div>
@@ -870,32 +885,38 @@
             <div class="fin-info" id="fin-info"></div>
             <div class="fin-mot-secret" id="fin-mot-adv"></div>
             <button class="btn-fin" onclick="demanderRevanche()">Revanche ⚔</button>
-            <button class="btn-fin-retour" onclick="window.location.href='multi.html'">← Retour</button>
+            <button class="btn-fin-retour" onclick="nettoyerEtRetourner()">← Retour</button>
         </div>
     </div>
 
-    <script>
-    // ── Paramètres de la partie (simulés — viendront de Supabase) ──
-    // Paramètres lus depuis sessionStorage (passés par multi.html)
-    // Valeurs par défaut pour test direct
-    const LONGUEUR = parseInt(sessionStorage.getItem('longueur') || '4');
-    const MON_PSEUDO = sessionStorage.getItem('mon_pseudo') || 'Joueur A';
-    const ADV_PSEUDO = sessionStorage.getItem('adv_pseudo') || 'Joueur B';
+    <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+    const SUPABASE_URL = 'https://vrdjytcbiddvvvielcdz.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_f8VIFlJD4LasEWwLgSttZw_Gn7RFwLz';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // ── Paramètres de la partie ──
+    const LONGUEUR    = parseInt(sessionStorage.getItem('longueur') || '4');
+    const MON_PSEUDO  = sessionStorage.getItem('mon_pseudo') || 'Joueur A';
+    const ADV_PSEUDO  = sessionStorage.getItem('adv_pseudo') || 'Joueur B';
     const JE_COMMENCE = sessionStorage.getItem('je_commence') !== 'false';
+    const PARTIE_ID   = sessionStorage.getItem('partie_id');
+    const MON_ROLE    = JE_COMMENCE ? 'a' : 'b'; // 'a' = challenger, 'b' = invité
+    const MON_ID      = sessionStorage.getItem('joueur_id');
 
     // ── État ──
-    let motSecret = '';
-    let saisieInit = '';
-    let saisieEnCours = '';
+    let motSecret      = '';
+    let motAdversaire  = ''; // sera révélé à la fin
+    let saisieInit     = '';
+    let saisieEnCours  = '';
     let positionActive2 = null;
-    let cMonTour = JE_COMMENCE;
+    let cMonTour       = JE_COMMENCE;
     let partieTerminee = false;
     let scoreA = 0, scoreB = 0;
-    let derniereAdvProp = '';
-    let derniereAdvScore = null;
-
-    // Mot de l'adversaire simulé pour les tests
-    const MOT_ADVERSAIRE = 'LAIT'; // sera fourni par Supabase
+    let numeroTour     = 0;
+    let canalPartie    = null;
+    let canalProps     = null;
 
     // ── Init ──
     document.getElementById('header-longueur').textContent = LONGUEUR + ' lettres';
@@ -926,7 +947,7 @@
         afficherCasesInit();
     }
 
-    function validerMotSecret() {
+    async function validerMotSecret() {
         if (saisieInit.length !== LONGUEUR) return;
         if (!(saisieInit in (window.DICO || {})) && Object.keys(window.DICO || {}).length > 0) {
             document.getElementById('init-sous').textContent = 'Mot inconnu du dictionnaire';
@@ -934,10 +955,20 @@
             return;
         }
         motSecret = saisieInit;
+
+        // Enregistrer le mot secret dans Supabase
+        if (PARTIE_ID) {
+            const col = MON_ROLE === 'a' ? 'mot_secret_a' : 'mot_secret_b';
+            await supabase.from('parties')
+                .update({ [col]: motSecret })
+                .eq('id', PARTIE_ID);
+        }
+
         demarrerPartie();
     }
 
     function demarrerPartie() {
+        document.getElementById('label-adversaire').textContent = ADV_PSEUDO;
         document.getElementById('phase-init').style.display = 'none';
         document.getElementById('phase-jeu').style.display = 'block';
         document.getElementById('btn-chat-flottant').style.display = 'flex';
@@ -945,7 +976,43 @@
         afficherCasesAdv();
         afficherSaisie();
         majTour();
-        // TODO : envoyer motSecret à Supabase (chiffré)
+
+        // Écouter les propositions adversaire en temps réel
+        if (PARTIE_ID) {
+            abonnerPropositions();
+            abonnerPartie();
+        }
+    }
+
+    function abonnerPropositions() {
+        const roleAdv = MON_ROLE === 'a' ? 'b' : 'a';
+        canalProps = supabase.channel('props-' + PARTIE_ID)
+            .on('postgres_changes', {
+                event: 'INSERT', schema: 'public', table: 'propositions',
+                filter: `partie_id=eq.${PARTIE_ID}`
+            }, payload => {
+                const prop = payload.new;
+                if (prop.joueur === roleAdv) {
+                    recevoirPropositionAdversaire(prop.mot, prop.score);
+                }
+            })
+            .subscribe();
+    }
+
+    function abonnerPartie() {
+        canalPartie = supabase.channel('partie-' + PARTIE_ID)
+            .on('postgres_changes', {
+                event: 'UPDATE', schema: 'public', table: 'parties',
+                filter: `id=eq.${PARTIE_ID}`
+            }, payload => {
+                const partie = payload.new;
+                if (partie.statut === 'terminee') {
+                    motAdversaire = MON_ROLE === 'a'
+                        ? partie.mot_secret_b
+                        : partie.mot_secret_a;
+                }
+            })
+            .subscribe();
     }
 
     // ── Affichage mon mot secret ──
@@ -1085,8 +1152,8 @@
             clavier.style.pointerEvents = 'none';
             saisieEl.style.display = 'none';
             msgEl.style.display = 'block';
-            // Simuler la proposition adversaire après 2s (sera remplacé par Supabase)
-            setTimeout(() => simulerAdversaire(), 2000);
+            // Simulation seulement si pas de vraie partie Supabase
+            if (!PARTIE_ID) setTimeout(() => simulerAdversaire(), 2000);
         }
 
         const shortA = MON_PSEUDO.substring(0, 3).toUpperCase();
@@ -1096,7 +1163,7 @@
         majTimerAffichage();
     }
 
-    // ── Simulation adversaire (pour tests sans Supabase) ──
+    // ── Simulation adversaire (fallback si pas de Supabase) ──
     const propositionsAdv = ['ABAT', 'BALS', 'CAVE', 'DARD', 'GAIN', 'LAIT'];
     let indexAdv = 0;
 
@@ -1155,7 +1222,7 @@
         afficherSaisie();
     }
 
-    function valider() {
+    async function valider() {
         if (!cMonTour || partieTerminee) return;
         const prop = saisieEnCours.toUpperCase();
         const errEl = document.getElementById('error-jeu2');
@@ -1196,8 +1263,24 @@
 
         // Passer le tour
         cMonTour = false;
+        numeroTour++;
         majTour();
-        // TODO : envoyer prop + score à Supabase
+
+        // Envoyer la proposition à Supabase
+        if (PARTIE_ID) {
+            await supabase.from('propositions').insert({
+                partie_id: PARTIE_ID,
+                joueur: MON_ROLE,
+                mot: prop,
+                score: score,
+                numero_tour: numeroTour
+            });
+            // Passer le tour dans la table parties
+            const prochainTour = MON_ROLE === 'a' ? 'b' : 'a';
+            await supabase.from('parties')
+                .update({ tour_actuel: prochainTour, updated_at: new Date().toISOString() })
+                .eq('id', PARTIE_ID);
+        }
     }
 
     function ajouterLigneProp(mot, score) {
@@ -1214,9 +1297,19 @@
     }
 
     // ── Fin de partie ──
-    function finPartie(gagne, motAdv) {
+    async function finPartie(gagne, motAdv) {
         partieTerminee = true;
         arreterTimer();
+        if (canalProps) supabase.removeChannel(canalProps);
+        if (canalPartie) supabase.removeChannel(canalPartie);
+
+        // Enregistrer la fin de partie dans Supabase
+        if (PARTIE_ID) {
+            await supabase.from('parties')
+                .update({ statut: 'terminee', gagnant: gagne ? MON_ROLE : (MON_ROLE === 'a' ? 'b' : 'a') })
+                .eq('id', PARTIE_ID);
+        }
+
         const overlay = document.getElementById('overlay-fin');
         const titre = document.getElementById('fin-titre');
         const info = document.getElementById('fin-info');
@@ -1235,14 +1328,22 @@
         overlay.classList.add('visible');
     }
 
+    function nettoyerEtRetourner() {
+        ['partie_id', 'invitation_id', 'depuis_multi', 'revanche',
+         'longueur', 'longueur_preferee', 'adv_pseudo', 'je_commence'].forEach(k =>
+            sessionStorage.removeItem(k));
+        window.location.href = 'multi.html';
+    }
+
     function demanderRevanche() {
-        // Inverser les rôles pour la revanche
-        const ancienMoi = sessionStorage.getItem('mon_pseudo');
-        const ancienAdv = sessionStorage.getItem('adv_pseudo');
-        sessionStorage.setItem('mon_pseudo', ancienAdv);
-        sessionStorage.setItem('adv_pseudo', ancienMoi);
+        // Pour la revanche, l'adversaire commence (inverser je_commence seulement)
+        const jeCommençais = sessionStorage.getItem('je_commence') === 'true';
+        sessionStorage.setItem('je_commence', (!jeCommençais).toString());
         sessionStorage.setItem('revanche', 'true');
         sessionStorage.setItem('longueur_preferee', LONGUEUR);
+        sessionStorage.setItem('depuis_multi', 'true');
+        // Note : en vrai Supabase, on enverrait la demande à l'adversaire
+        // En simulation locale, on retourne à invitation.html
         window.location.href = 'invitation.html';
     }
 
@@ -1281,7 +1382,9 @@
 
     function envoyerReaction(msg) {
         ajouterMessage(msg, true);
-        // TODO : envoyer via Supabase
+        if (PARTIE_ID) {
+            // TODO phase 2 : table messages dans Supabase
+        }
     }
 
     function envoyerMessage() {
