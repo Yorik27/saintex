@@ -557,6 +557,8 @@
             await afficherJoueurs();
             abonnerJoueursEnLigne();
             abonnerInvitations();
+            // Polling toutes les 10s
+            setInterval(async () => { await afficherJoueurs(); }, 10000);
         }
 
         let derniereListeIds = '';
@@ -601,11 +603,6 @@
             });
 
         }
-
-        // Polling toutes les 10s
-        setInterval(async () => {
-            if (monJoueur) await afficherJoueurs();
-        }, 10000);
 
         function abonnerJoueursEnLigne() {
             if (canalJoueurs) supabase.removeChannel(canalJoueurs);
