@@ -962,9 +962,50 @@
             await supabase.from('parties')
                 .update({ [col]: motSecret })
                 .eq('id', PARTIE_ID);
-        }
 
-        demarrerPartie();
+            // Vérifier si l'adversaire a déjà choisi son mot
+            const colAdv = MON_ROLE === 'a' ? 'mot_secret_b' : 'mot_secret_a';
+            const { data } = await supabase.from('parties')
+                .select(colAdv)
+                .eq('id', PARTIE_ID)
+                .single();
+
+            if (data && data[colAdv]) {
+                // L'adversaire a déjà son mot → démarrer tout de suite
+                motAdversaire = data[colAdv];
+                demarrerPartie();
+            } else {
+                // Attendre que l'adversaire choisisse son mot
+                afficherAttenteMotAdverse();
+                const canalInit = supabase.channel('init-' + PARTIE_ID)
+                    .on('postgres_changes', {
+                        event: 'UPDATE', schema: 'public', table: 'parties',
+                        filter: `id=eq.${PARTIE_ID}`
+                    }, payload => {
+                        const motAdv = MON_ROLE === 'a'
+                            ? payload.new.mot_secret_b
+                            : payload.new.mot_secret_a;
+                        if (motAdv) {
+                            motAdversaire = motAdv;
+                            supabase.removeChannel(canalInit);
+                            demarrerPartie();
+                        }
+                    })
+                    .subscribe();
+            }
+        } else {
+            // Pas de Supabase (simulation) → démarrer directement
+            demarrerPartie();
+        }
+    }
+
+    function afficherAttenteMotAdverse() {
+        const sous = document.getElementById('init-sous');
+        sous.style.color = 'rgba(255,153,0,0.8)';
+        sous.textContent = ADV_PSEUDO + ' choisit son mot…';
+        // Désactiver le clavier pour éviter toute interaction
+        document.getElementById('phase-init').style.pointerEvents = 'none';
+        document.getElementById('phase-init').style.opacity = '0.5';
     }
 
     function demarrerPartie() {
@@ -1246,7 +1287,7 @@
         // Compter lettres bien placées contre le mot de l'adversaire
         let score = 0;
         for (let i = 0; i < LONGUEUR; i++) {
-            if (prop[i] === MOT_ADVERSAIRE[i]) score++;
+            if (prop[i] === motAdversaire[i]) score++;
         }
 
         // Ajouter à mes propositions
@@ -1257,7 +1298,7 @@
 
         if (score === LONGUEUR) {
             scoreA++;
-            finPartie(true, MOT_ADVERSAIRE);
+            finPartie(true, motAdversaire);
             return;
         }
 
