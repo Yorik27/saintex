@@ -552,6 +552,9 @@
                     .insert({ pseudo, en_ligne: true })
                     .select().single();
                 monJoueur = data;
+        console.log('Connecté:', monJoueur);
+        console.log('Mon ID:', monJoueur?.id);
+        await afficherJoueurs();
             }
 
             sessionStorage.setItem('joueur_id', monJoueur.id);
@@ -575,7 +578,8 @@
                 .eq('en_ligne', true)
                 .neq('id', monJoueur.id)
                 .order('pseudo');
-
+            const { data: joueurs } = await supabase...
+            console.log('Joueurs trouvés:', joueurs);
             liste.innerHTML = '';
 
             if (!joueurs || joueurs.length === 0) {
@@ -603,6 +607,7 @@
                 `;
                 liste.appendChild(carte);
             });
+
         }
 
         function abonnerJoueursEnLigne() {
