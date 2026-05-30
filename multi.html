@@ -735,7 +735,8 @@
                     if (statut === 'acceptee') {
                         sessionStorage.setItem('partie_id', payload.new.partie_id);
                         document.getElementById('modal-attente').classList.remove('visible');
-                        window.location.href = 'invitation.html';
+                        supabase.removeChannel(canal);
+                        window.location.href = 'jeu2.html';
                     } else if (statut === 'refusee') {
                         document.getElementById('modal-attente').classList.remove('visible');
                         afficherToastReponse(pseudo + ' a refusé ton invitation.');

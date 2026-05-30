@@ -224,6 +224,28 @@
             btnPref.querySelector('span').textContent = longueurPref + ' lettres ★';
         }
 
+        // ── Écoute Realtime pour l'invitant (François attend dans vue-invitant) ──
+        if (jeCommence && invitationId && !estSimulation) {
+            const canalAttente = supabase.channel('attente-inv-' + invitationId)
+                .on('postgres_changes', {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'invitations',
+                    filter: 'id=eq.' + invitationId
+                }, payload => {
+                    const statut = payload.new.statut;
+                    if (statut === 'acceptee') {
+                        sessionStorage.setItem('partie_id', payload.new.partie_id);
+                        supabase.removeChannel(canalAttente);
+                        window.location.href = 'jeu2.html';
+                    } else if (statut === 'refusee') {
+                        supabase.removeChannel(canalAttente);
+                        window.location.href = 'multi.html';
+                    }
+                })
+                .subscribe();
+        }
+
         // ── Accepter ──
         window.accepter = async function(longueur) {
             sessionStorage.setItem('longueur', longueur);
