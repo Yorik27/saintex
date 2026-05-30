@@ -11,8 +11,14 @@ self.addEventListener("install", (e) => {
 
 // Fetch : cache dynamique
 self.addEventListener("fetch", (e) => {
-    // Ne pas intercepter les requêtes de navigation (évite la boucle infinie)
+    // Ne pas intercepter les requêtes de navigation
     if (e.request.mode === 'navigate') {
+        e.respondWith(fetch(e.request));
+        return;
+    }
+
+    // Ne pas cacher les requêtes Supabase
+    if (e.request.url.includes('supabase.co')) {
         e.respondWith(fetch(e.request));
         return;
     }
