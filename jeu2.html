@@ -1479,6 +1479,23 @@
     setTimeout(() => ajouterMessage('😈 Tu chauffes !', false), 5000);
     setTimeout(() => ajouterMessage('🎯 Chaud !', false), 12000);
 
+    // Exposer les fonctions sur window (nécessaire avec type="module")
+    window.ajouterLettre = ajouterLettre;
+    window.ajouterLettreInit = ajouterLettreInit;
+    window.effacer = effacer;
+    window.effacerInit = effacerInit;
+    window.valider = valider;
+    window.validerMotSecret = validerMotSecret;
+    window.demanderIndice = demanderIndice;
+    window.langueAuChat = () => {}; // désactivé en multi
+    window.toggleChat = toggleChat;
+    window.envoyerReaction = envoyerReaction;
+    window.envoyerMessage = envoyerMessage;
+    window.demanderRevanche = demanderRevanche;
+    window.nettoyerEtRetourner = nettoyerEtRetourner;
+    window.proposerAbandon = proposerAbandon;
+    window.confirmerAbandon = confirmerAbandon;
+
     // Charger le dico
     window.DICO = {};
     fetch('dicos_saintex.json')

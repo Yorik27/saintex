@@ -477,18 +477,17 @@
 
     <footer>© EspritJeu 2026 — <a href="/cgu.html" style="color:inherit;">CGU</a></footer>
 
-    <script>
-        let monPseudo = '';
-        let demandeAmiEnCours = null;
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-        // Données simulées — sera remplacé par Supabase
-        const joueurs = [
-            { pseudo: 'Léonie',   avatar: '🌸', type: 'ami-ligne',  statut: 'En attente d\'un défi' },
-            { pseudo: 'Marcel42', avatar: '🦊', type: 'en-ligne',   statut: 'En attente d\'un défi' },
-            { pseudo: 'Théo_B',   avatar: '🎯', type: 'en-ligne',   statut: 'En attente d\'un défi' },
-            { pseudo: 'Nathalie', avatar: '🌙', type: 'ami-absent', statut: 'Hors ligne' },
-            { pseudo: 'JeanPaul', avatar: '📚', type: 'ami-absent', statut: 'Hors ligne' },
-        ];
+        const SUPABASE_URL = 'https://vrdjytcbiddvvvielcdz.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_f8VIFlJD4LasEWwLgSttZw_Gn7RFwLz';
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let monJoueur = null; // { id, pseudo }
+        let invitationEnCours = null;
+        let canalJoueurs = null;
+        let canalInvitations = null;
 
         // États longueur : 0=vide, 1=colorié(accepte), 2=coché(prioritaire)
         const etatLongueur = { '4L': 0, '5L': 0 };
@@ -518,7 +517,7 @@
             return acc.length > 0 ? acc : [4]; // défaut 4
         }
 
-        function seConnecter() {
+        async function seConnecter() {
             const input = document.getElementById('pseudo-input');
             const pseudo = input.value.trim();
             if (!pseudo || pseudo.length < 2) {
@@ -526,61 +525,104 @@
                 setTimeout(() => input.style.borderColor = '', 1000);
                 return;
             }
-            monPseudo = pseudo;
+
+            // Chercher ou créer le joueur dans Supabase
+            let { data: existing } = await supabase
+                .from('joueurs')
+                .select('*')
+                .eq('pseudo', pseudo)
+                .single();
+
+            if (existing) {
+                await supabase.from('joueurs')
+                    .update({ en_ligne: true, last_seen: new Date().toISOString() })
+                    .eq('id', existing.id);
+                monJoueur = existing;
+            } else {
+                const { data } = await supabase.from('joueurs')
+                    .insert({ pseudo, en_ligne: true })
+                    .select().single();
+                monJoueur = data;
+            }
+
+            sessionStorage.setItem('joueur_id', monJoueur.id);
+            sessionStorage.setItem('mon_pseudo', pseudo);
+
             document.getElementById('zone-non-connecte').style.display = 'none';
             document.getElementById('zone-connecte').style.display = 'block';
-            afficherJoueurs();
+
+            await afficherJoueurs();
+            abonnerJoueursEnLigne();
+            abonnerInvitations();
         }
 
-        function afficherJoueurs() {
+        async function afficherJoueurs() {
             const liste = document.getElementById('liste-joueurs');
+            liste.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.3);padding:16px;">Chargement...</div>';
+
+            const { data: joueurs } = await supabase
+                .from('joueurs')
+                .select('*')
+                .eq('en_ligne', true)
+                .neq('id', monJoueur.id)
+                .order('pseudo');
+
             liste.innerHTML = '';
 
-            // Tri : amis en ligne → joueurs en ligne → amis absents
-            const ordre = { 'ami-ligne': 0, 'en-ligne': 1, 'ami-absent': 2 };
-            const tries = [...joueurs].sort((a, b) => ordre[a.type] - ordre[b.type]);
+            if (!joueurs || joueurs.length === 0) {
+                liste.innerHTML = '<div class="liste-vide">Aucun joueur en ligne pour l'instant…</div>';
+                return;
+            }
 
-            tries.forEach(j => {
-                const pointClass = {
-                    'ami-ligne':  'point-ami-ligne',
-                    'en-ligne':   'point-ligne',
-                    'ami-absent': 'point-ami-absent'
-                }[j.type];
-
-                const nomClass = {
-                    'ami-ligne':  'ami-ligne',
-                    'en-ligne':   'en-ligne',
-                    'ami-absent': 'ami-absent'
-                }[j.type];
-
-                const peutDefier = j.type !== 'ami-absent';
-                const estAmi = j.type === 'ami-ligne' || j.type === 'ami-absent';
-
+            joueurs.forEach(j => {
                 const carte = document.createElement('div');
                 carte.classList.add('joueur-carte');
                 carte.innerHTML = `
                     <div class="joueur-info">
-                        <div class="point ${pointClass}"></div>
-                        <div class="joueur-avatar">${j.avatar}</div>
+                        <div class="point point-ligne"></div>
+                        <div class="joueur-avatar">🎮</div>
                         <div class="joueur-texte">
-                            <div class="joueur-nom ${nomClass}">${j.pseudo}</div>
-                            <div class="joueur-statut">${j.statut}</div>
+                            <div class="joueur-nom en-ligne">${j.pseudo}</div>
+                            <div class="joueur-statut">En ligne</div>
                         </div>
                     </div>
                     <div class="joueur-actions">
-                        ${!estAmi ? `
-                        <label class="label-ami">
-                            <input type="checkbox" onchange="demanderAmi('${j.pseudo}', this)"> ami
-                        </label>` : ''}
-                        <button class="btn-defier" 
-                            ${!peutDefier ? 'disabled' : ''}
-                            onclick="defier('${j.pseudo}')">
+                        <button class="btn-defier" onclick="defier('${j.pseudo}', '${j.id}')">
                             Défier
                         </button>
                     </div>
                 `;
                 liste.appendChild(carte);
             });
+        }
+
+        function abonnerJoueursEnLigne() {
+            if (canalJoueurs) supabase.removeChannel(canalJoueurs);
+            canalJoueurs = supabase.channel('joueurs-ligne')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'joueurs' },
+                    () => afficherJoueurs())
+                .subscribe();
+        }
+
+        function abonnerInvitations() {
+            if (!monJoueur) return;
+            if (canalInvitations) supabase.removeChannel(canalInvitations);
+            canalInvitations = supabase.channel('invitations-' + monJoueur.id)
+                .on('postgres_changes', {
+                    event: 'INSERT', schema: 'public', table: 'invitations',
+                    filter: `vers_joueur_id=eq.${monJoueur.id}`
+                }, payload => recevoirInvitation(payload.new))
+                .subscribe();
+        }
+
+        function recevoirInvitation(inv) {
+            // Afficher une notification d'invitation reçue
+            const toast = document.getElementById('toast-ami');
+            document.getElementById('toast-nom-ami').textContent = inv.de_pseudo + ' t'invite à jouer !';
+            toast.classList.add('visible');
+            toast.style.pointerEvents = 'all';
+            // Stocker l'invitation pour y répondre
+            invitationEnCours = inv;
         }
 
         function demanderAmi(pseudo, checkbox) {
@@ -600,20 +642,46 @@
             toast.style.pointerEvents = 'all';
         }
 
-        function repondreAmi(accepte) {
+        async function repondreAmi(accepte) {
             const toast = document.getElementById('toast-ami');
             toast.classList.remove('visible');
             toast.style.pointerEvents = 'none';
 
-            const pseudo = demandeAmiEnCours;
-            const msg = accepte
-                ? `${pseudo} a accepté ta demande ! ✅`
-                : `${pseudo} a refusé ta demande.`;
+            if (!invitationEnCours) return;
+            const inv = invitationEnCours;
+            invitationEnCours = null;
 
-            afficherToastReponse(msg);
-            demandeAmiEnCours = null;
+            if (accepte) {
+                // Créer la partie
+                const { data: partie } = await supabase.from('parties').insert({
+                    joueur_a: inv.de_joueur_id,
+                    joueur_b: monJoueur.id,
+                    pseudo_a: inv.de_pseudo,
+                    pseudo_b: monJoueur.pseudo,
+                    longueur: inv.longueur_preferee,
+                    tour_actuel: 'a',
+                    statut: 'en_cours'
+                }).select().single();
 
-            // TODO : mettre à jour Supabase
+                // Mettre à jour l'invitation
+                await supabase.from('invitations')
+                    .update({ statut: 'acceptee', partie_id: partie.id })
+                    .eq('id', inv.id);
+
+                // Préparer sessionStorage et aller jouer
+                sessionStorage.setItem('adv_pseudo', inv.de_pseudo);
+                sessionStorage.setItem('mon_pseudo', monJoueur.pseudo);
+                sessionStorage.setItem('je_commence', 'false'); // B ne commence pas
+                sessionStorage.setItem('partie_id', partie.id);
+                sessionStorage.setItem('longueur', inv.longueur_preferee);
+                sessionStorage.setItem('depuis_multi', 'true');
+                window.location.href = 'invitation.html';
+            } else {
+                await supabase.from('invitations')
+                    .update({ statut: 'refusee' })
+                    .eq('id', inv.id);
+                afficherToastReponse(inv.de_pseudo + ' : invitation déclinée.');
+            }
         }
 
         function afficherToastReponse(msg) {
@@ -634,8 +702,24 @@
             // TODO : annuler dans Supabase
         }
 
+        // Exposer les fonctions sur window (nécessaire avec type="module")
+        window.seConnecter = seConnecter;
+        window.tapperCase = tapperCase;
+        window.defier = defier;
+        window.annulerDefi = annulerDefi;
+        window.repondreAmi = repondreAmi;
+
         document.getElementById('pseudo-input').addEventListener('keydown', e => {
             if (e.key === 'Enter') seConnecter();
+        });
+
+        // Déconnexion propre
+        window.addEventListener('beforeunload', () => {
+            if (monJoueur) {
+                supabase.from('joueurs')
+                    .update({ en_ligne: false })
+                    .eq('id', monJoueur.id);
+            }
         });
     </script>
 
