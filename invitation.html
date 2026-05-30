@@ -149,22 +149,34 @@
 
         <div class="invitation-titre">Invitation de</div>
         <div class="invitation-challenger" id="challenger-nom">Joueur A</div>
-        <div class="invitation-sous" id="invitation-sous">t'invite à un duel de mots !</div>
+        <div class="invitation-sous" id="invitation-sous"></div>
 
-        <div class="invitation-longueur-titre">Choisis la longueur du mot</div>
-
-        <div class="longueur-boutons">
-            <button class="btn-longueur" id="btn-4L" onclick="accepter(4)">
-                4L
-                <span>4 lettres</span>
-            </button>
-            <button class="btn-longueur" id="btn-5L" onclick="accepter(5)">
-                5L
-                <span>5 lettres</span>
-            </button>
+        <!-- Vue invité : choisir la longueur -->
+        <div id="vue-invite">
+            <div class="invitation-longueur-titre">Choisis la longueur du mot</div>
+            <div class="longueur-boutons">
+                <button class="btn-longueur" id="btn-4L" onclick="accepter(4)">
+                    4L
+                    <span>4 lettres</span>
+                </button>
+                <button class="btn-longueur" id="btn-5L" onclick="accepter(5)">
+                    5L
+                    <span>5 lettres</span>
+                </button>
+            </div>
+            <button class="btn-refuser" onclick="refuser()">Décliner l'invitation</button>
         </div>
 
-        <button class="btn-refuser" onclick="refuser()">Décliner l'invitation</button>
+        <!-- Vue invitant : attendre la réponse -->
+        <div id="vue-invitant" style="display:none;">
+            <div class="invitation-longueur-titre" style="color:rgba(255,255,255,0.4);">En attente de réponse…</div>
+            <div style="margin:20px 0;">
+                <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:deepskyblue;animation:pulse 1.2s ease-in-out infinite;margin:0 3px;"></span>
+                <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:deepskyblue;animation:pulse 1.2s ease-in-out infinite 0.2s;margin:0 3px;"></span>
+                <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:deepskyblue;animation:pulse 1.2s ease-in-out infinite 0.4s;margin:0 3px;"></span>
+            </div>
+            <button class="btn-refuser" onclick="refuser()">Annuler</button>
+        </div>
     </div>
 
     <script type="module">
@@ -191,6 +203,15 @@
 
         // Affichage
         document.getElementById('challenger-nom').textContent = challengerNom;
+
+        // Afficher la bonne vue selon le rôle
+        const jeCommence = sessionStorage.getItem('je_commence') !== 'false';
+        if (jeCommence) {
+            // Je suis l'invitant — attendre la réponse
+            document.getElementById('vue-invite').style.display = 'none';
+            document.getElementById('vue-invitant').style.display = 'block';
+            document.getElementById('invitation-sous').textContent = '';
+        }
 
         if (estRevanche) {
             document.getElementById('badge-revanche').style.display = 'inline-block';
