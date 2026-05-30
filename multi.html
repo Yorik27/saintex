@@ -699,15 +699,59 @@
             setTimeout(() => toast.classList.remove('visible'), 3000);
         }
 
-        function defier(pseudo) {
+        async function defier(pseudo, advId) {
             document.getElementById('modal-adversaire-nom').textContent = pseudo;
             document.getElementById('modal-attente').classList.add('visible');
-            // TODO : envoyer invitation via Supabase
+
+            const { data: inv, error } = await supabase.from('invitations').insert({
+                de_joueur_id: monJoueur.id,
+                vers_joueur_id: advId,
+                de_pseudo: monJoueur.pseudo,
+                vers_pseudo: pseudo,
+                longueur_preferee: getLongueurChoisie(),
+                statut: 'en_attente'
+            }).select().maybeSingle();
+
+            if (error) {
+                console.error('Erreur invitation:', error);
+                document.getElementById('modal-attente').classList.remove('visible');
+                return;
+            }
+
+            sessionStorage.setItem('adv_pseudo', pseudo);
+            sessionStorage.setItem('mon_pseudo', monJoueur.pseudo);
+            sessionStorage.setItem('je_commence', 'true');
+            sessionStorage.setItem('longueur_preferee', getLongueurChoisie());
+            sessionStorage.setItem('longueur', getLongueurChoisie());
+            sessionStorage.setItem('depuis_multi', 'true');
+            sessionStorage.setItem('invitation_id', inv.id);
+
+            const canal = supabase.channel('inv-rep-' + inv.id)
+                .on('postgres_changes', {
+                    event: 'UPDATE', schema: 'public', table: 'invitations',
+                    filter: 'id=eq.' + inv.id
+                }, payload => {
+                    const statut = payload.new.statut;
+                    if (statut === 'acceptee') {
+                        sessionStorage.setItem('partie_id', payload.new.partie_id);
+                        document.getElementById('modal-attente').classList.remove('visible');
+                        window.location.href = 'invitation.html';
+                    } else if (statut === 'refusee') {
+                        document.getElementById('modal-attente').classList.remove('visible');
+                        afficherToastReponse(pseudo + ' a refusé ton invitation.');
+                        supabase.removeChannel(canal);
+                    }
+                })
+                .subscribe();
         }
 
         function annulerDefi() {
             document.getElementById('modal-attente').classList.remove('visible');
-            // TODO : annuler dans Supabase
+            const invId = sessionStorage.getItem('invitation_id');
+            if (invId) {
+                supabase.from('invitations').update({ statut: 'refusee' }).eq('id', invId);
+                sessionStorage.removeItem('invitation_id');
+            }
         }
 
         // Exposer les fonctions sur window (nécessaire avec type="module")
