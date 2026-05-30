@@ -438,7 +438,7 @@
             </div>
         </div>
         <div class="pseudo-section" style="padding-top:8px;">
-            <button class="btn-connecter" onclick="seConnecter()">Entrer</button>
+            <button class="btn-connecter" id="btn-connecter">Entrer</button>
         </div>
     </div>
 
@@ -569,7 +569,6 @@
                 .eq('en_ligne', true)
                 .neq('id', monJoueur.id)
                 .order('pseudo');
-            const { data: joueurs } = await supabase...
             console.log('Joueurs trouvés:', joueurs);
             liste.innerHTML = '';
 
@@ -718,6 +717,7 @@
         document.getElementById('case-4L').addEventListener('click', () => tapperCase('4L'));
         document.getElementById('case-5L').addEventListener('click', () => tapperCase('5L'));
 
+        document.getElementById('btn-connecter').addEventListener('click', seConnecter);
         document.getElementById('pseudo-input').addEventListener('keydown', e => {
             if (e.key === 'Enter') seConnecter();
         });
