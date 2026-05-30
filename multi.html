@@ -438,7 +438,7 @@
             </div>
         </div>
         <div class="pseudo-section" style="padding-top:8px;">
-            <button class="btn-connecter" id="btn-connecter">Entrer</button>
+            <button class="btn-connecter" onclick="seConnecter()">Entrer</button>
         </div>
     </div>
 
@@ -563,12 +563,15 @@
             const liste = document.getElementById('liste-joueurs');
             liste.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.3);padding:16px;">Chargement...</div>';
 
+            const cinqMinutesAvant = new Date(Date.now() - 5 * 60 * 1000).toISOString();
             const { data: joueurs } = await supabase
                 .from('joueurs')
                 .select('*')
                 .eq('en_ligne', true)
                 .neq('id', monJoueur.id)
+                .gte('last_seen', cinqMinutesAvant)
                 .order('pseudo');
+            const { data: joueurs } = await supabase...
             console.log('Joueurs trouvés:', joueurs);
             liste.innerHTML = '';
 
@@ -600,9 +603,21 @@
 
         }
 
+        // Heartbeat : mettre à jour last_seen toutes les 30s
+        setInterval(async () => {
+            if (monJoueur) {
+                await supabase.from('joueurs')
+                    .update({ last_seen: new Date().toISOString() })
+                    .eq('id', monJoueur.id);
+            }
+        }, 30000);
+
         function abonnerJoueursEnLigne() {
-            if (canalJoueurs) supabase.removeChannel(canalJoueurs);
-            canalJoueurs = supabase.channel('joueurs-ligne')
+            if (canalJoueurs) {
+                supabase.removeChannel(canalJoueurs);
+                canalJoueurs = null;
+            }
+            canalJoueurs = supabase.channel('joueurs-ligne-' + monJoueur.id)
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'joueurs' },
                     () => afficherJoueurs())
                 .subscribe();
@@ -717,7 +732,6 @@
         document.getElementById('case-4L').addEventListener('click', () => tapperCase('4L'));
         document.getElementById('case-5L').addEventListener('click', () => tapperCase('5L'));
 
-        document.getElementById('btn-connecter').addEventListener('click', seConnecter);
         document.getElementById('pseudo-input').addEventListener('keydown', e => {
             if (e.key === 'Enter') seConnecter();
         });
