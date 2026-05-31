@@ -711,6 +711,7 @@
         <div class="header-droite">
             <div class="header-score" id="header-score"></div>
             <button class="btn-abandon-header" onclick="proposerAbandon()">Abandon</button>
+            <button class="btn-abandon-header" onclick="afficherDebug()" style="border-color:rgba(255,255,0,0.3);color:rgba(255,255,0,0.5);margin-top:2px;">⚙</button>
         </div>
     </div>
 
@@ -1510,6 +1511,36 @@
             const badge = document.getElementById('badge-chat');
             badge.textContent = messagesNonLus;
             badge.classList.add('visible');
+        }
+    }
+
+    function afficherDebug() {
+        const sb = window._supabase || supabase;
+        const pid = PARTIE_ID;
+        const info = [
+            'ROLE: ' + MON_ROLE,
+            'MON_TOUR: ' + cMonTour,
+            'PARTIE_ID: ' + (pid ? pid.substring(0,8)+'…' : 'null'),
+            'MOT_ADV: ' + (motAdversaire || '(vide)'),
+            'PARTIE_DEMARREE: ' + partieDemarree,
+            'TERMINE: ' + partieTerminee,
+        ].join('\n');
+
+        // Fetch tour_actuel depuis Supabase
+        if (pid) {
+            supabase.from('parties').select('tour_actuel,statut,mot_secret_a,mot_secret_b')
+                .eq('id', pid).single()
+                .then(({ data, error }) => {
+                    const extra = data
+                        ? '\n--- SUPABASE ---\ntour_actuel: ' + data.tour_actuel
+                          + '\nstatut: ' + data.statut
+                          + '\nmot_a: ' + (data.mot_secret_a || '(vide)')
+                          + '\nmot_b: ' + (data.mot_secret_b || '(vide)')
+                        : '\nSUPABASE ERROR: ' + (error?.message || '?');
+                    alert(info + extra);
+                });
+        } else {
+            alert(info);
         }
     }
 
