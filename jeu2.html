@@ -1053,11 +1053,17 @@
                 filter: `id=eq.${PARTIE_ID}`
             }, payload => {
                 const partie = payload.new;
+
+                // Changement de tour
+                if (partie.tour_actuel === MON_ROLE && !cMonTour && !partieTerminee) {
+                    cMonTour = true;
+                    majTour();
+                }
+
+                // Fin de partie — notifier le perdant
                 if (partie.statut === 'terminee' && !partieTerminee) {
-                    // Récupérer le mot adverse si pas encore connu
                     const colAdv = MON_ROLE === 'a' ? 'mot_secret_b' : 'mot_secret_a';
                     if (!motAdversaire) motAdversaire = partie[colAdv] || '?????';
-                    // Suis-je le perdant ? (le gagnant a déjà appelé finPartie)
                     const gagnant = partie.gagnant;
                     if (gagnant && gagnant !== MON_ROLE) {
                         finPartie(false, motAdversaire);
