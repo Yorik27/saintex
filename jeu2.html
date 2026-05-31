@@ -989,7 +989,7 @@
                         const motAdv = MON_ROLE === 'a'
                             ? payload.new.mot_secret_b
                             : payload.new.mot_secret_a;
-                        if (motAdv) {
+                        if (motAdv && !partieDemarree) {
                             motAdversaire = motAdv;
                             supabase.removeChannel(canalInit);
                             demarrerPartie();
@@ -1056,7 +1056,7 @@
                 const partie = payload.new;
 
                 // Changement de tour
-                if (partie.tour_actuel === MON_ROLE && !cMonTour && !partieTerminee) {
+                if (partie.tour_actuel === MON_ROLE && !cMonTour && !partieTerminee && partieDemarree) {
                     cMonTour = true;
                     majTour();
                 }
@@ -1514,7 +1514,7 @@
         }
     }
 
-    function afficherDebug() {
+    window.afficherDebug = function() {
         const sb = window._supabase || supabase;
         const pid = PARTIE_ID;
         const info = [
