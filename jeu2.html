@@ -862,7 +862,7 @@
         </div>
         <div class="dialogue-input-zone">
             <input class="dialogue-input" id="dialogue-input" type="text"
-                   placeholder="Message…" maxlength="50"
+                   placeholder="Message…" maxlength="150"
                    onkeydown="if(event.key==='Enter') envoyerMessage()">
             <button class="btn-envoyer" onclick="envoyerMessage()">➤</button>
         </div>
@@ -918,6 +918,7 @@
     let canalPartie    = null;
     let canalProps     = null;
     let canalMessages  = null;
+    let partieDemarree = false;
 
     // ── Init ──
     document.getElementById('header-longueur').textContent = LONGUEUR + ' lettres';
@@ -1010,6 +1011,8 @@
     }
 
     function demarrerPartie() {
+        if (partieDemarree) return;
+        partieDemarree = true;
         document.getElementById('label-adversaire').textContent = ADV_PSEUDO;
         document.getElementById('phase-init').style.display = 'none';
         document.getElementById('phase-jeu').style.display = 'block';
@@ -1429,12 +1432,17 @@
         popup.classList.toggle('visible', chatOuvert);
         if (ov) ov.style.display = chatOuvert ? 'block' : 'none';
         if (chatOuvert) {
+            // Suspendre le timer pendant le chat
+            arreterTimer();
             messagesNonLus = 0;
             const badge = document.getElementById('badge-chat');
             badge.textContent = '';
             badge.classList.remove('visible');
             const zone = document.getElementById('dialogue-messages');
             zone.scrollTop = zone.scrollHeight;
+        } else {
+            // Reprendre le timer à la fermeture du chat
+            if (!partieTerminee) demarrerTimer();
         }
     }
 
@@ -1452,7 +1460,7 @@
 
     async function envoyerMessage() {
         const input = document.getElementById('dialogue-input');
-        const msg = input.value.trim();
+        const msg = input.value.trim().slice(0, 150);
         if (!msg) return;
         ajouterMessage(msg, true);
         input.value = '';
