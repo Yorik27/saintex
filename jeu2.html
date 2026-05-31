@@ -917,6 +917,7 @@
     let numeroTour     = 0;
     let canalPartie    = null;
     let canalProps     = null;
+    let canalMessages  = null;
 
     // ── Init ──
     document.getElementById('header-longueur').textContent = LONGUEUR + ' lettres';
@@ -1022,6 +1023,7 @@
         if (PARTIE_ID) {
             abonnerPropositions();
             abonnerPartie();
+            abonnerMessages();
         }
     }
 
@@ -1343,6 +1345,7 @@
         arreterTimer();
         if (canalProps) supabase.removeChannel(canalProps);
         if (canalPartie) supabase.removeChannel(canalPartie);
+        if (canalMessages) supabase.removeChannel(canalMessages);
 
         // Enregistrer la fin de partie dans Supabase
         if (PARTIE_ID) {
@@ -1401,6 +1404,20 @@
         }
     });
 
+    function abonnerMessages() {
+        canalMessages = supabase.channel('messages-' + PARTIE_ID)
+            .on('postgres_changes', {
+                event: 'INSERT', schema: 'public', table: 'messages',
+                filter: `partie_id=eq.${PARTIE_ID}`
+            }, payload => {
+                const m = payload.new;
+                if (m.joueur !== MON_ROLE) {
+                    ajouterMessage(m.contenu, false);
+                }
+            })
+            .subscribe();
+    }
+
     // ── Dialogue ──
     let messagesNonLus = 0;
     let chatOuvert = false;
@@ -1421,20 +1438,32 @@
         }
     }
 
-    function envoyerReaction(msg) {
+    async function envoyerReaction(msg) {
         ajouterMessage(msg, true);
         if (PARTIE_ID) {
-            // TODO phase 2 : table messages dans Supabase
+            await supabase.from('messages').insert({
+                partie_id: PARTIE_ID,
+                joueur: MON_ROLE,
+                pseudo: MON_PSEUDO,
+                contenu: msg
+            });
         }
     }
 
-    function envoyerMessage() {
+    async function envoyerMessage() {
         const input = document.getElementById('dialogue-input');
         const msg = input.value.trim();
         if (!msg) return;
         ajouterMessage(msg, true);
         input.value = '';
-        // TODO : envoyer via Supabase
+        if (PARTIE_ID) {
+            await supabase.from('messages').insert({
+                partie_id: PARTIE_ID,
+                joueur: MON_ROLE,
+                pseudo: MON_PSEUDO,
+                contenu: msg
+            });
+        }
     }
 
     function ajouterMessage(msg, estMoi) {
