@@ -1237,7 +1237,7 @@
 
     // ── Saisie joueur ──
     function ajouterLettre(l) {
-        if (!cMonTour || partieTerminee) return;
+        if (!cMonTour || partieTerminee || chatOuvert) return;
         if (positionActive2 !== null) {
             const arr = saisieEnCours.padEnd(LONGUEUR, ' ').split('');
             arr[positionActive2] = l;
@@ -1257,7 +1257,7 @@
     }
 
     function effacer() {
-        if (!cMonTour || partieTerminee) return;
+        if (!cMonTour || partieTerminee || chatOuvert) return;
         if (positionActive2 !== null) {
             const arr = saisieEnCours.padEnd(LONGUEUR, ' ').split('');
             arr[positionActive2] = ' ';
@@ -1396,6 +1396,10 @@
 
     // Clavier physique
     document.addEventListener('keydown', e => {
+        // Ne pas intercepter si le chat est ouvert ou si le focus est sur l'input chat
+        if (chatOuvert) return;
+        if (document.activeElement === document.getElementById('dialogue-input')) return;
+
         if (document.getElementById('phase-init').style.display !== 'none') {
             if (e.key === 'Enter') validerMotSecret();
             else if (e.key === 'Backspace') effacerInit();
@@ -1440,6 +1444,11 @@
             badge.classList.remove('visible');
             const zone = document.getElementById('dialogue-messages');
             zone.scrollTop = zone.scrollHeight;
+            // Focus sur l'input seulement sur desktop (évite le clavier natif sur mobile)
+            const estMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+            if (!estMobile) {
+                document.getElementById('dialogue-input').focus();
+            }
         } else {
             // Reprendre le timer à la fermeture du chat
             if (!partieTerminee) demarrerTimer();
