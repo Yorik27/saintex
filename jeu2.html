@@ -152,7 +152,13 @@
             background: rgba(0,191,255,0.05);
             border: 1px solid rgba(0,191,255,0.2);
             border-radius: 12px;
-            padding: 10px 14px;
+            padding: 8px 14px;
+        }
+        .adversaire-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
         }
         .adversaire-derniere {
             display: flex;
@@ -164,7 +170,6 @@
             font-weight: 700;
             font-size: 1.1rem;
             color: deepskyblue;
-            letter-spacing: 3px;
             letter-spacing: 2px;
         }
         .adversaire-score {
@@ -175,32 +180,29 @@
         /* Cases vides adversaire */
         .cases-adversaire {
             display: flex;
-            gap: 5px;
-            margin-top: 8px;
+            gap: 4px;
         }
         .case-adv {
-            width: 36px;
-            height: 36px;
+            width: 22px;
+            height: 22px;
             border: 1.5px solid rgba(0,191,255,0.2);
-            border-radius: 7px;
+            border-radius: 5px;
             background: rgba(0,191,255,0.04);
             display: flex;
             align-items: center;
             justify-content: center;
-            text-align: center;
             font-family: 'Roboto', sans-serif;
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 0.7rem;
             color: transparent;
             transition: all 0.4s;
-            padding: 0;
             box-sizing: border-box;
         }
         .case-adv.decouverte {
             border-color: #00cc66;
             background: rgba(0,204,102,0.15);
             color: #00cc66;
-            box-shadow: 0 0 8px rgba(0,204,102,0.3);
+            box-shadow: 0 0 6px rgba(0,204,102,0.3);
         }
 
         /* ── Mes propositions ── */
@@ -709,6 +711,7 @@
         <div class="header-droite">
             <div class="header-score" id="header-score"></div>
             <button class="btn-abandon-header" onclick="proposerAbandon()">Abandon</button>
+            <button class="btn-abandon-header" onclick="afficherDebug()" style="border-color:rgba(255,255,0,0.3);color:rgba(255,255,0,0.5);margin-top:2px;">⚙</button>
         </div>
     </div>
 
@@ -773,12 +776,11 @@
 
             <!-- Avancement adversaire -->
             <div class="zone-adversaire">
-                <div class="section-label" id="label-adversaire">Adversaire</div>
-                <div class="adv-progression">
-                    <div class="adv-points" id="adv-points"></div>
-                    <div class="adv-nb" id="adv-nb">0 lettre trouvée</div>
+                <div class="adversaire-header">
+                    <div class="section-label" id="label-adversaire" style="margin-bottom:0;">Adversaire</div>
+                    <div class="cases-adversaire" id="cases-adv"></div>
+                    <div class="adv-nb" id="adv-nb" style="font-size:0.7rem; color:rgba(0,191,255,0.4); margin-left:auto;">0 lettre</div>
                 </div>
-                <div class="cases-adversaire" id="cases-adv"></div>
             </div>
 
             <!-- Mes propositions -->
@@ -981,13 +983,13 @@
                 afficherAttenteMotAdverse();
                 const canalInit = supabase.channel('init-' + PARTIE_ID)
                     .on('postgres_changes', {
-                        event: 'UPDATE', schema: 'public', table: 'parties',
-                        filter: `id=eq.${PARTIE_ID}`
+                        event: 'UPDATE', schema: 'public', table: 'parties'
                     }, payload => {
+                        if (payload.new.id !== PARTIE_ID) return;
                         const motAdv = MON_ROLE === 'a'
                             ? payload.new.mot_secret_b
                             : payload.new.mot_secret_a;
-                        if (motAdv) {
+                        if (motAdv && !partieDemarree) {
                             motAdversaire = motAdv;
                             supabase.removeChannel(canalInit);
                             demarrerPartie();
@@ -1048,14 +1050,16 @@
     function abonnerPartie() {
         canalPartie = supabase.channel('partie-' + PARTIE_ID)
             .on('postgres_changes', {
-                event: 'UPDATE', schema: 'public', table: 'parties',
-                filter: `id=eq.${PARTIE_ID}`
+                event: 'UPDATE', schema: 'public', table: 'parties'
             }, payload => {
+                if (payload.new.id !== PARTIE_ID) return;
                 const partie = payload.new;
-                if (partie.statut === 'terminee') {
-                    motAdversaire = MON_ROLE === 'a'
-                        ? partie.mot_secret_b
-                        : partie.mot_secret_a;
+                if (partie.statut === 'terminee' && !partieTerminee) {
+                    const colAdv = MON_ROLE === 'a' ? 'mot_secret_b' : 'mot_secret_a';
+                    if (!motAdversaire) motAdversaire = partie[colAdv] || '?????';
+                    if (partie.gagnant && partie.gagnant !== MON_ROLE) {
+                        finPartie(false, motAdversaire);
+                    }
                 }
             })
             .subscribe();
@@ -1498,6 +1502,36 @@
             const badge = document.getElementById('badge-chat');
             badge.textContent = messagesNonLus;
             badge.classList.add('visible');
+        }
+    }
+
+    window.afficherDebug = function() {
+        const sb = window._supabase || supabase;
+        const pid = PARTIE_ID;
+        const info = [
+            'ROLE: ' + MON_ROLE,
+            'MON_TOUR: ' + cMonTour,
+            'PARTIE_ID: ' + (pid ? pid.substring(0,8)+'…' : 'null'),
+            'MOT_ADV: ' + (motAdversaire || '(vide)'),
+            'PARTIE_DEMARREE: ' + partieDemarree,
+            'TERMINE: ' + partieTerminee,
+        ].join('\n');
+
+        // Fetch tour_actuel depuis Supabase
+        if (pid) {
+            supabase.from('parties').select('tour_actuel,statut,mot_secret_a,mot_secret_b')
+                .eq('id', pid).single()
+                .then(({ data, error }) => {
+                    const extra = data
+                        ? '\n--- SUPABASE ---\ntour_actuel: ' + data.tour_actuel
+                          + '\nstatut: ' + data.statut
+                          + '\nmot_a: ' + (data.mot_secret_a || '(vide)')
+                          + '\nmot_b: ' + (data.mot_secret_b || '(vide)')
+                        : '\nSUPABASE ERROR: ' + (error?.message || '?');
+                    alert(info + extra);
+                });
+        } else {
+            alert(info);
         }
     }
 
