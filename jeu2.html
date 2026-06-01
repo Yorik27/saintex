@@ -1130,15 +1130,6 @@
     const advDecouvertes = new Array(LONGUEUR).fill(null); // lettres bien placées découvertes
 
     function afficherCasesAdv() {
-        // Points de progression
-        const pts = document.getElementById('adv-points');
-        pts.innerHTML = '';
-        for (let i = 0; i < LONGUEUR; i++) {
-            const d = document.createElement('div');
-            d.classList.add('adv-point');
-            d.id = 'adv-pt-' + i;
-            pts.appendChild(d);
-        }
         // Cases lettres
         const el = document.getElementById('cases-adv');
         el.innerHTML = '';
