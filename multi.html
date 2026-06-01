@@ -820,6 +820,21 @@
             if (e.key === 'Enter') seConnecter();
         });
 
+        // Pré-remplir le pseudo si connu
+        const pseudoMemo = sessionStorage.getItem('mon_pseudo');
+        if (pseudoMemo) {
+            document.getElementById('pseudo-input').value = pseudoMemo;
+        }
+
+        // Nettoyer les fantômes dès le chargement (sans attendre la connexion)
+        (async () => {
+            const deuxMin = new Date(Date.now() - 2 * 60 * 1000).toISOString();
+            await supabase.from('joueurs')
+                .update({ en_ligne: false })
+                .eq('en_ligne', true)
+                .lt('last_seen', deuxMin);
+        })();
+
         window.addEventListener('beforeunload', () => {
             if (monJoueur) {
                 supabase.from('joueurs').update({ en_ligne: false }).eq('id', monJoueur.id);

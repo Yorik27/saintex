@@ -1438,15 +1438,34 @@
         window.location.href = 'multi.html';
     }
 
-    function demanderRevanche() {
-        // Pour la revanche, l'adversaire commence (inverser je_commence seulement)
-        const jeCommençais = sessionStorage.getItem('je_commence') === 'true';
-        sessionStorage.setItem('je_commence', (!jeCommençais).toString());
+    window.demanderRevanche = async function() {
+        if (!MON_ID || !ADV_ID) {
+            window.location.href = 'multi.html';
+            return;
+        }
+        // Inverser qui commence
+        const jeCommençais = sessionStorage.getItem('je_commence') !== 'false';
+        sessionStorage.setItem('je_commence', 'true'); // l'invitant commence toujours
         sessionStorage.setItem('revanche', 'true');
         sessionStorage.setItem('longueur_preferee', LONGUEUR);
         sessionStorage.setItem('depuis_multi', 'true');
-        // Note : en vrai Supabase, on enverrait la demande à l'adversaire
-        // En simulation locale, on retourne à invitation.html
+
+        // Créer l'invitation dans Supabase
+        const { data: inv, error } = await supabase.from('invitations').insert({
+            de_joueur_id: MON_ID,
+            vers_joueur_id: ADV_ID,
+            de_pseudo: MON_PSEUDO,
+            vers_pseudo: ADV_PSEUDO,
+            longueur_preferee: LONGUEUR,
+            statut: 'en_attente'
+        }).select().maybeSingle();
+
+        if (error || !inv) {
+            window.location.href = 'multi.html';
+            return;
+        }
+
+        sessionStorage.setItem('invitation_id', inv.id);
         window.location.href = 'invitation.html';
     }
 
@@ -1662,7 +1681,6 @@
     window.toggleChat = toggleChat;
     window.envoyerReaction = envoyerReaction;
     window.envoyerMessage = envoyerMessage;
-    window.demanderRevanche = demanderRevanche;
     window.nettoyerEtRetourner = nettoyerEtRetourner;
     window.proposerAbandon = proposerAbandon;
     window.confirmerAbandon = confirmerAbandon;
