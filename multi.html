@@ -564,11 +564,17 @@
 
             // Nettoyage des fantômes : supprimer les non-connectés depuis > 2min et non-amis
             const deuxMinutesAvant = new Date(Date.now() - 2 * 60 * 1000).toISOString();
-            await supabase.from('joueurs')
+            const { data: amisData0 } = await supabase
+                .from('amis').select('ami_id').eq('joueur_id', monJoueur.id);
+            const amisIds0 = (amisData0 || []).map(a => a.ami_id);
+            let deleteQuery = supabase.from('joueurs')
                 .delete()
                 .eq('en_ligne', false)
-                .lt('last_seen', deuxMinutesAvant)
-                .not('id', 'in', `(SELECT ami_id FROM amis WHERE joueur_id = '${monJoueur.id}')`);
+                .lt('last_seen', deuxMinutesAvant);
+            if (amisIds0.length > 0) {
+                deleteQuery = deleteQuery.not('id', 'in', `(${amisIds0.join(',')})`);
+            }
+            await deleteQuery;
 
             sessionStorage.setItem('joueur_id', monJoueur.id);
             sessionStorage.setItem('mon_pseudo', pseudo);
@@ -666,16 +672,16 @@
 
         }
 
-        async function ajouterAmi(amiId) {
+        window.ajouterAmi = async function(amiId) {
             await supabase.from('amis').insert({
                 joueur_id: monJoueur.id,
                 ami_id: amiId
             });
-            derniereListeIds = ''; // forcer rafraîchissement
+            derniereListeIds = '';
             await afficherJoueurs();
         }
 
-        async function retirerAmi(amiId) {
+        window.retirerAmi = async function(amiId) {
             await supabase.from('amis')
                 .delete()
                 .eq('joueur_id', monJoueur.id)
