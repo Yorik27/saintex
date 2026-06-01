@@ -737,7 +737,7 @@
                 sessionStorage.setItem('partie_id', partie.id);
                 sessionStorage.setItem('longueur', inv.longueur_preferee);
                 sessionStorage.setItem('depuis_multi', 'true');
-                window.location.href = 'invitation.html';
+                window.location.href = 'jeu2.html';
             } else {
                 await supabase.from('invitations')
                     .update({ statut: 'refusee' }).eq('id', inv.id);
@@ -789,7 +789,7 @@
                         sessionStorage.setItem('partie_id', payload.new.partie_id);
                         document.getElementById('modal-attente').classList.remove('visible');
                         supabase.removeChannel(canal);
-                        window.location.href = 'invitation.html';
+                        window.location.href = 'jeu2.html';
                     } else if (statut === 'refusee') {
                         document.getElementById('modal-attente').classList.remove('visible');
                         afficherToastReponse(pseudo + ' a refusé ton invitation.');
