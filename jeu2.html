@@ -310,7 +310,23 @@
         }
 
         /* ── Fin de partie ── */
-        .overlay-fin {
+        .btn-fin-ami {
+            display: block;
+            width: 100%;
+            margin: 8px 0 0;
+            background: rgba(255,200,0,0.08);
+            border: 1px solid rgba(255,200,0,0.3);
+            color: rgba(255,200,0,0.8);
+            padding: 9px 24px;
+            border-radius: 50px;
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 0.88rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-fin-ami:hover { background: rgba(255,200,0,0.15); border-color: gold; color: gold; }
+        .btn-fin-ami:disabled { opacity: 0.35; cursor: default; }
             display: none;
             position: fixed;
             inset: 0;
@@ -887,6 +903,7 @@
             <div class="fin-info" id="fin-info"></div>
             <div class="fin-mot-secret" id="fin-mot-adv"></div>
             <button class="btn-fin" onclick="demanderRevanche()">Revanche ⚔</button>
+            <button class="btn-fin-ami" id="btn-fin-ami" onclick="demanderAmi()" style="display:none;">☆ Ajouter en ami</button>
             <button class="btn-fin-retour" onclick="nettoyerEtRetourner()">← Retour</button>
         </div>
     </div>
@@ -904,8 +921,9 @@
     const ADV_PSEUDO  = sessionStorage.getItem('adv_pseudo') || 'Joueur B';
     const JE_COMMENCE = sessionStorage.getItem('je_commence') !== 'false';
     const PARTIE_ID   = sessionStorage.getItem('partie_id');
-    const MON_ROLE    = JE_COMMENCE ? 'a' : 'b'; // 'a' = challenger, 'b' = invité
+    const MON_ROLE    = JE_COMMENCE ? 'a' : 'b';
     const MON_ID      = sessionStorage.getItem('joueur_id');
+    const ADV_ID      = sessionStorage.getItem('adv_id');
 
     // ── État ──
     let motSecret      = '';
@@ -1387,7 +1405,30 @@
             info.textContent = ADV_PSEUDO + ' a trouvé ton mot';
         }
         motEl.textContent = motAdv;
+
+        // Afficher bouton ami si ADV_ID connu et pas déjà ami
+        const btnAmi = document.getElementById('btn-fin-ami');
+        if (MON_ID && ADV_ID) {
+            const { data: dejaAmi } = await supabase.from('amis')
+                .select('ami_id').eq('joueur_id', MON_ID).eq('ami_id', ADV_ID).maybeSingle();
+            if (!dejaAmi) {
+                btnAmi.style.display = 'block';
+            }
+        }
+
         overlay.classList.add('visible');
+    }
+
+    window.demanderAmi = async function() {
+        if (!MON_ID || !ADV_ID) return;
+        const btn = document.getElementById('btn-fin-ami');
+        btn.disabled = true;
+        btn.textContent = '✓ Demande envoyée';
+        await supabase.from('amis').insert({
+            joueur_id: MON_ID,
+            ami_id: ADV_ID,
+            statut: 'en_attente'
+        });
     }
 
     function nettoyerEtRetourner() {
