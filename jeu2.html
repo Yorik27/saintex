@@ -979,23 +979,22 @@
                 motAdversaire = data[colAdv];
                 demarrerPartie();
             } else {
-                // Attendre que l'adversaire choisisse son mot
+                // Attendre que l'adversaire choisisse son mot (polling 2s)
                 afficherAttenteMotAdverse();
-                const canalInit = supabase.channel('init-' + PARTIE_ID)
-                    .on('postgres_changes', {
-                        event: 'UPDATE', schema: 'public', table: 'parties'
-                    }, payload => {
-                        if (payload.new.id !== PARTIE_ID) return;
-                        const motAdv = MON_ROLE === 'a'
-                            ? payload.new.mot_secret_b
-                            : payload.new.mot_secret_a;
-                        if (motAdv && !partieDemarree) {
-                            motAdversaire = motAdv;
-                            supabase.removeChannel(canalInit);
+                const intervalInit = setInterval(async () => {
+                    if (partieDemarree) { clearInterval(intervalInit); return; }
+                    const { data: d } = await supabase.from('parties')
+                        .select(colAdv)
+                        .eq('id', PARTIE_ID)
+                        .single();
+                    if (d && d[colAdv]) {
+                        clearInterval(intervalInit);
+                        if (!partieDemarree) {
+                            motAdversaire = d[colAdv];
                             demarrerPartie();
                         }
-                    })
-                    .subscribe();
+                    }
+                }, 2000);
             }
         } else {
             // Pas de Supabase (simulation) → démarrer directement
@@ -1048,21 +1047,32 @@
     }
 
     function abonnerPartie() {
-        canalPartie = supabase.channel('partie-' + PARTIE_ID)
-            .on('postgres_changes', {
-                event: 'UPDATE', schema: 'public', table: 'parties'
-            }, payload => {
-                if (payload.new.id !== PARTIE_ID) return;
-                const partie = payload.new;
-                if (partie.statut === 'terminee' && !partieTerminee) {
-                    const colAdv = MON_ROLE === 'a' ? 'mot_secret_b' : 'mot_secret_a';
-                    if (!motAdversaire) motAdversaire = partie[colAdv] || '?????';
-                    if (partie.gagnant && partie.gagnant !== MON_ROLE) {
-                        finPartie(false, motAdversaire);
-                    }
+        // Polling 2s pour le changement de tour et la fin de partie
+        // (Realtime sur la clé primaire de 'parties' non fiable dans cette config)
+        const intervalPartie = setInterval(async () => {
+            if (partieTerminee) { clearInterval(intervalPartie); return; }
+            const { data } = await supabase.from('parties')
+                .select('tour_actuel, statut, gagnant, mot_secret_a, mot_secret_b')
+                .eq('id', PARTIE_ID)
+                .single();
+            if (!data) return;
+
+            // Changement de tour
+            if (data.tour_actuel === MON_ROLE && !cMonTour && !partieTerminee) {
+                cMonTour = true;
+                majTour();
+            }
+
+            // Fin de partie — notifier le perdant
+            if (data.statut === 'terminee' && !partieTerminee) {
+                const colAdv = MON_ROLE === 'a' ? 'mot_secret_b' : 'mot_secret_a';
+                if (!motAdversaire) motAdversaire = data[colAdv] || '?????';
+                if (data.gagnant && data.gagnant !== MON_ROLE) {
+                    clearInterval(intervalPartie);
+                    finPartie(false, motAdversaire);
                 }
-            })
-            .subscribe();
+            }
+        }, 2000);
     }
 
     // ── Affichage mon mot secret ──
