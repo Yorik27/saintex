@@ -897,36 +897,6 @@
     </div>
 
     <!-- Overlay fin de partie -->
-    <!-- Toast revanche entrante -->
-    <div id="toast-revanche" style="
-        display:none; position:fixed; bottom:80px; left:50%; transform:translateX(-50%);
-        background:rgba(20,20,40,0.97); border:1px solid rgba(255,153,0,0.5);
-        border-radius:14px; padding:14px 20px; text-align:center;
-        max-width:280px; width:90%; z-index:200; font-size:0.88rem; color:white;">
-        <div id="toast-revanche-texte"></div>
-        <div style="display:flex;gap:8px;justify-content:center;margin-top:10px;">
-            <button onclick="repondreRevanche(true)" style="
-                padding:5px 14px; border-radius:50px; cursor:pointer;
-                background:rgba(0,204,102,0.15); border:1px solid rgba(0,204,102,0.5);
-                color:#00cc66; font-family:'bigelowrules',Georgia,serif; font-size:0.8rem;">Accepter</button>
-            <button onclick="repondreRevanche(false)" style="
-                padding:5px 14px; border-radius:50px; cursor:pointer;
-                background:rgba(255,51,51,0.1); border:1px solid rgba(255,51,51,0.4);
-                color:#ff5555; font-family:'bigelowrules',Georgia,serif; font-size:0.8rem;">Refuser</button>
-        </div>
-    </div>
-
-    <div class="overlay-fin" id="overlay-fin">
-        <div class="fin-contenu">
-            <div class="fin-titre" id="fin-titre"></div>
-            <div class="fin-info" id="fin-info"></div>
-            <div class="fin-mot-secret" id="fin-mot-adv"></div>
-            <button class="btn-fin" onclick="demanderRevanche()">Revanche ⚔</button>
-            <button class="btn-fin-ami" id="btn-fin-ami" onclick="demanderAmi()" style="display:none;">☆ Ajouter en ami</button>
-            <button class="btn-fin-retour" onclick="nettoyerEtRetourner()">← Retour</button>
-        </div>
-    </div>
-
     <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
@@ -958,6 +928,7 @@
     let canalProps     = null;
     let canalMessages  = null;
     let partieDemarree = false;
+    let partieEnCours  = false; // true dès qu'on lit statut='en_cours' en base
 
     // ── Init ──
     document.getElementById('header-longueur').textContent = LONGUEUR + ' lettres';
@@ -1103,6 +1074,9 @@
                 .single();
             if (!data) return;
 
+            // Marquer la partie comme en cours dès qu'on le confirme
+            if (data.statut === 'en_cours') partieEnCours = true;
+
             // Changement de tour
             if (data.tour_actuel === MON_ROLE && !cMonTour && !partieTerminee) {
                 cMonTour = true;
@@ -1110,7 +1084,8 @@
             }
 
             // Fin de partie — notifier le perdant
-            if (data.statut === 'terminee' && !partieTerminee) {
+            // partieEnCours évite de réagir à une ancienne partie terminée
+            if (data.statut === 'terminee' && !partieTerminee && partieEnCours) {
                 const colAdv = MON_ROLE === 'a' ? 'mot_secret_b' : 'mot_secret_a';
                 if (!motAdversaire) motAdversaire = data[colAdv] || '?????';
                 if (data.gagnant && data.gagnant !== MON_ROLE) {
@@ -1409,105 +1384,13 @@
                 .eq('id', PARTIE_ID);
         }
 
-        const overlay = document.getElementById('overlay-fin');
-        const titre = document.getElementById('fin-titre');
-        const info = document.getElementById('fin-info');
-        const motEl = document.getElementById('fin-mot-adv');
+        // Stocker les données pour fin.html
+        sessionStorage.setItem('fin_gagne', gagne);
+        sessionStorage.setItem('fin_mot_adv', motAdv);
+        sessionStorage.setItem('fin_coups', numeroTour);
+        sessionStorage.setItem('fin_lettres', motAdv.split('').filter((l, i) => motSecret[i] === l).length);
 
-        if (gagne) {
-            titre.textContent = 'Gagné !';
-            titre.className = 'fin-titre fin-gagne';
-            info.textContent = 'Tu as trouvé le mot de ' + ADV_PSEUDO;
-        } else {
-            titre.textContent = 'Perdu !';
-            titre.className = 'fin-titre fin-perdu';
-            info.textContent = ADV_PSEUDO + ' a trouvé ton mot';
-        }
-        motEl.textContent = motAdv;
-
-        // Afficher bouton ami si ADV_ID connu et pas déjà ami
-        const btnAmi = document.getElementById('btn-fin-ami');
-        if (MON_ID && ADV_ID) {
-            const { data: dejaAmi } = await supabase.from('amis')
-                .select('ami_id').eq('joueur_id', MON_ID).eq('ami_id', ADV_ID).maybeSingle();
-            if (!dejaAmi) {
-                btnAmi.style.display = 'block';
-            }
-        }
-
-        overlay.classList.add('visible');
-
-        // Écouter une éventuelle invitation de revanche
-        if (MON_ID) {
-            const canalRevanche = supabase.channel('revanche-' + MON_ID)
-                .on('postgres_changes', {
-                    event: 'INSERT', schema: 'public', table: 'invitations',
-                    filter: `vers_joueur_id=eq.${MON_ID}`
-                }, payload => {
-                    const inv = payload.new;
-                    // Afficher le toast revanche
-                    document.getElementById('toast-revanche-texte').textContent =
-                        inv.de_pseudo + ' veut sa revanche !';
-                    const toast = document.getElementById('toast-revanche');
-                    toast.style.display = 'block';
-                    toast._invitationId = inv.id;
-                    toast._dePseudo = inv.de_pseudo;
-                    toast._deJoueurId = inv.de_joueur_id;
-                    toast._longueur = inv.longueur_preferee;
-                })
-                .subscribe();
-        }
-    }
-
-    window.repondreRevanche = async function(accepte) {
-        const toast = document.getElementById('toast-revanche');
-        toast.style.display = 'none';
-        const invId = toast._invitationId;
-        const dePseudo = toast._dePseudo;
-        const deJoueurId = toast._deJoueurId;
-        const longueur = toast._longueur;
-
-        if (accepte) {
-            // Créer la nouvelle partie
-            const { data: partie } = await supabase.from('parties').insert({
-                joueur_a: deJoueurId,
-                joueur_b: MON_ID,
-                pseudo_a: dePseudo,
-                pseudo_b: MON_PSEUDO,
-                longueur: longueur,
-                tour_actuel: 'a',
-                statut: 'en_cours'
-            }).select().maybeSingle();
-
-            await supabase.from('invitations')
-                .update({ statut: 'acceptee', partie_id: partie.id })
-                .eq('id', invId);
-
-            // Mettre à jour le sessionStorage pour la nouvelle partie
-            sessionStorage.setItem('partie_id', partie.id);
-            sessionStorage.setItem('adv_pseudo', dePseudo);
-            sessionStorage.setItem('adv_id', deJoueurId);
-            sessionStorage.setItem('je_commence', 'false');
-            sessionStorage.setItem('longueur', longueur);
-            sessionStorage.removeItem('revanche');
-
-            window.location.href = 'jeu2.html';
-        } else {
-            await supabase.from('invitations')
-                .update({ statut: 'refusee' }).eq('id', invId);
-        }
-    }
-
-    window.demanderAmi = async function() {
-        if (!MON_ID || !ADV_ID) return;
-        const btn = document.getElementById('btn-fin-ami');
-        btn.disabled = true;
-        btn.textContent = '✓ Demande envoyée';
-        await supabase.from('amis').insert({
-            joueur_id: MON_ID,
-            ami_id: ADV_ID,
-            statut: 'en_attente'
-        });
+        setTimeout(() => { window.location.href = 'fin.html'; }, 600);
     }
 
     function nettoyerEtRetourner() {
@@ -1776,7 +1659,6 @@
     window.nettoyerEtRetourner = nettoyerEtRetourner;
     window.proposerAbandon = proposerAbandon;
     window.confirmerAbandon = confirmerAbandon;
-    window.repondreRevanche = window.repondreRevanche || function(){};
 
     // Charger le dico
     window.DICO = {};
