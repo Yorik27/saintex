@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="fr" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0a0a0f">
+    <title>SaintEx — Fin de partie</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="saintex.css">
+    <style>
+        :root {
+            --gagne:  #00e676;
+            --perdu:  #ff4444;
+            --bleu:   #00bfff;
+            --or:     #ffd700;
+            --fond:   #0a0a0f;
+            --carte:  #0f0f1a;
+            --bord:   rgba(0,191,255,0.15);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--fond);
+            color: white;
+            font-family: 'Roboto', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+            overflow: hidden;
+        }
+
+        /* Fond animé */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(0,191,255,0.07) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        /* Particules */
+        .particule {
+            position: fixed;
+            width: 2px;
+            height: 2px;
+            border-radius: 50%;
+            opacity: 0;
+            animation: monter 4s ease-in infinite;
+        }
+        @keyframes monter {
+            0%   { transform: translateY(100vh) scale(1); opacity: 0; }
+            10%  { opacity: 1; }
+            90%  { opacity: 0.6; }
+            100% { transform: translateY(-20vh) scale(0.3); opacity: 0; }
+        }
+
+        /* Carte principale */
+        .carte {
+            background: var(--carte);
+            border: 1px solid var(--bord);
+            border-radius: 24px;
+            padding: 36px 28px 32px;
+            text-align: center;
+            max-width: 340px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+            animation: apparaitre 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+        @keyframes apparaitre {
+            from { opacity: 0; transform: scale(0.85) translateY(20px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* Logo */
+        .logo {
+            height: 40px;
+            margin-bottom: 24px;
+            opacity: 0.9;
+        }
+
+        /* Verdict */
+        .verdict {
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 2.4rem;
+            letter-spacing: 4px;
+            line-height: 1;
+            margin-bottom: 6px;
+            animation: verdict-in 0.6s 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+        @keyframes verdict-in {
+            from { opacity: 0; transform: scale(0.5); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+        .verdict.gagne { color: var(--gagne); text-shadow: 0 0 30px rgba(0,230,118,0.4); }
+        .verdict.perdu { color: var(--perdu); text-shadow: 0 0 30px rgba(255,68,68,0.3); }
+
+        /* Nom adversaire */
+        .versus {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.35);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            animation: fade-in 0.4s 0.4s both;
+        }
+        .versus span { color: var(--bleu); }
+
+        /* Mot secret révélé */
+        .mot-revele {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            margin-bottom: 8px;
+            animation: fade-in 0.4s 0.5s both;
+        }
+        .case-mot {
+            width: 48px;
+            height: 52px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+            border: 1.5px solid;
+            animation: case-in 0.4s both;
+        }
+        .case-mot.gagne {
+            background: rgba(0,230,118,0.1);
+            border-color: rgba(0,230,118,0.4);
+            color: var(--gagne);
+        }
+        .case-mot.perdu {
+            background: rgba(0,191,255,0.07);
+            border-color: rgba(0,191,255,0.25);
+            color: var(--bleu);
+        }
+
+        /* Label sous le mot */
+        .mot-label {
+            font-size: 0.72rem;
+            color: rgba(255,255,255,0.25);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+            animation: fade-in 0.4s 0.7s both;
+        }
+
+        /* Score */
+        .score-bloc {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 12px 20px;
+            margin-bottom: 28px;
+            animation: fade-in 0.4s 0.6s both;
+        }
+        .score-ligne {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 4px;
+        }
+        .score-ligne:last-child { margin-bottom: 0; }
+        .score-ligne .val {
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            color: white;
+        }
+        .score-ligne .val.vert { color: var(--gagne); }
+
+        /* Boutons */
+        .boutons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            animation: fade-in 0.4s 0.8s both;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 13px 24px;
+            border-radius: 50px;
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            border: 1.5px solid;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: white;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .btn:hover::after { opacity: 0.05; }
+        .btn:active { transform: scale(0.97); }
+
+        .btn-revanche {
+            background: rgba(0,191,255,0.1);
+            border-color: rgba(0,191,255,0.5);
+            color: var(--bleu);
+        }
+        .btn-revanche:hover {
+            background: rgba(0,191,255,0.18);
+            border-color: var(--bleu);
+            box-shadow: 0 0 20px rgba(0,191,255,0.2);
+        }
+
+        .btn-ami {
+            background: rgba(255,215,0,0.07);
+            border-color: rgba(255,215,0,0.3);
+            color: rgba(255,215,0,0.8);
+        }
+        .btn-ami:hover {
+            background: rgba(255,215,0,0.13);
+            border-color: var(--or);
+            box-shadow: 0 0 16px rgba(255,215,0,0.15);
+        }
+        .btn-ami:disabled {
+            opacity: 0.35;
+            cursor: default;
+        }
+
+        .btn-retour {
+            background: transparent;
+            border-color: rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.3);
+            font-size: 0.85rem;
+        }
+        .btn-retour:hover {
+            border-color: rgba(255,255,255,0.25);
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* Attente revanche */
+        .attente-revanche {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.78rem;
+            color: rgba(0,191,255,0.5);
+            padding: 10px 0 2px;
+            letter-spacing: 1px;
+        }
+        .attente-revanche.visible { display: flex; }
+        .dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--bleu);
+            animation: pulse 1.2s ease-in-out infinite;
+        }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes pulse {
+            0%,100% { opacity: 0.2; transform: scale(0.7); }
+            50%      { opacity: 1;   transform: scale(1.2); }
+        }
+
+        /* Toast demande de revanche reçue */
+        .toast-entrant {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-80px);
+            background: rgba(15,15,30,0.97);
+            border: 1px solid rgba(0,191,255,0.4);
+            border-radius: 14px;
+            padding: 14px 20px;
+            text-align: center;
+            max-width: 300px;
+            width: 90%;
+            z-index: 100;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-size: 0.88rem;
+        }
+        .toast-entrant.visible { transform: translateX(-50%) translateY(0); }
+        .toast-entrant .nom { color: var(--bleu); font-weight: 700; }
+        .toast-btns {
+            display: flex; gap: 8px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .toast-btn {
+            padding: 5px 16px;
+            border-radius: 50px;
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 0.78rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            border: 1px solid;
+        }
+        .toast-btn.oui {
+            background: rgba(0,230,118,0.12);
+            border-color: rgba(0,230,118,0.4);
+            color: var(--gagne);
+        }
+        .toast-btn.non {
+            background: rgba(255,68,68,0.08);
+            border-color: rgba(255,68,68,0.35);
+            color: var(--perdu);
+        }
+
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Particules -->
+    <div id="particules"></div>
+
+    <!-- Toast revanche entrante -->
+    <div class="toast-entrant" id="toast-entrant">
+        <div><span class="nom" id="toast-nom"></span> veut sa revanche !</div>
+        <div class="toast-btns">
+            <button class="toast-btn oui" onclick="repondreRevanche(true)">Accepter</button>
+            <button class="toast-btn non" onclick="repondreRevanche(false)">Refuser</button>
+        </div>
+    </div>
+
+    <!-- Carte résultat -->
+    <div class="carte">
+        <img class="logo" src="Images/Logo.png" alt="SaintEx">
+
+        <div class="verdict" id="verdict">Gagné !</div>
+        <div class="versus" id="versus">contre <span id="nom-adv">Adversaire</span></div>
+
+        <!-- Mot révélé -->
+        <div class="mot-revele" id="mot-revele"></div>
+        <div class="mot-label" id="mot-label">mot de l'adversaire</div>
+
+        <!-- Score -->
+        <div class="score-bloc">
+            <div class="score-ligne">
+                <span>Propositions</span>
+                <span class="val" id="score-coups">—</span>
+            </div>
+            <div class="score-ligne">
+                <span>Lettres trouvées</span>
+                <span class="val vert" id="score-lettres">—</span>
+            </div>
+        </div>
+
+        <!-- Boutons -->
+        <div class="boutons">
+            <button class="btn btn-revanche" id="btn-revanche" onclick="demanderRevanche()">
+                Revanche ⚔
+            </button>
+            <div class="attente-revanche" id="attente-revanche">
+                <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                <span>En attente…</span>
+            </div>
+            <button class="btn btn-ami" id="btn-ami" onclick="demanderAmi()">
+                ☆ Ajouter en ami
+            </button>
+            <button class="btn btn-retour" onclick="retour()">← Retour au lobby</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+        const supabase = createClient(
+            'https://vrdjytcbiddvvvielcdz.supabase.co',
+            'sb_publishable_f8VIFlJD4LasEWwLgSttZw_Gn7RFwLz'
+        );
+
+        // ── Données de la partie ──
+        const gagne       = sessionStorage.getItem('fin_gagne') === 'true';
+        const motAdv      = sessionStorage.getItem('fin_mot_adv') || '????';
+        const nomAdv      = sessionStorage.getItem('adv_pseudo') || 'Adversaire';
+        const nbCoups     = sessionStorage.getItem('fin_coups') || '—';
+        const nbLettres   = sessionStorage.getItem('fin_lettres') || '—';
+        const MON_ID      = sessionStorage.getItem('joueur_id');
+        const ADV_ID      = sessionStorage.getItem('adv_id');
+        const MON_PSEUDO  = sessionStorage.getItem('mon_pseudo');
+        const LONGUEUR    = parseInt(sessionStorage.getItem('longueur') || '4');
+
+        // ── Affichage ──
+        const verdict = document.getElementById('verdict');
+        verdict.textContent = gagne ? 'Victoire !' : 'Défaite';
+        verdict.className = 'verdict ' + (gagne ? 'gagne' : 'perdu');
+        document.getElementById('nom-adv').textContent = nomAdv;
+        document.getElementById('score-coups').textContent = nbCoups;
+        document.getElementById('score-lettres').textContent = nbLettres;
+        document.getElementById('mot-label').textContent =
+            gagne ? 'mot de ' + nomAdv : 'ton mot secret';
+
+        // Cases du mot
+        const motRevele = document.getElementById('mot-revele');
+        motAdv.split('').forEach((l, i) => {
+            const c = document.createElement('div');
+            c.className = 'case-mot ' + (gagne ? 'gagne' : 'perdu');
+            c.style.animationDelay = (0.55 + i * 0.08) + 's';
+            c.textContent = l;
+            motRevele.appendChild(c);
+        });
+
+        // Masquer bouton ami si déjà ami
+        if (MON_ID && ADV_ID) {
+            const { data } = await supabase.from('amis')
+                .select('ami_id').eq('joueur_id', MON_ID).eq('ami_id', ADV_ID).maybeSingle();
+            if (data) document.getElementById('btn-ami').style.display = 'none';
+        }
+
+        // ── Particules ──
+        const couleur = gagne ? '#00e676' : '#00bfff';
+        for (let i = 0; i < 18; i++) {
+            const p = document.createElement('div');
+            p.className = 'particule';
+            p.style.cssText = `
+                left: ${Math.random() * 100}vw;
+                background: ${couleur};
+                animation-delay: ${Math.random() * 4}s;
+                animation-duration: ${3 + Math.random() * 3}s;
+                width: ${1 + Math.random() * 2}px;
+                height: ${1 + Math.random() * 2}px;
+                box-shadow: 0 0 4px ${couleur};
+            `;
+            document.getElementById('particules').appendChild(p);
+        }
+
+        // ── Revanche ──
+        window.demanderRevanche = async function() {
+            if (!MON_ID || !ADV_ID) { retour(); return; }
+            document.getElementById('btn-revanche').style.display = 'none';
+            document.getElementById('attente-revanche').classList.add('visible');
+
+            const { data: inv } = await supabase.from('invitations').insert({
+                de_joueur_id: MON_ID,
+                vers_joueur_id: ADV_ID,
+                de_pseudo: MON_PSEUDO,
+                vers_pseudo: nomAdv,
+                longueur_preferee: LONGUEUR,
+                statut: 'en_attente'
+            }).select().maybeSingle();
+
+            if (!inv) {
+                document.getElementById('btn-revanche').style.display = '';
+                document.getElementById('attente-revanche').classList.remove('visible');
+                return;
+            }
+
+            // Polling réponse
+            const t = setInterval(async () => {
+                const { data } = await supabase.from('invitations')
+                    .select('statut, partie_id').eq('id', inv.id).single();
+                if (!data) return;
+                if (data.statut === 'acceptee') {
+                    clearInterval(t);
+                    sessionStorage.setItem('partie_id', data.partie_id);
+                    sessionStorage.setItem('je_commence', 'true');
+                    sessionStorage.setItem('longueur', LONGUEUR);
+                    window.location.href = 'jeu2.html';
+                } else if (data.statut === 'refusee') {
+                    clearInterval(t);
+                    document.getElementById('btn-revanche').style.display = '';
+                    document.getElementById('attente-revanche').classList.remove('visible');
+                }
+            }, 2000);
+        };
+
+        // ── Répondre à une revanche entrante ──
+        let _invEntrant = null;
+        window.repondreRevanche = async function(accepte) {
+            document.getElementById('toast-entrant').classList.remove('visible');
+            if (!_invEntrant) return;
+            if (accepte) {
+                const { data: partie } = await supabase.from('parties').insert({
+                    joueur_a: _invEntrant.de_joueur_id,
+                    joueur_b: MON_ID,
+                    pseudo_a: _invEntrant.de_pseudo,
+                    pseudo_b: MON_PSEUDO,
+                    longueur: _invEntrant.longueur_preferee,
+                    tour_actuel: 'a',
+                    statut: 'en_cours'
+                }).select().maybeSingle();
+                await supabase.from('invitations')
+                    .update({ statut: 'acceptee', partie_id: partie.id })
+                    .eq('id', _invEntrant.id);
+                sessionStorage.setItem('partie_id', partie.id);
+                sessionStorage.setItem('adv_id', _invEntrant.de_joueur_id);
+                sessionStorage.setItem('adv_pseudo', _invEntrant.de_pseudo);
+                sessionStorage.setItem('je_commence', 'false');
+                sessionStorage.setItem('longueur', _invEntrant.longueur_preferee);
+                window.location.href = 'jeu2.html';
+            } else {
+                await supabase.from('invitations')
+                    .update({ statut: 'refusee' }).eq('id', _invEntrant.id);
+            }
+        };
+
+        // Écouter une invitation de revanche entrante
+        if (MON_ID) {
+            supabase.channel('fin-inv-' + MON_ID)
+                .on('postgres_changes', {
+                    event: 'INSERT', schema: 'public', table: 'invitations',
+                    filter: `vers_joueur_id=eq.${MON_ID}`
+                }, payload => {
+                    _invEntrant = payload.new;
+                    document.getElementById('toast-nom').textContent = payload.new.de_pseudo;
+                    document.getElementById('toast-entrant').classList.add('visible');
+                })
+                .subscribe();
+        }
+
+        // ── Ami ──
+        window.demanderAmi = async function() {
+            if (!MON_ID || !ADV_ID) return;
+            const btn = document.getElementById('btn-ami');
+            btn.disabled = true;
+            btn.textContent = '✓ Demande envoyée';
+            await supabase.from('amis').insert({
+                joueur_id: MON_ID, ami_id: ADV_ID, statut: 'en_attente'
+            });
+        };
+
+        // ── Retour ──
+        window.retour = function() {
+            ['partie_id', 'fin_gagne', 'fin_mot_adv', 'fin_coups', 'fin_lettres',
+             'invitation_id', 'depuis_multi', 'revanche', 'longueur',
+             'longueur_preferee', 'adv_pseudo', 'adv_id', 'je_commence']
+                .forEach(k => sessionStorage.removeItem(k));
+            window.location.href = 'multi.html';
+        };
+    </script>
+
+</body>
+</html>
