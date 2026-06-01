@@ -897,6 +897,25 @@
     </div>
 
     <!-- Overlay fin de partie -->
+    <!-- Toast revanche entrante -->
+    <div id="toast-revanche" style="
+        display:none; position:fixed; bottom:80px; left:50%; transform:translateX(-50%);
+        background:rgba(20,20,40,0.97); border:1px solid rgba(255,153,0,0.5);
+        border-radius:14px; padding:14px 20px; text-align:center;
+        max-width:280px; width:90%; z-index:200; font-size:0.88rem; color:white;">
+        <div id="toast-revanche-texte"></div>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:10px;">
+            <button onclick="repondreRevanche(true)" style="
+                padding:5px 14px; border-radius:50px; cursor:pointer;
+                background:rgba(0,204,102,0.15); border:1px solid rgba(0,204,102,0.5);
+                color:#00cc66; font-family:'bigelowrules',Georgia,serif; font-size:0.8rem;">Accepter</button>
+            <button onclick="repondreRevanche(false)" style="
+                padding:5px 14px; border-radius:50px; cursor:pointer;
+                background:rgba(255,51,51,0.1); border:1px solid rgba(255,51,51,0.4);
+                color:#ff5555; font-family:'bigelowrules',Georgia,serif; font-size:0.8rem;">Refuser</button>
+        </div>
+    </div>
+
     <div class="overlay-fin" id="overlay-fin">
         <div class="fin-contenu">
             <div class="fin-titre" id="fin-titre"></div>
@@ -1417,6 +1436,66 @@
         }
 
         overlay.classList.add('visible');
+
+        // Écouter une éventuelle invitation de revanche
+        if (MON_ID) {
+            const canalRevanche = supabase.channel('revanche-' + MON_ID)
+                .on('postgres_changes', {
+                    event: 'INSERT', schema: 'public', table: 'invitations',
+                    filter: `vers_joueur_id=eq.${MON_ID}`
+                }, payload => {
+                    const inv = payload.new;
+                    // Afficher le toast revanche
+                    document.getElementById('toast-revanche-texte').textContent =
+                        inv.de_pseudo + ' veut sa revanche !';
+                    const toast = document.getElementById('toast-revanche');
+                    toast.style.display = 'block';
+                    toast._invitationId = inv.id;
+                    toast._dePseudo = inv.de_pseudo;
+                    toast._deJoueurId = inv.de_joueur_id;
+                    toast._longueur = inv.longueur_preferee;
+                })
+                .subscribe();
+        }
+    }
+
+    window.repondreRevanche = async function(accepte) {
+        const toast = document.getElementById('toast-revanche');
+        toast.style.display = 'none';
+        const invId = toast._invitationId;
+        const dePseudo = toast._dePseudo;
+        const deJoueurId = toast._deJoueurId;
+        const longueur = toast._longueur;
+
+        if (accepte) {
+            // Créer la nouvelle partie
+            const { data: partie } = await supabase.from('parties').insert({
+                joueur_a: deJoueurId,
+                joueur_b: MON_ID,
+                pseudo_a: dePseudo,
+                pseudo_b: MON_PSEUDO,
+                longueur: longueur,
+                tour_actuel: 'a',
+                statut: 'en_cours'
+            }).select().maybeSingle();
+
+            await supabase.from('invitations')
+                .update({ statut: 'acceptee', partie_id: partie.id })
+                .eq('id', invId);
+
+            // Mettre à jour le sessionStorage pour la nouvelle partie
+            sessionStorage.setItem('partie_id', partie.id);
+            sessionStorage.setItem('adv_pseudo', dePseudo);
+            sessionStorage.setItem('adv_id', deJoueurId);
+            sessionStorage.setItem('je_commence', 'false');
+            sessionStorage.setItem('longueur', longueur);
+            sessionStorage.removeItem('revanche');
+
+            window.location.href = 'jeu2.html';
+        } else {
+            await supabase.from('invitations')
+                .update({ statut: 'refusee' }).eq('id', invId);
+        }
     }
 
     window.demanderAmi = async function() {
@@ -1443,14 +1522,10 @@
             window.location.href = 'multi.html';
             return;
         }
-        // Inverser qui commence
-        const jeCommençais = sessionStorage.getItem('je_commence') !== 'false';
-        sessionStorage.setItem('je_commence', 'true'); // l'invitant commence toujours
-        sessionStorage.setItem('revanche', 'true');
-        sessionStorage.setItem('longueur_preferee', LONGUEUR);
-        sessionStorage.setItem('depuis_multi', 'true');
 
-        // Créer l'invitation dans Supabase
+        const btn = document.querySelector('.btn-fin');
+        if (btn) { btn.disabled = true; btn.textContent = 'En attente…'; }
+
         const { data: inv, error } = await supabase.from('invitations').insert({
             de_joueur_id: MON_ID,
             vers_joueur_id: ADV_ID,
@@ -1461,12 +1536,29 @@
         }).select().maybeSingle();
 
         if (error || !inv) {
-            window.location.href = 'multi.html';
+            if (btn) { btn.disabled = false; btn.textContent = 'Revanche ⚔'; }
             return;
         }
 
-        sessionStorage.setItem('invitation_id', inv.id);
-        window.location.href = 'invitation.html';
+        // Écouter la réponse (polling car Realtime filtre id non fiable)
+        const intervalRep = setInterval(async () => {
+            const { data } = await supabase.from('invitations')
+                .select('statut, partie_id').eq('id', inv.id).single();
+            if (!data) return;
+            if (data.statut === 'acceptee') {
+                clearInterval(intervalRep);
+                sessionStorage.setItem('partie_id', data.partie_id);
+                sessionStorage.setItem('adv_pseudo', ADV_PSEUDO);
+                sessionStorage.setItem('adv_id', ADV_ID);
+                sessionStorage.setItem('je_commence', 'true');
+                sessionStorage.setItem('longueur', LONGUEUR);
+                sessionStorage.removeItem('revanche');
+                window.location.href = 'jeu2.html';
+            } else if (data.statut === 'refusee') {
+                clearInterval(intervalRep);
+                if (btn) { btn.disabled = false; btn.textContent = 'Revanche ⚔'; }
+            }
+        }, 2000);
     }
 
     // Clavier physique
@@ -1684,6 +1776,7 @@
     window.nettoyerEtRetourner = nettoyerEtRetourner;
     window.proposerAbandon = proposerAbandon;
     window.confirmerAbandon = confirmerAbandon;
+    window.repondreRevanche = window.repondreRevanche || function(){};
 
     // Charger le dico
     window.DICO = {};
