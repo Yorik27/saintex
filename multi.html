@@ -559,15 +559,24 @@
             abonnerInvitations();
             // Polling toutes les 10s
             setInterval(async () => { await afficherJoueurs(); }, 10000);
+
+            // Heartbeat toutes les 30s pour maintenir en_ligne
+            setInterval(async () => {
+                await supabase.from('joueurs')
+                    .update({ en_ligne: true, last_seen: new Date().toISOString() })
+                    .eq('id', monJoueur.id);
+            }, 30000);
         }
 
         let derniereListeIds = '';
 
         async function afficherJoueurs() {
+            const deuxMinutesAvant = new Date(Date.now() - 2 * 60 * 1000).toISOString();
             const { data: joueurs } = await supabase
                 .from('joueurs')
                 .select('*')
                 .eq('en_ligne', true)
+                .gte('last_seen', deuxMinutesAvant)
                 .neq('id', monJoueur.id)
                 .order('pseudo');
             const nouvelleIds = (joueurs||[]).map(j=>j.id).join(',');
@@ -735,8 +744,7 @@
                     if (statut === 'acceptee') {
                         sessionStorage.setItem('partie_id', payload.new.partie_id);
                         document.getElementById('modal-attente').classList.remove('visible');
-                        supabase.removeChannel(canal);
-                        window.location.href = 'jeu2.html';
+                        window.location.href = 'invitation.html';
                     } else if (statut === 'refusee') {
                         document.getElementById('modal-attente').classList.remove('visible');
                         afficherToastReponse(pseudo + ' a refusé ton invitation.');
