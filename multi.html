@@ -209,6 +209,20 @@
         }
         .btn-defier:hover { background: rgba(0,191,255,0.15); }
         .btn-defier:disabled {
+            opacity: 0.3; cursor: default;
+        }
+        .btn-ami {
+            background: transparent;
+            border: 1px solid rgba(255,200,0,0.3);
+            color: rgba(255,200,0,0.5);
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-ami:hover { border-color: gold; color: gold; }
+        .btn-ami.actif { color: gold; border-color: gold; }
             opacity: 0.3;
             cursor: default;
         }
@@ -548,6 +562,14 @@
         await afficherJoueurs();
             }
 
+            // Nettoyage des fantômes : supprimer les non-connectés depuis > 2min et non-amis
+            const deuxMinutesAvant = new Date(Date.now() - 2 * 60 * 1000).toISOString();
+            await supabase.from('joueurs')
+                .delete()
+                .eq('en_ligne', false)
+                .lt('last_seen', deuxMinutesAvant)
+                .not('id', 'in', `(SELECT ami_id FROM amis WHERE joueur_id = '${monJoueur.id}')`);
+
             sessionStorage.setItem('joueur_id', monJoueur.id);
             sessionStorage.setItem('mon_pseudo', pseudo);
 
@@ -559,49 +581,107 @@
             abonnerInvitations();
             // Polling toutes les 10s
             setInterval(async () => { await afficherJoueurs(); }, 10000);
+
+            // Heartbeat toutes les 30s pour maintenir en_ligne
+            setInterval(async () => {
+                await supabase.from('joueurs')
+                    .update({ en_ligne: true, last_seen: new Date().toISOString() })
+                    .eq('id', monJoueur.id);
+            }, 30000);
         }
 
         let derniereListeIds = '';
 
         async function afficherJoueurs() {
-            const { data: joueurs } = await supabase
+            const deuxMinutesAvant = new Date(Date.now() - 2 * 60 * 1000).toISOString();
+
+            // Récupérer mes amis
+            const { data: amisData } = await supabase
+                .from('amis')
+                .select('ami_id')
+                .eq('joueur_id', monJoueur.id);
+            const amisIds = (amisData || []).map(a => a.ami_id);
+
+            // Connectés (tous sauf moi)
+            const { data: connectes } = await supabase
                 .from('joueurs')
                 .select('*')
                 .eq('en_ligne', true)
+                .gte('last_seen', deuxMinutesAvant)
                 .neq('id', monJoueur.id)
                 .order('pseudo');
-            const nouvelleIds = (joueurs||[]).map(j=>j.id).join(',');
+
+            // Amis déconnectés
+            let amisDeconnectes = [];
+            if (amisIds.length > 0) {
+                const { data: adData } = await supabase
+                    .from('joueurs')
+                    .select('*')
+                    .in('id', amisIds)
+                    .neq('id', monJoueur.id)
+                    .or(`en_ligne.eq.false,last_seen.lt.${deuxMinutesAvant}`)
+                    .order('pseudo');
+                amisDeconnectes = adData || [];
+            }
+
+            const tous = [...(connectes || []), ...amisDeconnectes];
+            const nouvelleIds = tous.map(j => j.id + (amisIds.includes(j.id) ? 'a' : '')).join(',');
             if (nouvelleIds === derniereListeIds) return;
             derniereListeIds = nouvelleIds;
+
             const liste = document.getElementById('liste-joueurs');
             liste.innerHTML = '';
 
-            if (!joueurs || joueurs.length === 0) {
+            if (tous.length === 0) {
                 liste.innerHTML = '<div class="liste-vide">Aucun joueur en ligne pour l\'instant…</div>';
                 return;
             }
 
-            joueurs.forEach(j => {
+            tous.forEach(j => {
+                const estConnecte = (connectes || []).some(c => c.id === j.id);
+                const estAmi = amisIds.includes(j.id);
+                const couleurPoint = estConnecte ? '#00cc66' : '#ff4444';
+                const statutTexte = estConnecte ? 'En ligne' : 'Hors ligne';
                 const carte = document.createElement('div');
                 carte.classList.add('joueur-carte');
                 carte.innerHTML = `
                     <div class="joueur-info">
-                        <div class="point point-ligne"></div>
+                        <div class="point" style="background:${couleurPoint};box-shadow:0 0 6px ${couleurPoint};"></div>
                         <div class="joueur-avatar">🎮</div>
                         <div class="joueur-texte">
-                            <div class="joueur-nom en-ligne">${j.pseudo}</div>
-                            <div class="joueur-statut">En ligne</div>
+                            <div class="joueur-nom ${estConnecte ? 'en-ligne' : ''}">${j.pseudo}${estAmi ? ' ⭐' : ''}</div>
+                            <div class="joueur-statut">${statutTexte}</div>
                         </div>
                     </div>
                     <div class="joueur-actions">
-                        <button class="btn-defier" onclick="defier('${j.pseudo}', '${j.id}')">
-                            Défier
-                        </button>
+                        ${estConnecte ? `<button class="btn-defier" onclick="defier('${j.pseudo}', '${j.id}')">Défier</button>` : `<button class="btn-defier" disabled style="opacity:0.3;cursor:default;">Hors ligne</button>`}
+                        ${estAmi
+                            ? `<button class="btn-ami actif" onclick="retirerAmi('${j.id}')" title="Retirer des amis">⭐</button>`
+                            : `<button class="btn-ami" onclick="ajouterAmi('${j.id}')" title="Ajouter en ami">☆</button>`
+                        }
                     </div>
                 `;
                 liste.appendChild(carte);
             });
 
+        }
+
+        async function ajouterAmi(amiId) {
+            await supabase.from('amis').insert({
+                joueur_id: monJoueur.id,
+                ami_id: amiId
+            });
+            derniereListeIds = ''; // forcer rafraîchissement
+            await afficherJoueurs();
+        }
+
+        async function retirerAmi(amiId) {
+            await supabase.from('amis')
+                .delete()
+                .eq('joueur_id', monJoueur.id)
+                .eq('ami_id', amiId);
+            derniereListeIds = '';
+            await afficherJoueurs();
         }
 
         function abonnerJoueursEnLigne() {
@@ -735,8 +815,7 @@
                     if (statut === 'acceptee') {
                         sessionStorage.setItem('partie_id', payload.new.partie_id);
                         document.getElementById('modal-attente').classList.remove('visible');
-                        supabase.removeChannel(canal);
-                        window.location.href = 'jeu2.html';
+                        window.location.href = 'invitation.html';
                     } else if (statut === 'refusee') {
                         document.getElementById('modal-attente').classList.remove('visible');
                         afficherToastReponse(pseudo + ' a refusé ton invitation.');

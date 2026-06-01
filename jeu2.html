@@ -1014,6 +1014,15 @@
     function demarrerPartie() {
         if (partieDemarree) return;
         partieDemarree = true;
+
+        // Heartbeat 30s pendant la partie
+        if (MON_ID) {
+            window._heartbeat = setInterval(async () => {
+                await supabase.from('joueurs')
+                    .update({ en_ligne: true, last_seen: new Date().toISOString() })
+                    .eq('id', MON_ID);
+            }, 30000);
+        }
         document.getElementById('label-adversaire').textContent = ADV_PSEUDO;
         document.getElementById('phase-init').style.display = 'none';
         document.getElementById('phase-jeu').style.display = 'block';
@@ -1351,6 +1360,7 @@
     async function finPartie(gagne, motAdv) {
         partieTerminee = true;
         arreterTimer();
+        if (window._heartbeat) clearInterval(window._heartbeat);
         if (canalProps) supabase.removeChannel(canalProps);
         if (canalPartie) supabase.removeChannel(canalPartie);
         if (canalMessages) supabase.removeChannel(canalMessages);
