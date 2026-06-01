@@ -22,38 +22,35 @@
         /* ── Header ── */
         .header-jeu2 {
             position: fixed;
-            top: 0; left: 0; right: 0;
-            height: 54px;
+            top: 10px; left: 12px; right: 12px;
+            height: 52px;
             box-sizing: border-box;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 6px 12px;
-            border-bottom: 1px solid rgba(0,191,255,0.15);
-            background: #111;
+            padding: 0 14px;
+            border: 1px solid rgba(0,191,255,0.15);
+            border-radius: 16px;
+            background: rgba(17,17,17,0.95);
             z-index: 30;
-            gap: 8px;
+            gap: 10px;
         }
-        .header-jeu2 .logo { height: 34px; flex-shrink: 0; }
+        .header-jeu2 .logo { height: 40px; flex-shrink: 0; }
         .header-centre {
             flex: 1;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
-            gap: 2px;
-        }
-        .header-longueur {
-            font-family: 'bigelowrules', Georgia, serif;
-            font-size: 0.78rem;
-            color: deepskyblue;
-            letter-spacing: 2px;
+            justify-content: center;
+            gap: 10px;
         }
         .header-tour {
             font-size: 0.72rem;
             letter-spacing: 1px;
-            padding: 2px 10px;
+            padding: 3px 12px;
             border-radius: 50px;
             font-family: 'bigelowrules', Georgia, serif;
+            white-space: nowrap;
         }
         .tour-moi {
             background: rgba(0,204,102,0.15);
@@ -67,16 +64,17 @@
         }
         #header-timer {
             font-family: 'Roboto', sans-serif;
-            font-size: 0.75rem;
+            font-size: 0.82rem;
             font-weight: 600;
             color: rgba(0,191,255,0.7);
             letter-spacing: 1px;
+            white-space: nowrap;
         }
         .header-droite {
             display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 3px;
+            flex-direction: row;
+            align-items: center;
+            gap: 6px;
             flex-shrink: 0;
         }
         .header-score {
@@ -93,15 +91,16 @@
             font-family: 'bigelowrules', Georgia, serif;
             font-size: 0.72rem;
             letter-spacing: 1px;
-            padding: 2px 7px;
+            padding: 3px 9px;
             border-radius: 50px;
             cursor: pointer;
+            white-space: nowrap;
         }
 
         /* ── Zone principale ── */
         .zone-principale {
             position: fixed;
-            top: 54px;
+            top: 72px;
             left: 0; right: 0;
             bottom: 196px;
             overflow-y: auto;
@@ -720,14 +719,14 @@
     <div class="header-jeu2">
         <img class="logo" src="Images/Logo.png" alt="Logo SaintEx">
         <div class="header-centre">
-            <div class="header-longueur" id="header-longueur">4 lettres</div>
             <div class="header-tour tour-moi" id="header-tour">Ton tour</div>
             <div id="header-timer">2:00</div>
         </div>
         <div class="header-droite">
             <div class="header-score" id="header-score"></div>
             <button class="btn-abandon-header" onclick="proposerAbandon()">Abandon</button>
-            <button class="btn-abandon-header" onclick="afficherDebug()" style="border-color:rgba(255,255,0,0.3);color:rgba(255,255,0,0.5);margin-top:2px;">⚙</button>
+        </div>
+    </div>
         </div>
     </div>
 
@@ -931,7 +930,6 @@
     let partieEnCours  = false; // true dès qu'on lit statut='en_cours' en base
 
     // ── Init ──
-    document.getElementById('header-longueur').textContent = LONGUEUR + ' lettres';
     document.getElementById('init-adversaire').textContent = 'Contre : ' + ADV_PSEUDO;
     document.getElementById('label-adversaire').textContent = ADV_PSEUDO;
     afficherCasesInit();
