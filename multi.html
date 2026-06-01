@@ -91,24 +91,34 @@
         }
         .btn-connecter:hover { background: rgba(0,191,255,0.2); }
 
-        /* Section titre */
-        .section-titre {
+        /* Zone connectée : deux colonnes */
+        #zone-connecte {
+            display: none;
+            flex: 1;
+            padding: 0 12px 16px;
+        }
+        .colonnes {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            margin-top: 12px;
+        }
+        .colonne {
+            flex: 1;
+            min-width: 0;
+        }
+        .colonne-titre {
             font-family: 'bigelowrules', Georgia, serif;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: rgba(0,191,255,0.5);
             letter-spacing: 2px;
-            padding: 16px 16px 8px;
             text-transform: uppercase;
+            margin-bottom: 8px;
+            padding-left: 4px;
         }
+        .colonne-titre.titre-amis { color: rgba(255,200,0,0.6); }
 
-        /* Liste joueurs */
-        .liste-joueurs {
-            padding: 0 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
+        /* Carte joueur */
         .joueur-carte {
             display: flex;
             align-items: center;
@@ -116,144 +126,118 @@
             background: rgba(255,255,255,0.03);
             border: 1px solid rgba(255,255,255,0.08);
             border-radius: 12px;
-            padding: 10px 14px;
-            transition: border-color 0.2s, background 0.2s;
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            gap: 6px;
         }
-        .joueur-carte:hover {
-            background: rgba(255,255,255,0.06);
-        }
+        .joueur-carte.carte-ami-ligne  { border-color: rgba(0,204,102,0.2); }
+        .joueur-carte.carte-ami-absent { border-color: rgba(255,51,51,0.15); }
 
         .joueur-info {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 7px;
             flex: 1;
+            min-width: 0;
         }
 
-        /* Point de statut */
+        /* Point statut */
         .point {
-            width: 9px;
-            height: 9px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             flex-shrink: 0;
         }
-        .point-ami-ligne  { background: #00cc66; box-shadow: 0 0 6px rgba(0,204,102,0.8); }
-        .point-ligne      { background: #00bfff; box-shadow: 0 0 6px rgba(0,191,255,0.8); }
-        .point-ami-absent { background: #ff3333; box-shadow: 0 0 6px rgba(255,51,51,0.6); }
 
-        .joueur-avatar {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.15);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-            flex-shrink: 0;
-        }
-
-        .joueur-texte { flex: 1; }
         .joueur-nom {
-            font-size: 0.95rem;
+            font-size: 0.88rem;
             font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .joueur-nom.ami-ligne  { color: #00cc66; }
         .joueur-nom.en-ligne   { color: #00bfff; }
         .joueur-nom.ami-absent { color: #ff5555; }
 
         .joueur-statut {
-            font-size: 0.72rem;
-            color: rgba(255,255,255,0.35);
-            margin-top: 1px;
+            font-size: 0.68rem;
+            color: rgba(255,255,255,0.3);
         }
 
-        /* Actions droite */
+        /* Actions */
         .joueur-actions {
             display: flex;
             align-items: center;
-            gap: 10px;
-        }
-
-        /* Case ami */
-        .label-ami {
-            display: flex;
-            align-items: center;
             gap: 5px;
-            font-size: 0.72rem;
-            color: rgba(255,255,255,0.35);
-            cursor: pointer;
-            white-space: nowrap;
+            flex-shrink: 0;
         }
-        .label-ami input[type="checkbox"] {
-            accent-color: #fff700;
-            width: 14px;
-            height: 14px;
-            cursor: pointer;
-        }
-        .label-ami:hover { color: rgba(255,247,0,0.7); }
 
         .btn-defier {
             background: transparent;
             border: 1px solid rgba(0,191,255,0.4);
             color: deepskyblue;
-            padding: 5px 12px;
+            padding: 4px 10px;
             border-radius: 50px;
             font-family: 'bigelowrules', Georgia, serif;
-            font-size: 0.78rem;
+            font-size: 0.72rem;
             letter-spacing: 1px;
             cursor: pointer;
             transition: background 0.2s;
             white-space: nowrap;
         }
         .btn-defier:hover { background: rgba(0,191,255,0.15); }
-        .btn-defier:disabled {
-            opacity: 0.3; cursor: default;
-        }
+        .btn-defier:disabled { opacity: 0.3; cursor: default; }
+
         .btn-ami {
             background: transparent;
             border: 1px solid rgba(255,200,0,0.3);
             color: rgba(255,200,0,0.5);
             border-radius: 8px;
-            padding: 6px 10px;
-            font-size: 1rem;
+            padding: 4px 7px;
+            font-size: 0.85rem;
             cursor: pointer;
             transition: all 0.2s;
+            line-height: 1;
         }
         .btn-ami:hover { border-color: gold; color: gold; }
         .btn-ami.actif { color: gold; border-color: gold; }
-            opacity: 0.3;
-            cursor: default;
+
+        .liste-vide {
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.25);
+            text-align: center;
+            padding: 12px 4px;
+            font-style: italic;
         }
 
-        /* Toast notification */
+        /* Toast */
         .toast {
             position: fixed;
             bottom: 70px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(30,30,50,0.95);
+            background: rgba(30,30,50,0.97);
             border: 1px solid rgba(0,191,255,0.3);
             border-radius: 12px;
             padding: 12px 20px;
             font-size: 0.88rem;
             color: white;
             text-align: center;
-            max-width: 280px;
+            max-width: 290px;
+            width: 90%;
             z-index: 200;
             opacity: 0;
             transition: opacity 0.3s;
             pointer-events: none;
         }
-        .toast.visible { opacity: 1; }
+        .toast.visible { opacity: 1; pointer-events: all; }
         .toast .toast-nom { color: deepskyblue; font-weight: bold; }
         .toast-actions {
             display: flex;
             gap: 8px;
             justify-content: center;
             margin-top: 10px;
-            pointer-events: all;
         }
         .btn-toast {
             padding: 5px 14px;
@@ -264,16 +248,8 @@
             cursor: pointer;
             border: 1px solid;
         }
-        .btn-toast-oui {
-            background: rgba(0,204,102,0.15);
-            border-color: rgba(0,204,102,0.5);
-            color: #00cc66;
-        }
-        .btn-toast-non {
-            background: rgba(255,51,51,0.1);
-            border-color: rgba(255,51,51,0.4);
-            color: #ff5555;
-        }
+        .btn-toast-oui { background: rgba(0,204,102,0.15); border-color: rgba(0,204,102,0.5); color: #00cc66; }
+        .btn-toast-non { background: rgba(255,51,51,0.1); border-color: rgba(255,51,51,0.4); color: #ff5555; }
 
         /* Modal attente défi */
         .modal-attente {
@@ -302,20 +278,11 @@
             letter-spacing: 2px;
             margin-bottom: 8px;
         }
-        .modal-adversaire {
-            font-size: 1rem;
-            color: white;
-            margin-bottom: 20px;
-        }
-        .modal-info {
-            font-size: 0.82rem;
-            color: rgba(255,255,255,0.4);
-            margin-bottom: 20px;
-        }
+        .modal-adversaire { font-size: 1rem; color: white; margin-bottom: 20px; }
+        .modal-info { font-size: 0.82rem; color: rgba(255,255,255,0.4); margin-bottom: 20px; }
         .pulse {
             display: inline-block;
-            width: 10px;
-            height: 10px;
+            width: 10px; height: 10px;
             border-radius: 50%;
             background: deepskyblue;
             animation: pulse 1.2s ease-in-out infinite;
@@ -339,24 +306,8 @@
             margin-top: 16px;
         }
 
-        /* Footer */
-        footer {
-            padding: 12px;
-            text-align: center;
-            font-size: 0.75rem;
-            color: rgba(255,255,255,0.2);
-            border-top: 1px solid rgba(0,191,255,0.08);
-            margin-top: auto;
-        }
-
-        #zone-non-connecte { display: block; }
-        #zone-connecte { display: none; }
-
         /* Choix longueur */
-        .longueur-section {
-            margin-top: 14px;
-            text-align: center;
-        }
+        .longueur-section { margin-top: 14px; text-align: center; }
         .longueur-section label {
             font-size: 0.85rem;
             color: rgba(0,191,255,0.7);
@@ -365,14 +316,9 @@
             display: block;
             margin-bottom: 8px;
         }
-        .longueur-cases {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-        }
+        .longueur-cases { display: flex; gap: 12px; justify-content: center; }
         .case-longueur {
-            width: 56px;
-            height: 56px;
+            width: 56px; height: 56px;
             border-radius: 12px;
             border: 2px solid rgba(0,191,255,0.3);
             background: transparent;
@@ -388,43 +334,22 @@
             position: relative;
             user-select: none;
         }
-        /* État 1 : colorié (préféré) */
-        .case-longueur.colorie {
-            border-color: rgba(0,191,255,0.7);
-            background: rgba(0,191,255,0.12);
-            color: deepskyblue;
-        }
-        /* État 2 : coché (préféré ET choix prioritaire) */
-        .case-longueur.coche {
-            border-color: #00cc66;
-            background: rgba(0,204,102,0.15);
-            color: #00cc66;
-            box-shadow: 0 0 12px rgba(0,204,102,0.3);
-        }
+        .case-longueur.colorie { border-color: rgba(0,191,255,0.7); background: rgba(0,191,255,0.12); color: deepskyblue; }
+        .case-longueur.coche { border-color: #00cc66; background: rgba(0,204,102,0.15); color: #00cc66; box-shadow: 0 0 12px rgba(0,204,102,0.3); }
         .case-longueur.coche::after {
             content: '✓';
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #00cc66;
-            color: #111;
-            border-radius: 50%;
-            width: 16px;
-            height: 16px;
+            position: absolute; top: -8px; right: -8px;
+            background: #00cc66; color: #111;
+            border-radius: 50%; width: 16px; height: 16px;
             font-size: 0.65rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Roboto', sans-serif;
-            font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Roboto', sans-serif; font-weight: 700;
         }
-        .longueur-hint {
-            font-size: 0.75rem;
-            color: rgba(255,255,255,0.55);
-            margin-top: 10px;
-            font-family: 'Roboto', sans-serif;
-            line-height: 1.5;
-        }
+        .longueur-hint { font-size: 0.75rem; color: rgba(255,255,255,0.55); margin-top: 10px; font-family: 'Roboto', sans-serif; line-height: 1.5; }
+
+        footer { padding: 12px; text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.2); border-top: 1px solid rgba(0,191,255,0.08); margin-top: auto; }
+
+        #zone-non-connecte { display: block; }
     </style>
 </head>
 <body>
@@ -456,18 +381,28 @@
         </div>
     </div>
 
-    <!-- Connecté -->
+    <!-- Connecté : deux colonnes -->
     <div id="zone-connecte">
-        <div class="section-titre">Joueurs</div>
-        <div class="liste-joueurs" id="liste-joueurs"></div>
+        <div class="colonnes">
+            <!-- Colonne Amis -->
+            <div class="colonne">
+                <div class="colonne-titre titre-amis">⭐ Amis</div>
+                <div id="liste-amis"></div>
+            </div>
+            <!-- Colonne En ligne -->
+            <div class="colonne">
+                <div class="colonne-titre">En ligne</div>
+                <div id="liste-enligne"></div>
+            </div>
+        </div>
     </div>
 
     <!-- Toast demande ami -->
-    <div class="toast" id="toast-ami">
-        <div><span class="toast-nom" id="toast-nom-ami"></span> veut t'ajouter en ami</div>
+    <div class="toast" id="toast-ami" style="display:none;">
+        <div><span class="toast-nom" id="toast-nom-ami"></span> vous a ajouté en ami</div>
         <div class="toast-actions">
-            <button class="btn-toast btn-toast-oui" onclick="repondreAmi(true)">Accepter</button>
-            <button class="btn-toast btn-toast-non" onclick="repondreAmi(false)">Refuser</button>
+            <button class="btn-toast btn-toast-oui" onclick="repondreDemandeAmi(true)">Ajouter aussi</button>
+            <button class="btn-toast btn-toast-non" onclick="repondreDemandeAmi(false)">Non merci</button>
         </div>
     </div>
 
@@ -498,12 +433,13 @@
         const SUPABASE_KEY = 'sb_publishable_f8VIFlJD4LasEWwLgSttZw_Gn7RFwLz';
         const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        let monJoueur = null; // { id, pseudo }
+        let monJoueur = null;
         let invitationEnCours = null;
+        let demandeAmiEnCours = null; // { id, pseudo } de celui qui nous a ajouté
         let canalJoueurs = null;
         let canalInvitations = null;
+        let derniereListeIds = '';
 
-        // États longueur : 0=vide, 1=colorié(accepte), 2=coché(prioritaire)
         const etatLongueur = { '4L': 0, '5L': 0 };
 
         function tapperCase(id) {
@@ -515,20 +451,11 @@
         }
 
         function getLongueurChoisie() {
-            // Prioritaire d'abord, sinon accepté, sinon 4 par défaut
             if (etatLongueur['4L'] === 2) return 4;
             if (etatLongueur['5L'] === 2) return 5;
             if (etatLongueur['4L'] === 1) return 4;
             if (etatLongueur['5L'] === 1) return 5;
-            return 4; // défaut
-        }
-
-        function getLongueurAcceptee() {
-            // Retourne les longueurs acceptées (état 1 ou 2)
-            const acc = [];
-            if (etatLongueur['4L'] > 0) acc.push(4);
-            if (etatLongueur['5L'] > 0) acc.push(5);
-            return acc.length > 0 ? acc : [4]; // défaut 4
+            return 4;
         }
 
         async function seConnecter() {
@@ -540,44 +467,32 @@
                 return;
             }
 
-            // Chercher ou créer le joueur dans Supabase
+            // Chercher ou créer le joueur
             let { data: existing } = await supabase
-                .from('joueurs')
-                .select('*')
-                .eq('pseudo', pseudo)
-                .maybeSingle();
+                .from('joueurs').select('*').eq('pseudo', pseudo).maybeSingle();
 
             if (existing) {
                 await supabase.from('joueurs')
                     .update({ en_ligne: true, last_seen: new Date().toISOString() })
                     .eq('id', existing.id);
-                monJoueur = existing;
+                monJoueur = { ...existing, en_ligne: true };
             } else {
                 const { data } = await supabase.from('joueurs')
-                    .insert({ pseudo, en_ligne: true })
-                    .select().maybeSingle();
+                    .insert({ pseudo, en_ligne: true }).select().maybeSingle();
                 monJoueur = data;
-        console.log('Connecté:', monJoueur);
-        console.log('Mon ID:', monJoueur?.id);
-        await afficherJoueurs();
             }
-
-            // Nettoyage des fantômes : supprimer les non-connectés depuis > 2min et non-amis
-            const deuxMinutesAvant = new Date(Date.now() - 2 * 60 * 1000).toISOString();
-            const { data: amisData0 } = await supabase
-                .from('amis').select('ami_id').eq('joueur_id', monJoueur.id);
-            const amisIds0 = (amisData0 || []).map(a => a.ami_id);
-            let deleteQuery = supabase.from('joueurs')
-                .delete()
-                .eq('en_ligne', false)
-                .lt('last_seen', deuxMinutesAvant);
-            if (amisIds0.length > 0) {
-                deleteQuery = deleteQuery.not('id', 'in', `(${amisIds0.join(',')})`);
-            }
-            await deleteQuery;
 
             sessionStorage.setItem('joueur_id', monJoueur.id);
             sessionStorage.setItem('mon_pseudo', pseudo);
+
+            // Nettoyage fantômes (non-amis déconnectés depuis > 2min)
+            const deuxMin = new Date(Date.now() - 2 * 60 * 1000).toISOString();
+            const { data: amisData0 } = await supabase
+                .from('amis').select('ami_id').eq('joueur_id', monJoueur.id);
+            const amisIds0 = (amisData0 || []).map(a => a.ami_id);
+            let q = supabase.from('joueurs').delete().eq('en_ligne', false).lt('last_seen', deuxMin);
+            if (amisIds0.length > 0) q = q.not('id', 'in', `(${amisIds0.join(',')})`);
+            await q;
 
             document.getElementById('zone-non-connecte').style.display = 'none';
             document.getElementById('zone-connecte').style.display = 'block';
@@ -585,10 +500,9 @@
             await afficherJoueurs();
             abonnerJoueursEnLigne();
             abonnerInvitations();
-            // Polling toutes les 10s
-            setInterval(async () => { await afficherJoueurs(); }, 10000);
+            pollingDemandesAmi();
 
-            // Heartbeat toutes les 30s pour maintenir en_ligne
+            setInterval(async () => { await afficherJoueurs(); }, 10000);
             setInterval(async () => {
                 await supabase.from('joueurs')
                     .update({ en_ligne: true, last_seen: new Date().toISOString() })
@@ -596,86 +510,104 @@
             }, 30000);
         }
 
-        let derniereListeIds = '';
-
         async function afficherJoueurs() {
-            const deuxMinutesAvant = new Date(Date.now() - 2 * 60 * 1000).toISOString();
+            const deuxMin = new Date(Date.now() - 2 * 60 * 1000).toISOString();
 
-            // Récupérer mes amis
+            // Mes amis (tous statuts)
             const { data: amisData } = await supabase
-                .from('amis')
-                .select('ami_id')
-                .eq('joueur_id', monJoueur.id);
+                .from('amis').select('ami_id, statut').eq('joueur_id', monJoueur.id);
             const amisIds = (amisData || []).map(a => a.ami_id);
 
-            // Connectés (tous sauf moi)
+            // Connectés
             const { data: connectes } = await supabase
-                .from('joueurs')
-                .select('*')
-                .eq('en_ligne', true)
-                .gte('last_seen', deuxMinutesAvant)
-                .neq('id', monJoueur.id)
-                .order('pseudo');
+                .from('joueurs').select('*')
+                .eq('en_ligne', true).gte('last_seen', deuxMin)
+                .neq('id', monJoueur.id).order('pseudo');
 
             // Amis déconnectés
-            let amisDeconnectes = [];
+            let amisAbsents = [];
             if (amisIds.length > 0) {
                 const { data: adData } = await supabase
-                    .from('joueurs')
-                    .select('*')
-                    .in('id', amisIds)
+                    .from('joueurs').select('*').in('id', amisIds)
                     .neq('id', monJoueur.id)
-                    .or(`en_ligne.eq.false,last_seen.lt.${deuxMinutesAvant}`)
+                    .or(`en_ligne.eq.false,last_seen.lt.${deuxMin}`)
                     .order('pseudo');
-                amisDeconnectes = adData || [];
+                amisAbsents = adData || [];
             }
 
-            const tous = [...(connectes || []), ...amisDeconnectes];
-            const nouvelleIds = tous.map(j => j.id + (amisIds.includes(j.id) ? 'a' : '')).join(',');
+            const connectesIds = (connectes || []).map(j => j.id);
+            const amisConnectes = (connectes || []).filter(j => amisIds.includes(j.id));
+            const anonymesConnectes = (connectes || []).filter(j => !amisIds.includes(j.id));
+
+            const nouvelleIds = [
+                ...amisConnectes, ...amisAbsents, ...anonymesConnectes
+            ].map(j => j.id).join(',') + amisIds.join('');
             if (nouvelleIds === derniereListeIds) return;
             derniereListeIds = nouvelleIds;
 
-            const liste = document.getElementById('liste-joueurs');
-            liste.innerHTML = '';
-
-            if (tous.length === 0) {
-                liste.innerHTML = '<div class="liste-vide">Aucun joueur en ligne pour l\'instant…</div>';
-                return;
+            // ── Colonne Amis ──
+            const listeAmis = document.getElementById('liste-amis');
+            listeAmis.innerHTML = '';
+            const tousAmis = [...amisConnectes, ...amisAbsents];
+            if (tousAmis.length === 0) {
+                listeAmis.innerHTML = '<div class="liste-vide">Aucun ami</div>';
+            } else {
+                tousAmis.forEach(j => {
+                    const estLa = connectesIds.includes(j.id);
+                    const couleur = estLa ? '#00cc66' : '#ff4444';
+                    const carte = document.createElement('div');
+                    carte.className = 'joueur-carte ' + (estLa ? 'carte-ami-ligne' : 'carte-ami-absent');
+                    carte.innerHTML = `
+                        <div class="joueur-info">
+                            <div class="point" style="background:${couleur};box-shadow:0 0 5px ${couleur};"></div>
+                            <div class="joueur-texte">
+                                <div class="joueur-nom ${estLa ? 'ami-ligne' : 'ami-absent'}">${j.pseudo}</div>
+                                <div class="joueur-statut">${estLa ? 'En ligne' : 'Hors ligne'}</div>
+                            </div>
+                        </div>
+                        <div class="joueur-actions">
+                            ${estLa
+                                ? `<button class="btn-defier" onclick="defier('${j.pseudo}','${j.id}')">Défier</button>`
+                                : `<button class="btn-defier" disabled>Hors ligne</button>`
+                            }
+                            <button class="btn-ami actif" onclick="retirerAmi('${j.id}')" title="Retirer">⭐</button>
+                        </div>`;
+                    listeAmis.appendChild(carte);
+                });
             }
 
-            tous.forEach(j => {
-                const estConnecte = (connectes || []).some(c => c.id === j.id);
-                const estAmi = amisIds.includes(j.id);
-                const couleurPoint = estConnecte ? '#00cc66' : '#ff4444';
-                const statutTexte = estConnecte ? 'En ligne' : 'Hors ligne';
-                const carte = document.createElement('div');
-                carte.classList.add('joueur-carte');
-                carte.innerHTML = `
-                    <div class="joueur-info">
-                        <div class="point" style="background:${couleurPoint};box-shadow:0 0 6px ${couleurPoint};"></div>
-                        <div class="joueur-avatar">🎮</div>
-                        <div class="joueur-texte">
-                            <div class="joueur-nom ${estConnecte ? 'en-ligne' : ''}">${j.pseudo}${estAmi ? ' ⭐' : ''}</div>
-                            <div class="joueur-statut">${statutTexte}</div>
+            // ── Colonne En ligne ──
+            const listeEnLigne = document.getElementById('liste-enligne');
+            listeEnLigne.innerHTML = '';
+            if (anonymesConnectes.length === 0) {
+                listeEnLigne.innerHTML = '<div class="liste-vide">Aucun joueur</div>';
+            } else {
+                anonymesConnectes.forEach(j => {
+                    const carte = document.createElement('div');
+                    carte.className = 'joueur-carte';
+                    carte.innerHTML = `
+                        <div class="joueur-info">
+                            <div class="point" style="background:#00bfff;box-shadow:0 0 5px #00bfff;"></div>
+                            <div class="joueur-texte">
+                                <div class="joueur-nom en-ligne">${j.pseudo}</div>
+                                <div class="joueur-statut">En ligne</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="joueur-actions">
-                        ${estConnecte ? `<button class="btn-defier" onclick="defier('${j.pseudo}', '${j.id}')">Défier</button>` : `<button class="btn-defier" disabled style="opacity:0.3;cursor:default;">Hors ligne</button>`}
-                        ${estAmi
-                            ? `<button class="btn-ami actif" onclick="retirerAmi('${j.id}')" title="Retirer des amis">⭐</button>`
-                            : `<button class="btn-ami" onclick="ajouterAmi('${j.id}')" title="Ajouter en ami">☆</button>`
-                        }
-                    </div>
-                `;
-                liste.appendChild(carte);
-            });
-
+                        <div class="joueur-actions">
+                            <button class="btn-defier" onclick="defier('${j.pseudo}','${j.id}')">Défier</button>
+                            <button class="btn-ami" onclick="ajouterAmi('${j.id}')" title="Ajouter en ami">☆</button>
+                        </div>`;
+                    listeEnLigne.appendChild(carte);
+                });
+            }
         }
 
+        // ── Amis ──
         window.ajouterAmi = async function(amiId) {
             await supabase.from('amis').insert({
                 joueur_id: monJoueur.id,
-                ami_id: amiId
+                ami_id: amiId,
+                statut: 'en_attente'
             });
             derniereListeIds = '';
             await afficherJoueurs();
@@ -683,21 +615,77 @@
 
         window.retirerAmi = async function(amiId) {
             await supabase.from('amis')
-                .delete()
-                .eq('joueur_id', monJoueur.id)
-                .eq('ami_id', amiId);
+                .delete().eq('joueur_id', monJoueur.id).eq('ami_id', amiId);
             derniereListeIds = '';
             await afficherJoueurs();
         }
 
+        // Polling demandes ami entrantes (toutes les 10s)
+        function pollingDemandesAmi() {
+            setInterval(async () => {
+                if (!monJoueur) return;
+                const { data } = await supabase
+                    .from('amis')
+                    .select('joueur_id, statut')
+                    .eq('ami_id', monJoueur.id)
+                    .eq('statut', 'en_attente');
+                if (!data || data.length === 0) return;
+                // Prendre la première demande non encore affichée
+                const demande = data[0];
+                if (demandeAmiEnCours && demandeAmiEnCours.id === demande.joueur_id) return;
+                // Récupérer le pseudo
+                const { data: j } = await supabase
+                    .from('joueurs').select('pseudo').eq('id', demande.joueur_id).single();
+                if (!j) return;
+                demandeAmiEnCours = { id: demande.joueur_id, pseudo: j.pseudo };
+                afficherToastAmi(j.pseudo);
+            }, 10000);
+        }
+
+        function afficherToastAmi(pseudo) {
+            document.getElementById('toast-nom-ami').textContent = pseudo;
+            const toast = document.getElementById('toast-ami');
+            toast.style.display = 'block';
+            setTimeout(() => toast.classList.add('visible'), 10);
+        }
+
+        window.repondreDemandeAmi = async function(accepte) {
+            const toast = document.getElementById('toast-ami');
+            toast.classList.remove('visible');
+            setTimeout(() => { toast.style.display = 'none'; }, 300);
+
+            if (!demandeAmiEnCours) return;
+            const { id: demandeurId } = demandeAmiEnCours;
+            demandeAmiEnCours = null;
+
+            // Marquer la demande comme acceptée ou refusée
+            await supabase.from('amis')
+                .update({ statut: accepte ? 'accepte' : 'refuse' })
+                .eq('joueur_id', demandeurId)
+                .eq('ami_id', monJoueur.id);
+
+            if (accepte) {
+                // Ajout réciproque
+                await supabase.from('amis').insert({
+                    joueur_id: monJoueur.id,
+                    ami_id: demandeurId,
+                    statut: 'accepte'
+                });
+                derniereListeIds = '';
+                await afficherJoueurs();
+            }
+        }
+
+        // ── Joueurs en ligne ──
         function abonnerJoueursEnLigne() {
             if (canalJoueurs) supabase.removeChannel(canalJoueurs);
             canalJoueurs = supabase.channel('joueurs-ligne')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'joueurs' },
-                    () => afficherJoueurs())
+                    () => { derniereListeIds = ''; afficherJoueurs(); })
                 .subscribe();
         }
 
+        // ── Invitations ──
         function abonnerInvitations() {
             if (!monJoueur) return;
             if (canalInvitations) supabase.removeChannel(canalInvitations);
@@ -710,43 +698,25 @@
         }
 
         function recevoirInvitation(inv) {
-            // Afficher une notification d'invitation reçue
-            const toast = document.getElementById('toast-ami');
-            document.getElementById('toast-nom-ami').textContent = inv.de_pseudo + " t'invite à jouer !";
-            toast.classList.add('visible');
-            toast.style.pointerEvents = 'all';
-            // Stocker l'invitation pour y répondre
             invitationEnCours = inv;
-        }
-
-        function demanderAmi(pseudo, checkbox) {
-            if (checkbox.checked) {
-                // Simuler l'envoi d'une demande et la réponse
-                setTimeout(() => {
-                    afficherToastAmi(pseudo);
-                }, 800);
-            }
-        }
-
-        function afficherToastAmi(pseudo) {
-            demandeAmiEnCours = pseudo;
-            document.getElementById('toast-nom-ami').textContent = pseudo;
-            const toast = document.getElementById('toast-ami');
+            const toast = document.getElementById('toast-reponse');
+            toast.innerHTML = `
+                <div><span class="toast-nom">${inv.de_pseudo}</span> t'invite à jouer !</div>
+                <div class="toast-actions">
+                    <button class="btn-toast btn-toast-oui" onclick="repondreInvitation(true)">Accepter</button>
+                    <button class="btn-toast btn-toast-non" onclick="repondreInvitation(false)">Refuser</button>
+                </div>`;
             toast.classList.add('visible');
-            toast.style.pointerEvents = 'all';
         }
 
-        async function repondreAmi(accepte) {
-            const toast = document.getElementById('toast-ami');
+        window.repondreInvitation = async function(accepte) {
+            const toast = document.getElementById('toast-reponse');
             toast.classList.remove('visible');
-            toast.style.pointerEvents = 'none';
-
             if (!invitationEnCours) return;
             const inv = invitationEnCours;
             invitationEnCours = null;
 
             if (accepte) {
-                // Créer la partie
                 const { data: partie } = await supabase.from('parties').insert({
                     joueur_a: inv.de_joueur_id,
                     joueur_b: monJoueur.id,
@@ -757,30 +727,27 @@
                     statut: 'en_cours'
                 }).select().maybeSingle();
 
-                // Mettre à jour l'invitation
                 await supabase.from('invitations')
                     .update({ statut: 'acceptee', partie_id: partie.id })
                     .eq('id', inv.id);
 
-                // Préparer sessionStorage et aller jouer
                 sessionStorage.setItem('adv_pseudo', inv.de_pseudo);
                 sessionStorage.setItem('mon_pseudo', monJoueur.pseudo);
-                sessionStorage.setItem('je_commence', 'false'); // B ne commence pas
+                sessionStorage.setItem('je_commence', 'false');
                 sessionStorage.setItem('partie_id', partie.id);
                 sessionStorage.setItem('longueur', inv.longueur_preferee);
                 sessionStorage.setItem('depuis_multi', 'true');
                 window.location.href = 'invitation.html';
             } else {
                 await supabase.from('invitations')
-                    .update({ statut: 'refusee' })
-                    .eq('id', inv.id);
+                    .update({ statut: 'refusee' }).eq('id', inv.id);
                 afficherToastReponse(inv.de_pseudo + ' : invitation déclinée.');
             }
         }
 
         function afficherToastReponse(msg) {
             const toast = document.getElementById('toast-reponse');
-            toast.textContent = msg;
+            toast.innerHTML = msg;
             toast.classList.add('visible');
             setTimeout(() => toast.classList.remove('visible'), 3000);
         }
@@ -799,7 +766,6 @@
             }).select().maybeSingle();
 
             if (error) {
-                console.error('Erreur invitation:', error);
                 document.getElementById('modal-attente').classList.remove('visible');
                 return;
             }
@@ -811,6 +777,7 @@
             sessionStorage.setItem('longueur', getLongueurChoisie());
             sessionStorage.setItem('depuis_multi', 'true');
             sessionStorage.setItem('invitation_id', inv.id);
+            sessionStorage.setItem('adv_id', advId);
 
             const canal = supabase.channel('inv-rep-' + inv.id)
                 .on('postgres_changes', {
@@ -821,6 +788,7 @@
                     if (statut === 'acceptee') {
                         sessionStorage.setItem('partie_id', payload.new.partie_id);
                         document.getElementById('modal-attente').classList.remove('visible');
+                        supabase.removeChannel(canal);
                         window.location.href = 'invitation.html';
                     } else if (statut === 'refusee') {
                         document.getElementById('modal-attente').classList.remove('visible');
@@ -840,27 +808,21 @@
             }
         }
 
-        // Exposer les fonctions sur window (nécessaire avec type="module")
+        // Exposer sur window
         window.seConnecter = seConnecter;
         window.tapperCase = tapperCase;
         window.defier = defier;
         window.annulerDefi = annulerDefi;
-        window.repondreAmi = repondreAmi;
 
-        // Event listeners pour les cases longueur
         document.getElementById('case-4L').addEventListener('click', () => tapperCase('4L'));
         document.getElementById('case-5L').addEventListener('click', () => tapperCase('5L'));
-
         document.getElementById('pseudo-input').addEventListener('keydown', e => {
             if (e.key === 'Enter') seConnecter();
         });
 
-        // Déconnexion propre
         window.addEventListener('beforeunload', () => {
             if (monJoueur) {
-                supabase.from('joueurs')
-                    .update({ en_ligne: false })
-                    .eq('id', monJoueur.id);
+                supabase.from('joueurs').update({ en_ligne: false }).eq('id', monJoueur.id);
             }
         });
     </script>
