@@ -167,11 +167,7 @@
         .joueur-nom.en-ligne   { color: #00bfff; }
         .joueur-nom.ami-absent { color: #ff5555; }
 
-        .joueur-statut {
-            font-family: 'Roboto', sans-serif;
-            font-size: 0.75rem;
-            color: rgba(255,255,255,0.35);
-        }
+        .joueur-statut { display: none; }
 
         /* Actions */
         .joueur-actions {
@@ -182,20 +178,21 @@
         }
 
         .btn-defier {
-            background: transparent;
-            border: 1px solid rgba(0,191,255,0.4);
+            background: rgba(0,191,255,0.1);
+            border: 1.5px solid rgba(0,191,255,0.6);
             color: deepskyblue;
-            padding: 4px 10px;
+            padding: 7px 16px;
             border-radius: 50px;
-            font-family: 'bigelowrules', Georgia, serif;
-            font-size: 0.72rem;
-            letter-spacing: 1px;
+            font-family: 'Roboto', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
             cursor: pointer;
             transition: background 0.2s;
             white-space: nowrap;
         }
-        .btn-defier:hover { background: rgba(0,191,255,0.15); }
-        .btn-defier:disabled { opacity: 0.3; cursor: default; }
+        .btn-defier:hover { background: rgba(0,191,255,0.2); }
+        .btn-defier:disabled { opacity: 0.3; cursor: default; background: transparent; }
 
         .btn-ami {
             background: transparent;
