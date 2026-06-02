@@ -249,8 +249,12 @@
                     .update({ statut: 'acceptee', partie_id: partie.id })
                     .eq('id', invitationId);
 
+                // Marquer les deux joueurs comme en partie
+                await supabase.from('joueurs')
+                    .update({ statut: 'en_partie' })
+                    .in('id', [advId, joueurId]);
+
                 sessionStorage.setItem('partie_id', partie.id);
-                sessionStorage.setItem('adv_id', advId);  // stocker l'id de l'adversaire
                 sessionStorage.setItem('je_commence', 'false'); // B ne commence pas
             } else {
                 sessionStorage.setItem('je_commence', 'false');
