@@ -1024,6 +1024,11 @@
         if (partieDemarree) return;
         partieDemarree = true;
 
+        // Marquer le joueur comme en partie
+        if (MON_ID) {
+            supabase.from('joueurs').update({ statut: 'en_partie' }).eq('id', MON_ID);
+        }
+
         // Heartbeat 30s pendant la partie
         if (MON_ID) {
             window._heartbeat = setInterval(async () => {
@@ -1378,6 +1383,11 @@
         if (canalPartie) supabase.removeChannel(canalPartie);
         if (canalMessages) supabase.removeChannel(canalMessages);
 
+        // Remettre le statut libre
+        if (MON_ID) {
+            await supabase.from('joueurs').update({ statut: 'libre' }).eq('id', MON_ID);
+        }
+
         // Enregistrer la fin de partie dans Supabase
         if (PARTIE_ID) {
             await supabase.from('parties')
@@ -1637,15 +1647,18 @@
         modal.classList.add('visible');
     }
 
-    function confirmerAbandon() {
+    async function confirmerAbandon() {
         document.getElementById('modal-timeout').classList.remove('visible');
-        // TODO : notifier Supabase
+        if (MON_ID) {
+            await supabase.from('joueurs').update({ statut: 'libre' }).eq('id', MON_ID);
+        }
+        if (PARTIE_ID) {
+            await supabase.from('parties')
+                .update({ statut: 'terminee', gagnant: MON_ROLE === 'a' ? 'b' : 'a' })
+                .eq('id', PARTIE_ID);
+        }
         window.location.href = 'multi.html';
     }
-
-    // Simuler message adversaire (pour tests)
-    setTimeout(() => ajouterMessage('😈 Tu chauffes !', false), 5000);
-    setTimeout(() => ajouterMessage('🎯 Chaud !', false), 12000);
 
     // Exposer les fonctions sur window (nécessaire avec type="module")
     window.ajouterLettre = ajouterLettre;
