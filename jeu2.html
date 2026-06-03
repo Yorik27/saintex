@@ -1078,13 +1078,22 @@
         const intervalPartie = setInterval(async () => {
             if (partieTerminee) { clearInterval(intervalPartie); return; }
             const { data } = await supabase.from('parties')
-                .select('tour_actuel, statut, gagnant, mot_secret_a, mot_secret_b')
+                .select('tour_actuel, statut, gagnant, mot_secret_a, mot_secret_b, chat_actif')
                 .eq('id', PARTIE_ID)
                 .single();
             if (!data) return;
 
             // Marquer la partie comme en cours dès qu'on le confirme
             if (data.statut === 'en_cours') partieEnCours = true;
+
+            // Synchronisation chat : l'adversaire a ouvert/fermé le chat
+            if (!chatOuvert) {
+                if (data.chat_actif) {
+                    arreterTimer();
+                } else if (cMonTour && !partieTerminee && partieDemarree && !timerTour) {
+                    demarrerTimer();
+                }
+            }
 
             // Changement de tour
             if (data.tour_actuel === MON_ROLE && !cMonTour && !partieTerminee) {
@@ -1093,7 +1102,6 @@
             }
 
             // Fin de partie — notifier le perdant
-            // partieEnCours évite de réagir à une ancienne partie terminée
             if (data.statut === 'terminee' && !partieTerminee && partieEnCours) {
                 const colAdv = MON_ROLE === 'a' ? 'mot_secret_b' : 'mot_secret_a';
                 if (!motAdversaire) motAdversaire = data[colAdv] || '?????';
@@ -1499,8 +1507,15 @@
         chatOuvert = !chatOuvert;
         popup.classList.toggle('visible', chatOuvert);
         if (ov) ov.style.display = chatOuvert ? 'block' : 'none';
+
+        // Synchroniser l'état du chat dans Supabase
+        if (PARTIE_ID) {
+            supabase.from('parties')
+                .update({ chat_actif: chatOuvert })
+                .eq('id', PARTIE_ID);
+        }
+
         if (chatOuvert) {
-            // Suspendre le timer pendant le chat
             arreterTimer();
             messagesNonLus = 0;
             const badge = document.getElementById('badge-chat');
@@ -1508,13 +1523,11 @@
             badge.classList.remove('visible');
             const zone = document.getElementById('dialogue-messages');
             zone.scrollTop = zone.scrollHeight;
-            // Focus sur l'input seulement sur desktop (évite le clavier natif sur mobile)
             const estMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
             if (!estMobile) {
                 document.getElementById('dialogue-input').focus();
             }
         } else {
-            // Reprendre le timer à la fermeture du chat seulement si c'est mon tour
             if (!partieTerminee && cMonTour) demarrerTimer();
         }
     }
