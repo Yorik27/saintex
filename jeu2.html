@@ -1024,16 +1024,19 @@
         if (partieDemarree) return;
         partieDemarree = true;
 
-        // Marquer le joueur comme en partie
-        if (MON_ID) {
-            supabase.from('joueurs').update({ statut: 'en_partie' }).eq('id', MON_ID);
+        // Marquer les deux joueurs comme en partie
+        if (MON_ID && ADV_ID) {
+            supabase.from('joueurs')
+                .update({ statut: 'en_partie' })
+                .in('id', [MON_ID, ADV_ID])
+                .then(({ error }) => { if (error) console.error('statut en_partie:', error); });
         }
 
-        // Heartbeat 30s pendant la partie
+        // Heartbeat 30s pendant la partie — maintient en_ligne ET statut en_partie
         if (MON_ID) {
             window._heartbeat = setInterval(async () => {
                 await supabase.from('joueurs')
-                    .update({ en_ligne: true, last_seen: new Date().toISOString() })
+                    .update({ en_ligne: true, last_seen: new Date().toISOString(), statut: 'en_partie' })
                     .eq('id', MON_ID);
             }, 30000);
         }
@@ -1511,8 +1514,8 @@
                 document.getElementById('dialogue-input').focus();
             }
         } else {
-            // Reprendre le timer à la fermeture du chat
-            if (!partieTerminee) demarrerTimer();
+            // Reprendre le timer à la fermeture du chat seulement si c'est mon tour
+            if (!partieTerminee && cMonTour) demarrerTimer();
         }
     }
 
