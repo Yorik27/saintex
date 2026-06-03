@@ -365,8 +365,12 @@
         // ── Polling revanche entrante ──
         if (MON_ID) {
             const pollingInv = setInterval(async () => {
+                if (!ADV_ID) return;
                 const { data } = await supabase.from('invitations')
-                    .select('*').eq('vers_joueur_id', MON_ID).eq('statut', 'en_attente')
+                    .select('*')
+                    .eq('vers_joueur_id', MON_ID)
+                    .eq('de_joueur_id', ADV_ID)
+                    .eq('statut', 'en_attente')
                     .order('created_at', { ascending: false }).limit(1).maybeSingle();
                 if (!data) return;
                 if (_invEntrant && _invEntrant.id === data.id) return;
@@ -381,10 +385,13 @@
         let _demandeAmi = null;
         if (MON_ID) {
             const pollingAmi = setInterval(async () => {
+                if (!ADV_ID) return;
                 const { data } = await supabase.from('amis')
                     .select('joueur_id, statut')
-                    .eq('ami_id', MON_ID).eq('statut', 'en_attente')
-                    .order('created_at', { ascending: false }).limit(1).maybeSingle();
+                    .eq('ami_id', MON_ID)
+                    .eq('joueur_id', ADV_ID)
+                    .eq('statut', 'en_attente')
+                    .maybeSingle();
                 if (!data) return;
                 if (_demandeAmi && _demandeAmi.id === data.joueur_id) return;
                 const { data: j } = await supabase.from('joueurs')
