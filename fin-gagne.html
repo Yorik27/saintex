@@ -273,6 +273,29 @@
             if (data) document.getElementById('btn-ami').style.display = 'none';
         }
 
+        // Snapshot des demandes ami déjà existantes → ignorer dans le polling
+        let _amiDejaVu = false;
+        if (MON_ID && ADV_ID) {
+            const { data: existing } = await supabase.from('amis')
+                .select('joueur_id').eq('ami_id', MON_ID).eq('joueur_id', ADV_ID)
+                .eq('statut', 'en_attente').maybeSingle();
+            if (existing) _amiDejaVu = true;
+        }
+
+        // Surveillance : si l'adversaire quitte, retour multi après 30s
+        if (ADV_ID) {
+            let advAbsent = 0;
+            setInterval(async () => {
+                const { data: adv } = await supabase.from('joueurs')
+                    .select('en_ligne, last_seen').eq('id', ADV_ID).single();
+                if (!adv) return;
+                const deuxMin = new Date(Date.now() - 2 * 60 * 1000).toISOString();
+                const absent = !adv.en_ligne || adv.last_seen < deuxMin;
+                if (absent) { advAbsent++; } else { advAbsent = 0; }
+                if (advAbsent >= 3) window.retour(); // 3 × 10s = 30s d'absence
+            }, 10000);
+        }
+
         // ── Revanche ──
         window.demanderRevanche = async function() {
             if (!MON_ID || !ADV_ID) { retour(); return; }
@@ -393,7 +416,7 @@
                     .eq('statut', 'en_attente')
                     .maybeSingle();
                 if (!data) return;
-                if (_demandeAmi && _demandeAmi.id === data.joueur_id) return;
+                if (_amiDejaVu) return; // demande préexistante, ignorer
                 const { data: j } = await supabase.from('joueurs')
                     .select('pseudo').eq('id', data.joueur_id).single();
                 if (!j) return;
