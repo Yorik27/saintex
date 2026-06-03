@@ -30,8 +30,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 16px;
+            justify-content: flex-start;
+            padding: 20px 16px 32px;
             overflow-y: auto;
         }
 
@@ -98,7 +98,7 @@
             from { opacity: 0; transform: scale(0.5); }
             to   { opacity: 1; transform: scale(1); }
         }
-        .verdict.gagne { color: var(--gagne); text-shadow: 0 0 30px rgba(0,230,118,0.4); }
+        .verdict.gagne { color: #ffffff; text-shadow: 0 0 30px rgba(0,230,118,0.6), 0 0 60px rgba(0,230,118,0.3); }
         .verdict.perdu { color: var(--perdu); text-shadow: 0 0 30px rgba(255,68,68,0.3); }
 
         /* Nom adversaire */
@@ -136,7 +136,7 @@
         .case-mot.gagne {
             background: rgba(0,230,118,0.1);
             border-color: rgba(0,230,118,0.4);
-            color: var(--gagne);
+            color: #ffffff;
         }
         .case-mot.perdu {
             background: rgba(0,191,255,0.07);
