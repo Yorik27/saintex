@@ -1087,7 +1087,7 @@
             if (data.statut === 'en_cours') partieEnCours = true;
 
             // Synchronisation chat : l'adversaire a ouvert/fermé le chat
-            if (!chatOuvert) {
+            if (!chatOuvert && data.chat_actif !== undefined) {
                 if (data.chat_actif) {
                     arreterTimer();
                 } else if (cMonTour && !partieTerminee && partieDemarree && !timerTour) {
