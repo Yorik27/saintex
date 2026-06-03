@@ -445,6 +445,9 @@
             document.getElementById('btn-revanche').style.display = 'none';
             document.getElementById('attente-revanche').classList.add('visible');
 
+            // Demandeur occupé dès maintenant
+            await supabase.from('joueurs').update({ statut: 'en_partie' }).eq('id', MON_ID);
+
             const { data: inv } = await supabase.from('invitations').insert({
                 de_joueur_id: MON_ID,
                 vers_joueur_id: ADV_ID,
@@ -455,6 +458,7 @@
             }).select().maybeSingle();
 
             if (!inv) {
+                await supabase.from('joueurs').update({ statut: 'libre' }).eq('id', MON_ID);
                 document.getElementById('btn-revanche').style.display = '';
                 document.getElementById('attente-revanche').classList.remove('visible');
                 return;
@@ -473,6 +477,7 @@
                     window.location.href = 'jeu2.html';
                 } else if (data.statut === 'refusee') {
                     clearInterval(t);
+                    await supabase.from('joueurs').update({ statut: 'libre' }).eq('id', MON_ID);
                     document.getElementById('btn-revanche').style.display = '';
                     document.getElementById('attente-revanche').classList.remove('visible');
                 }
@@ -485,6 +490,11 @@
             document.getElementById('toast-entrant').classList.remove('visible');
             if (!_invEntrant) return;
             if (accepte) {
+                // Les deux joueurs occupés
+                await supabase.from('joueurs')
+                    .update({ statut: 'en_partie' })
+                    .in('id', [_invEntrant.de_joueur_id, MON_ID]);
+
                 const { data: partie } = await supabase.from('parties').insert({
                     joueur_a: _invEntrant.de_joueur_id,
                     joueur_b: MON_ID,
@@ -509,18 +519,24 @@
             }
         };
 
-        // Écouter une invitation de revanche entrante
+        // Écouter une invitation de revanche entrante (polling 3s)
         if (MON_ID) {
-            supabase.channel('fin-inv-' + MON_ID)
-                .on('postgres_changes', {
-                    event: 'INSERT', schema: 'public', table: 'invitations',
-                    filter: `vers_joueur_id=eq.${MON_ID}`
-                }, payload => {
-                    _invEntrant = payload.new;
-                    document.getElementById('toast-nom').textContent = payload.new.de_pseudo;
-                    document.getElementById('toast-entrant').classList.add('visible');
-                })
-                .subscribe();
+            const pollingInv = setInterval(async () => {
+                const { data } = await supabase.from('invitations')
+                    .select('*')
+                    .eq('vers_joueur_id', MON_ID)
+                    .eq('statut', 'en_attente')
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
+                if (!data) return;
+                // Ne pas afficher si c'est une ancienne invitation déjà vue
+                if (_invEntrant && _invEntrant.id === data.id) return;
+                clearInterval(pollingInv);
+                _invEntrant = data;
+                document.getElementById('toast-nom').textContent = data.de_pseudo;
+                document.getElementById('toast-entrant').classList.add('visible');
+            }, 3000);
         }
 
         // ── Ami ──
@@ -535,7 +551,10 @@
         };
 
         // ── Retour ──
-        window.retour = function() {
+        window.retour = async function() {
+            if (MON_ID) {
+                await supabase.from('joueurs').update({ statut: 'libre' }).eq('id', MON_ID);
+            }
             ['partie_id', 'fin_gagne', 'fin_mot_adv', 'fin_coups', 'fin_lettres',
              'invitation_id', 'depuis_multi', 'revanche', 'longueur',
              'longueur_preferee', 'adv_pseudo', 'adv_id', 'je_commence']

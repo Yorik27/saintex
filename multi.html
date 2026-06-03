@@ -731,6 +731,11 @@
                     .update({ statut: 'acceptee', partie_id: partie.id })
                     .eq('id', inv.id);
 
+                // Marquer les deux joueurs comme en partie
+                await supabase.from('joueurs')
+                    .update({ statut: 'en_partie' })
+                    .in('id', [inv.de_joueur_id, monJoueur.id]);
+
                 sessionStorage.setItem('adv_pseudo', inv.de_pseudo);
                 sessionStorage.setItem('mon_pseudo', monJoueur.pseudo);
                 sessionStorage.setItem('je_commence', 'false');
@@ -755,6 +760,9 @@
         async function defier(pseudo, advId) {
             document.getElementById('modal-adversaire-nom').textContent = pseudo;
             document.getElementById('modal-attente').classList.add('visible');
+
+            // A est désormais occupé
+            await supabase.from('joueurs').update({ statut: 'en_partie' }).eq('id', monJoueur.id);
 
             const { data: inv, error } = await supabase.from('invitations').insert({
                 de_joueur_id: monJoueur.id,
@@ -801,6 +809,7 @@
 
         function annulerDefi() {
             document.getElementById('modal-attente').classList.remove('visible');
+            supabase.from('joueurs').update({ statut: 'libre' }).eq('id', monJoueur.id);
             const invId = sessionStorage.getItem('invitation_id');
             if (invId) {
                 supabase.from('invitations').update({ statut: 'refusee' }).eq('id', invId);
