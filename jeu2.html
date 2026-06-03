@@ -1102,12 +1102,16 @@
             }
 
             // Fin de partie — notifier le perdant
+            // Délai 1s : laisse abonnerPropositions (Realtime) arriver en premier
+            // avec le bon mot. Fallback si Realtime échoue.
             if (data.statut === 'terminee' && !partieTerminee && partieEnCours) {
                 const colAdv = MON_ROLE === 'a' ? 'mot_secret_b' : 'mot_secret_a';
                 if (!motAdversaire) motAdversaire = data[colAdv] || '?????';
                 if (data.gagnant && data.gagnant !== MON_ROLE) {
                     clearInterval(intervalPartie);
-                    finPartie(false, motAdversaire);
+                    setTimeout(() => {
+                        if (!partieTerminee) finPartie(false, motAdversaire);
+                    }, 1000);
                 }
             }
         }, 2000);
@@ -1420,7 +1424,7 @@
         sessionStorage.setItem('fin_coups', numeroTour);
         sessionStorage.setItem('fin_lettres', (motFinal || '').split('').filter((l, i) => (motSecret || '')[i] === l).length);
 
-        setTimeout(() => { window.location.href = 'fin.html'; }, 600);
+        setTimeout(() => { window.location.href = gagne ? 'fin-gagne.html' : 'fin-perdu.html'; }, 600);
     }
 
     function nettoyerEtRetourner() {

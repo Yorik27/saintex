@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="fr" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0a0a0f">
+    <title>SaintEx — Défaite</title>
+    <link rel="stylesheet" href="saintex.css">
+    <style>
+        :root {
+            --fond: #0a0a0f;
+            --carte: #0f0f1a;
+            --bord: rgba(255,68,68,0.2);
+            --or: #ffd700;
+            --bleu: #00bfff;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--fond);
+            color: white;
+            font-family: 'Roboto', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 20px 16px 32px;
+            overflow-y: auto;
+        }
+        .carte {
+            background: var(--carte);
+            border: 1px solid var(--bord);
+            border-radius: 24px;
+            padding: 32px 24px 28px;
+            text-align: center;
+            max-width: 380px;
+            width: 100%;
+        }
+        .logo { height: 40px; margin-bottom: 24px; }
+        .verdict {
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 2.8rem;
+            letter-spacing: 4px;
+            line-height: 1;
+            margin-bottom: 8px;
+            color: #ff5555;
+            text-shadow: 0 0 30px rgba(255,68,68,0.3);
+            
+        }
+        .versus {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        .versus span { color: var(--bleu); font-weight: 700; }
+        .mot-revele {
+            display: flex;
+            gap: 7px;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+        .case-mot {
+            width: 54px;
+            height: 58px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1.7rem;
+            background: rgba(0,191,255,0.07);
+            border: 1.5px solid rgba(0,191,255,0.3);
+            color: var(--bleu);
+        }
+        .mot-label {
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.3);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        .score-bloc {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+        }
+        .score-ligne {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 6px;
+        }
+        .score-ligne:last-child { margin-bottom: 0; }
+        .score-ligne .val {
+            font-family: 'Roboto', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+        }
+        .score-ligne .val.vert { color: #00e676; }
+        .boutons { display: flex; flex-direction: column; gap: 10px; }
+        .btn {
+            width: 100%;
+            padding: 14px 24px;
+            border-radius: 50px;
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            border: 1.5px solid;
+            transition: all 0.2s;
+        }
+        .btn-revanche {
+            background: rgba(0,191,255,0.1);
+            border-color: rgba(0,191,255,0.5);
+            color: var(--bleu);
+        }
+        .btn-revanche:hover { background: rgba(0,191,255,0.18); }
+        .btn-revanche:disabled { opacity: 0.35; cursor: default; }
+        .btn-ami {
+            background: rgba(255,215,0,0.07);
+            border-color: rgba(255,215,0,0.3);
+            color: rgba(255,215,0,0.8);
+        }
+        .btn-ami:hover { background: rgba(255,215,0,0.13); border-color: var(--or); }
+        .btn-ami:disabled { opacity: 0.35; cursor: default; }
+        .btn-retour {
+            background: transparent;
+            border-color: rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.3);
+            font-size: 0.85rem;
+        }
+        .btn-retour:hover { border-color: rgba(255,255,255,0.25); color: rgba(255,255,255,0.5); }
+        .attente-revanche {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.78rem;
+            color: rgba(0,191,255,0.5);
+            padding: 10px 0 2px;
+        }
+        .attente-revanche.visible { display: flex; }
+        .dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--bleu);
+            animation: pulse 1.2s ease-in-out infinite;
+        }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes pulse {
+            0%,100% { opacity: 0.2; transform: scale(0.7); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        .toast-entrant {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(120px);
+            background: rgba(15,15,30,0.97);
+            border: 1px solid rgba(0,191,255,0.4);
+            border-radius: 14px;
+            padding: 14px 20px;
+            text-align: center;
+            max-width: 300px;
+            width: 90%;
+            z-index: 100;
+            transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+            font-size: 0.88rem;
+        }
+        .toast-entrant.visible { transform: translateX(-50%) translateY(0); }
+        .toast-entrant .nom { color: var(--bleu); font-weight: 700; }
+        .toast-btns { display: flex; gap: 8px; justify-content: center; margin-top: 10px; }
+        .toast-btn {
+            padding: 5px 16px;
+            border-radius: 50px;
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 0.78rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            border: 1px solid;
+        }
+        .toast-btn.oui { background: rgba(0,191,255,0.07); border-color: rgba(0,230,118,0.4); color: #00e676; }
+        .toast-btn.non { background: rgba(255,68,68,0.08); border-color: rgba(255,68,68,0.35); color: #ff5555; }
+    </style>
+</head>
+<body>
+
+    <div class="toast-entrant" id="toast-entrant">
+        <div><span class="nom" id="toast-nom"></span> veut sa revanche !</div>
+        <div class="toast-btns">
+            <button class="toast-btn oui" onclick="repondreRevanche(true)">Accepter</button>
+            <button class="toast-btn non" onclick="repondreRevanche(false)">Refuser</button>
+        </div>
+    </div>
+
+    <div class="carte">
+        <img class="logo" src="Images/Logo.png" alt="SaintEx">
+        <div class="verdict">Défaite</div>
+        <div class="versus">contre <span id="nom-adv">Adversaire</span></div>
+        <div class="mot-revele" id="mot-revele"></div>
+        <div class="mot-label" id="mot-label">mot de l'adversaire</div>
+        <div class="score-bloc">
+            <div class="score-ligne">
+                <span>Propositions</span>
+                <span class="val" id="score-coups">—</span>
+            </div>
+            <div class="score-ligne">
+                <span>Lettres trouvées</span>
+                <span class="val vert" id="score-lettres">—</span>
+            </div>
+        </div>
+        <div class="boutons">
+            <button class="btn btn-revanche" id="btn-revanche" onclick="demanderRevanche()">Revanche ⚔</button>
+            <div class="attente-revanche" id="attente-revanche">
+                <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                <span>En attente…</span>
+            </div>
+            <button class="btn btn-ami" id="btn-ami" onclick="demanderAmi()">☆ Ajouter en ami</button>
+            <button class="btn btn-retour" onclick="retour()">← Retour au jeu</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+        const supabase = createClient(
+            'https://vrdjytcbiddvvvielcdz.supabase.co',
+            'sb_publishable_f8VIFlJD4LasEWwLgSttZw_Gn7RFwLz'
+        );
+
+        const motAdv     = sessionStorage.getItem('fin_mot_adv') || '????';
+        const nomAdv     = sessionStorage.getItem('adv_pseudo')  || 'Adversaire';
+        const nbCoups    = sessionStorage.getItem('fin_coups')   || '—';
+        const nbLettres  = sessionStorage.getItem('fin_lettres') || '—';
+        const MON_ID     = sessionStorage.getItem('joueur_id');
+        const ADV_ID     = sessionStorage.getItem('adv_id');
+        const MON_PSEUDO = sessionStorage.getItem('mon_pseudo');
+        const LONGUEUR   = parseInt(sessionStorage.getItem('longueur') || '4');
+
+        document.getElementById('nom-adv').textContent    = nomAdv;
+        document.getElementById('mot-label').textContent  = 'ton mot secret';
+        document.getElementById('score-coups').textContent   = nbCoups;
+        document.getElementById('score-lettres').textContent = nbLettres;
+
+        const motRevele = document.getElementById('mot-revele');
+        motAdv.split('').forEach(l => {
+            const c = document.createElement('div');
+            c.className = 'case-mot';
+            c.textContent = l;
+            motRevele.appendChild(c);
+        });
+
+        // Masquer bouton ami si déjà ami
+        if (MON_ID && ADV_ID) {
+            const { data } = await supabase.from('amis')
+                .select('ami_id').eq('joueur_id', MON_ID).eq('ami_id', ADV_ID).maybeSingle();
+            if (data) document.getElementById('btn-ami').style.display = 'none';
+        }
+
+        // ── Revanche ──
+        window.demanderRevanche = async function() {
+            if (!MON_ID || !ADV_ID) { retour(); return; }
+            document.getElementById('btn-revanche').style.display = 'none';
+            document.getElementById('attente-revanche').classList.add('visible');
+            await supabase.from('joueurs').update({ statut: 'en_partie' }).eq('id', MON_ID);
+            const { data: inv } = await supabase.from('invitations').insert({
+                de_joueur_id: MON_ID, vers_joueur_id: ADV_ID,
+                de_pseudo: MON_PSEUDO, vers_pseudo: nomAdv,
+                longueur_preferee: LONGUEUR, statut: 'en_attente'
+            }).select().maybeSingle();
+            if (!inv) {
+                await supabase.from('joueurs').update({ statut: 'libre' }).eq('id', MON_ID);
+                document.getElementById('btn-revanche').style.display = '';
+                document.getElementById('attente-revanche').classList.remove('visible');
+                return;
+            }
+            const t = setInterval(async () => {
+                const { data } = await supabase.from('invitations')
+                    .select('statut, partie_id').eq('id', inv.id).single();
+                if (!data) return;
+                if (data.statut === 'acceptee') {
+                    clearInterval(t);
+                    sessionStorage.setItem('partie_id', data.partie_id);
+                    sessionStorage.setItem('je_commence', 'true');
+                    sessionStorage.setItem('longueur', LONGUEUR);
+                    window.location.href = 'jeu2.html';
+                } else if (data.statut === 'refusee') {
+                    clearInterval(t);
+                    await supabase.from('joueurs').update({ statut: 'libre' }).eq('id', MON_ID);
+                    const btn = document.getElementById('btn-revanche');
+                    btn.style.display = '';
+                    btn.textContent = 'Revanche refusée';
+                    btn.style.opacity = '0.5';
+                    btn.disabled = true;
+                    document.getElementById('attente-revanche').classList.remove('visible');
+                }
+            }, 2000);
+        };
+
+        // ── Répondre revanche entrante ──
+        let _invEntrant = null;
+        window.repondreRevanche = async function(accepte) {
+            document.getElementById('toast-entrant').classList.remove('visible');
+            if (!_invEntrant) return;
+            if (accepte) {
+                await supabase.from('joueurs').update({ statut: 'en_partie' })
+                    .in('id', [_invEntrant.de_joueur_id, MON_ID]);
+                const { data: partie } = await supabase.from('parties').insert({
+                    joueur_a: _invEntrant.de_joueur_id, joueur_b: MON_ID,
+                    pseudo_a: _invEntrant.de_pseudo, pseudo_b: MON_PSEUDO,
+                    longueur: _invEntrant.longueur_preferee,
+                    tour_actuel: 'a', statut: 'en_cours'
+                }).select().maybeSingle();
+                await supabase.from('invitations')
+                    .update({ statut: 'acceptee', partie_id: partie.id }).eq('id', _invEntrant.id);
+                sessionStorage.setItem('partie_id', partie.id);
+                sessionStorage.setItem('adv_id', _invEntrant.de_joueur_id);
+                sessionStorage.setItem('adv_pseudo', _invEntrant.de_pseudo);
+                sessionStorage.setItem('je_commence', 'false');
+                sessionStorage.setItem('longueur', _invEntrant.longueur_preferee);
+                window.location.href = 'jeu2.html';
+            } else {
+                await supabase.from('invitations')
+                    .update({ statut: 'refusee' }).eq('id', _invEntrant.id);
+            }
+        };
+
+        // ── Ami ──
+        window.demanderAmi = async function() {
+            if (!MON_ID || !ADV_ID) return;
+            const btn = document.getElementById('btn-ami');
+            btn.disabled = true;
+            btn.textContent = '✓ Demande envoyée';
+            await supabase.from('amis').insert({
+                joueur_id: MON_ID, ami_id: ADV_ID, statut: 'en_attente'
+            });
+        };
+
+        // ── Retour ──
+        window.retour = async function() {
+            if (MON_ID) await supabase.from('joueurs').update({ statut: 'libre' }).eq('id', MON_ID);
+            ['partie_id','fin_gagne','fin_mot_adv','fin_coups','fin_lettres',
+             'invitation_id','depuis_multi','revanche','longueur',
+             'longueur_preferee','adv_pseudo','adv_id','je_commence']
+                .forEach(k => sessionStorage.removeItem(k));
+            window.location.href = 'multi.html';
+        };
+
+        // ── Polling revanche entrante ──
+        if (MON_ID) {
+            const pollingInv = setInterval(async () => {
+                const { data } = await supabase.from('invitations')
+                    .select('*').eq('vers_joueur_id', MON_ID).eq('statut', 'en_attente')
+                    .order('created_at', { ascending: false }).limit(1).maybeSingle();
+                if (!data) return;
+                if (_invEntrant && _invEntrant.id === data.id) return;
+                clearInterval(pollingInv);
+                _invEntrant = data;
+                document.getElementById('toast-nom').textContent = data.de_pseudo;
+                document.getElementById('toast-entrant').classList.add('visible');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
