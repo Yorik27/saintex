@@ -202,6 +202,15 @@
         </div>
     </div>
 
+    <!-- Toast demande ami -->
+    <div class="toast-entrant" id="toast-ami" style="bottom:110px;">
+        <div><span class="nom" id="toast-ami-nom"></span> vous a ajouté en ami</div>
+        <div class="toast-btns">
+            <button class="toast-btn oui" onclick="repondreAmi(true)">Ajouter aussi</button>
+            <button class="toast-btn non" onclick="repondreAmi(false)">Non merci</button>
+        </div>
+    </div>
+
     <div class="carte">
         <img class="logo" src="Images/Logo.png" alt="SaintEx">
         <div class="verdict">Défaite</div>
@@ -368,6 +377,41 @@
                 document.getElementById('toast-entrant').classList.add('visible');
             }, 3000);
         }
+
+        // ── Polling demandes ami entrantes ──
+        let _demandeAmi = null;
+        if (MON_ID) {
+            const pollingAmi = setInterval(async () => {
+                const { data } = await supabase.from('amis')
+                    .select('joueur_id, statut')
+                    .eq('ami_id', MON_ID).eq('statut', 'en_attente')
+                    .order('created_at', { ascending: false }).limit(1).maybeSingle();
+                if (!data) return;
+                if (_demandeAmi && _demandeAmi.id === data.joueur_id) return;
+                const { data: j } = await supabase.from('joueurs')
+                    .select('pseudo').eq('id', data.joueur_id).single();
+                if (!j) return;
+                clearInterval(pollingAmi);
+                _demandeAmi = { id: data.joueur_id, pseudo: j.pseudo };
+                document.getElementById('toast-ami-nom').textContent = j.pseudo;
+                document.getElementById('toast-ami').classList.add('visible');
+            }, 3000);
+        }
+
+        window.repondreAmi = async function(accepte) {
+            document.getElementById('toast-ami').classList.remove('visible');
+            if (!_demandeAmi) return;
+            await supabase.from('amis')
+                .update({ statut: accepte ? 'accepte' : 'refuse' })
+                .eq('joueur_id', _demandeAmi.id).eq('ami_id', MON_ID);
+            if (accepte && MON_ID) {
+                await supabase.from('amis').insert({
+                    joueur_id: MON_ID, ami_id: _demandeAmi.id, statut: 'accepte'
+                });
+                document.getElementById('btn-ami').style.display = 'none';
+            }
+            _demandeAmi = null;
+        };
     </script>
 </body>
 </html>
