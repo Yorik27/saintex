@@ -1407,10 +1407,18 @@
         }
 
         // Stocker les données pour fin.html
+        // Si motAdv est vide (chargement pas encore fait), le récupérer depuis Supabase
+        let motFinal = motAdv;
+        if ((!motFinal || motFinal === '?????') && PARTIE_ID) {
+            const colAdv = MON_ROLE === 'a' ? 'mot_secret_b' : 'mot_secret_a';
+            const { data: p } = await supabase.from('parties').select(colAdv).eq('id', PARTIE_ID).single();
+            if (p && p[colAdv]) motFinal = p[colAdv];
+        }
+
         sessionStorage.setItem('fin_gagne', gagne);
-        sessionStorage.setItem('fin_mot_adv', motAdv);
+        sessionStorage.setItem('fin_mot_adv', motFinal || '?????');
         sessionStorage.setItem('fin_coups', numeroTour);
-        sessionStorage.setItem('fin_lettres', motAdv.split('').filter((l, i) => motSecret[i] === l).length);
+        sessionStorage.setItem('fin_lettres', (motFinal || '').split('').filter((l, i) => (motSecret || '')[i] === l).length);
 
         setTimeout(() => { window.location.href = 'fin.html'; }, 600);
     }
