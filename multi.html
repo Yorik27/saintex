@@ -735,6 +735,7 @@
                 await supabase.from('joueurs')
                     .update({ statut: 'en_partie' })
                     .in('id', [inv.de_joueur_id, monJoueur.id]);
+                monJoueur.statut = 'en_partie'; // évite le beforeunload en_ligne=false
 
                 sessionStorage.setItem('adv_pseudo', inv.de_pseudo);
                 sessionStorage.setItem('adv_id', inv.de_joueur_id);
@@ -764,6 +765,7 @@
 
             // A est désormais occupé
             await supabase.from('joueurs').update({ statut: 'en_partie' }).eq('id', monJoueur.id);
+            monJoueur.statut = 'en_partie'; // évite le beforeunload en_ligne=false
 
             const { data: inv, error } = await supabase.from('invitations').insert({
                 de_joueur_id: monJoueur.id,
@@ -846,7 +848,7 @@
         })();
 
         window.addEventListener('beforeunload', () => {
-            if (monJoueur) {
+            if (monJoueur && monJoueur.statut !== 'en_partie') {
                 supabase.from('joueurs').update({ en_ligne: false }).eq('id', monJoueur.id);
             }
         });
