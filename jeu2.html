@@ -990,14 +990,20 @@
             } else {
                 // Attendre que l'adversaire choisisse son mot (polling 2s)
                 afficherAttenteMotAdverse();
+                // Timeout 3 minutes si l'adversaire ne choisit jamais
+                const timeoutInit = setTimeout(() => {
+                    clearInterval(intervalInit);
+                    window.location.href = 'multi.html';
+                }, 3 * 60 * 1000);
                 const intervalInit = setInterval(async () => {
-                    if (partieDemarree) { clearInterval(intervalInit); return; }
+                    if (partieDemarree) { clearInterval(intervalInit); clearTimeout(timeoutInit); return; }
                     const { data: d } = await supabase.from('parties')
                         .select(colAdv)
                         .eq('id', PARTIE_ID)
                         .single();
                     if (d && d[colAdv]) {
                         clearInterval(intervalInit);
+                        clearTimeout(timeoutInit);
                         if (!partieDemarree) {
                             motAdversaire = d[colAdv];
                             demarrerPartie();
@@ -1024,12 +1030,14 @@
         if (partieDemarree) return;
         partieDemarree = true;
 
-        // Marquer les deux joueurs comme en partie
-        if (MON_ID && ADV_ID) {
-            supabase.from('joueurs')
-                .update({ statut: 'en_partie' })
-                .in('id', [MON_ID, ADV_ID])
-                .then(({ error }) => { if (error) console.error('statut en_partie:', error); });
+        // Marquer les deux joueurs comme en partie (deux updates séparés, évite le null dans .in())
+        if (MON_ID) {
+            supabase.from('joueurs').update({ statut: 'en_partie' }).eq('id', MON_ID)
+                .then(({ error }) => { if (error) console.error('en_partie MON_ID:', error); });
+        }
+        if (ADV_ID) {
+            supabase.from('joueurs').update({ statut: 'en_partie' }).eq('id', ADV_ID)
+                .then(({ error }) => { if (error) console.error('en_partie ADV_ID:', error); });
         }
 
         // Heartbeat 30s pendant la partie — maintient en_ligne ET statut en_partie
@@ -1696,6 +1704,26 @@
     window.nettoyerEtRetourner = nettoyerEtRetourner;
     window.proposerAbandon = proposerAbandon;
     window.confirmerAbandon = confirmerAbandon;
+
+    // Abandon implicite : fermeture onglet / navigation hors jeu
+    window.addEventListener('beforeunload', () => {
+        if (partieTerminee) return; // fin normale → fin-gagne/perdu gère
+        // Remettre le joueur libre
+        if (MON_ID) {
+            supabase.from('joueurs')
+                .update({ statut: 'libre', en_ligne: false })
+                .eq('id', MON_ID);
+        }
+        // Terminer la partie si elle était en cours
+        if (PARTIE_ID) {
+            supabase.from('parties')
+                .update({
+                    statut: 'terminee',
+                    gagnant: MON_ROLE === 'a' ? 'b' : 'a'
+                })
+                .eq('id', PARTIE_ID);
+        }
+    });
 
     // Charger le dico
     window.DICO = {};
