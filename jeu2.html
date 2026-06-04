@@ -1398,11 +1398,6 @@
         if (canalPartie) supabase.removeChannel(canalPartie);
         if (canalMessages) supabase.removeChannel(canalMessages);
 
-        // Remettre le statut libre
-        if (MON_ID) {
-            await supabase.from('joueurs').update({ statut: 'libre' }).eq('id', MON_ID);
-        }
-
         // Enregistrer la fin de partie dans Supabase
         if (PARTIE_ID) {
             await supabase.from('parties')
