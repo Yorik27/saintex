@@ -490,6 +490,12 @@
             sessionStorage.setItem('joueur_id', monJoueur.id);
             sessionStorage.setItem('mon_pseudo', pseudo);
 
+            // Terminer toutes les parties en_cours de ce joueur (il est sur le lobby = pas en jeu)
+            await supabase.from('parties')
+                .update({ statut: 'terminee' })
+                .eq('statut', 'en_cours')
+                .or(`joueur_a.eq.${monJoueur.id},joueur_b.eq.${monJoueur.id}`);
+
             // Nettoyage fantômes (non-amis déconnectés depuis > 2min)
             const deuxMin = new Date(Date.now() - 2 * 60 * 1000).toISOString();
             const { data: amisData0 } = await supabase
