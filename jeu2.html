@@ -1357,7 +1357,7 @@
         afficherSaisie();
 
         if (score === LONGUEUR) {
-            scoreA++;
+            if (MON_ROLE === 'a') scoreA++; else scoreB++;
             finPartie(true, motAdversaire);
             return;
         }
@@ -1432,8 +1432,9 @@
 
     function nettoyerEtRetourner() {
         ['partie_id', 'invitation_id', 'depuis_multi', 'revanche',
-         'longueur', 'longueur_preferee', 'adv_pseudo', 'je_commence'].forEach(k =>
-            sessionStorage.removeItem(k));
+         'longueur', 'longueur_preferee', 'adv_pseudo', 'adv_id',
+         'je_commence', 'fin_gagne', 'fin_mot_adv', 'fin_coups', 'fin_lettres']
+            .forEach(k => sessionStorage.removeItem(k));
         window.location.href = 'multi.html';
     }
 
@@ -1688,6 +1689,10 @@
                 .update({ statut: 'terminee', gagnant: MON_ROLE === 'a' ? 'b' : 'a' })
                 .eq('id', PARTIE_ID);
         }
+        ['partie_id', 'invitation_id', 'depuis_multi', 'revanche',
+         'longueur', 'longueur_preferee', 'adv_pseudo', 'adv_id',
+         'je_commence', 'fin_gagne', 'fin_mot_adv', 'fin_coups', 'fin_lettres']
+            .forEach(k => sessionStorage.removeItem(k));
         window.location.href = 'multi.html';
     }
 
