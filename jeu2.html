@@ -1109,17 +1109,23 @@
                 majTour();
             }
 
-            // Fin de partie — notifier le perdant
-            // Délai 1s : laisse abonnerPropositions (Realtime) arriver en premier
-            // avec le bon mot. Fallback si Realtime échoue.
+            // Fin de partie — notifier les deux joueurs
             if (data.statut === 'terminee' && !partieTerminee && partieEnCours) {
                 const colAdv = MON_ROLE === 'a' ? 'mot_secret_b' : 'mot_secret_a';
                 if (!motAdversaire) motAdversaire = data[colAdv] || '?????';
-                if (data.gagnant && data.gagnant !== MON_ROLE) {
+                if (data.gagnant) {
                     clearInterval(intervalPartie);
-                    setTimeout(() => {
-                        if (!partieTerminee) finPartie(false, motAdversaire);
-                    }, 1000);
+                    if (data.gagnant !== MON_ROLE) {
+                        // Je suis le perdant
+                        setTimeout(() => {
+                            if (!partieTerminee) finPartie(false, motAdversaire);
+                        }, 1000);
+                    } else {
+                        // Je suis le gagnant (adversaire a abandonné)
+                        setTimeout(() => {
+                            if (!partieTerminee) finPartie(true, motAdversaire);
+                        }, 1000);
+                    }
                 }
             }
         }, 2000);
