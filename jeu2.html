@@ -913,7 +913,7 @@
     const JE_COMMENCE = sessionStorage.getItem('je_commence') !== 'false';
     const PARTIE_ID   = sessionStorage.getItem('partie_id');
     const MON_ROLE    = JE_COMMENCE ? 'a' : 'b';
-    const MON_ID      = sessionStorage.getItem('joueur_id');
+    const MON_ID      = sessionStorage.getItem('joueur_id') || localStorage.getItem('saintex_joueur_id');
     const ADV_ID      = sessionStorage.getItem('adv_id');
 
     // ── État ──

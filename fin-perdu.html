@@ -249,7 +249,7 @@
         const nomAdv     = sessionStorage.getItem('adv_pseudo')  || 'Adversaire';
         const nbCoups    = sessionStorage.getItem('fin_coups')   || '—';
         const nbLettres  = sessionStorage.getItem('fin_lettres') || '—';
-        const MON_ID     = sessionStorage.getItem('joueur_id');
+        const MON_ID     = sessionStorage.getItem('joueur_id') || localStorage.getItem('saintex_joueur_id');
         const ADV_ID     = sessionStorage.getItem('adv_id');
         const MON_PSEUDO = sessionStorage.getItem('mon_pseudo');
         const LONGUEUR   = parseInt(sessionStorage.getItem('longueur') || '4');

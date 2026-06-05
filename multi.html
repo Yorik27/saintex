@@ -470,25 +470,57 @@
                 setTimeout(() => input.style.borderColor = '', 1000);
                 return;
             }
+            await _connecter(pseudo);
+        }
 
-            // Chercher ou créer le joueur
-            let { data: existing } = await supabase
-                .from('joueurs').select('*').eq('pseudo', pseudo).maybeSingle();
+        // Cœur de la connexion — réutilisé par seConnecter et autoConnexion
+        async function _connecter(pseudo, idSauvegarde = null) {
 
-            if (existing) {
-                await supabase.from('joueurs')
-                    .update({ en_ligne: true, last_seen: new Date().toISOString(), statut: 'libre' })
-                    .eq('id', existing.id);
-                monJoueur = { ...existing, en_ligne: true, statut: 'libre' };
-            } else {
-                const { data } = await supabase.from('joueurs')
-                    .insert({ pseudo, en_ligne: true, statut: 'libre', last_seen: new Date().toISOString() })
-                    .select().maybeSingle();
-                monJoueur = data;
+            // Si on a un ID sauvegardé, essayer de le réutiliser directement
+            if (idSauvegarde) {
+                const { data: joueurSauve } = await supabase
+                    .from('joueurs').select('*').eq('id', idSauvegarde).maybeSingle();
+                if (joueurSauve) {
+                    await supabase.from('joueurs')
+                        .update({ en_ligne: true, last_seen: new Date().toISOString(), statut: 'libre' })
+                        .eq('id', idSauvegarde);
+                    monJoueur = { ...joueurSauve, en_ligne: true, statut: 'libre' };
+                } else {
+                    // ID périmé (DB vidée) → effacer localStorage et continuer normalement
+                    localStorage.removeItem('saintex_joueur_id');
+                    localStorage.removeItem('saintex_pseudo');
+                    idSauvegarde = null;
+                }
             }
 
+            // Connexion normale si pas d'ID sauvegardé valide
+            if (!monJoueur) {
+                let { data: existing } = await supabase
+                    .from('joueurs').select('*').eq('pseudo', pseudo).maybeSingle();
+                if (existing) {
+                    await supabase.from('joueurs')
+                        .update({ en_ligne: true, last_seen: new Date().toISOString(), statut: 'libre' })
+                        .eq('id', existing.id);
+                    monJoueur = { ...existing, en_ligne: true, statut: 'libre' };
+                } else {
+                    const { data } = await supabase.from('joueurs')
+                        .insert({ pseudo, en_ligne: true, statut: 'libre', last_seen: new Date().toISOString() })
+                        .select().maybeSingle();
+                    monJoueur = data;
+                }
+            }
+
+            // Persister l'identité dans localStorage ET sessionStorage
+            localStorage.setItem('saintex_joueur_id', monJoueur.id);
+            localStorage.setItem('saintex_pseudo', monJoueur.pseudo);
             sessionStorage.setItem('joueur_id', monJoueur.id);
-            sessionStorage.setItem('mon_pseudo', pseudo);
+            sessionStorage.setItem('mon_pseudo', monJoueur.pseudo);
+
+            // Nettoyer les données de partie stale dans sessionStorage
+            ['partie_id','fin_gagne','fin_mot_adv','fin_coups','fin_lettres',
+             'invitation_id','depuis_multi','revanche','longueur',
+             'longueur_preferee','adv_pseudo','adv_id','je_commence']
+                .forEach(k => sessionStorage.removeItem(k));
 
             // Terminer toutes les parties en_cours de ce joueur (il est sur le lobby = pas en jeu)
             await supabase.from('parties')
@@ -834,6 +866,17 @@
 
         // Exposer sur window
         window.seConnecter = seConnecter;
+
+        // Auto-connexion si localStorage contient un joueur connu
+        (async () => {
+            const savedId     = localStorage.getItem('saintex_joueur_id');
+            const savedPseudo = localStorage.getItem('saintex_pseudo');
+            if (!savedId || !savedPseudo) return;
+            // Pré-remplir le champ pseudo
+            document.getElementById('pseudo-input').value = savedPseudo;
+            // Tenter auto-connexion silencieuse
+            await _connecter(savedPseudo, savedId);
+        })();
         window.tapperCase = tapperCase;
         window.defier = defier;
         window.annulerDefi = annulerDefi;
