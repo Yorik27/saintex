@@ -361,7 +361,13 @@
     <div class="multi-header">
         <img class="logo" src="Images/Logo.png" alt="Logo SaintEx">
         <h1>Défi Humain</h1>
-        <button class="btn-retour-multi" onclick="window.location.href='index.html'">← Accueil</button>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;">
+            <button class="btn-retour-multi" onclick="window.location.href='index.html'">← Accueil</button>
+            <span id="header-pseudo" style="font-size:0.7rem;color:rgba(0,191,255,0.5);font-family:'Roboto',sans-serif;display:none;">
+                <span id="header-pseudo-nom"></span>
+                <button onclick="changerPseudo()" style="background:none;border:none;color:rgba(255,255,255,0.3);font-size:0.7rem;cursor:pointer;padding:0 0 0 6px;font-family:'Roboto',sans-serif;">changer</button>
+            </span>
+        </div>
     </div>
 
     <!-- Non connecté -->
@@ -539,6 +545,8 @@
 
             document.getElementById('zone-non-connecte').style.display = 'none';
             document.getElementById('zone-connecte').style.display = 'block';
+            document.getElementById('header-pseudo-nom').textContent = monJoueur.pseudo;
+            document.getElementById('header-pseudo').style.display = 'inline';
 
             await afficherJoueurs();
             abonnerJoueursEnLigne();
@@ -865,18 +873,24 @@
         }
 
         // Exposer sur window
+        function changerPseudo() {
+            // Déconnecter : effacer localStorage + sessionStorage + recharger
+            localStorage.removeItem('saintex_joueur_id');
+            localStorage.removeItem('saintex_pseudo');
+            sessionStorage.clear();
+            if (monJoueur) {
+                supabase.from('joueurs').update({ en_ligne: false }).eq('id', monJoueur.id);
+            }
+            window.location.reload();
+        }
+
         window.seConnecter = seConnecter;
 
-        // Auto-connexion si localStorage contient un joueur connu
-        (async () => {
-            const savedId     = localStorage.getItem('saintex_joueur_id');
-            const savedPseudo = localStorage.getItem('saintex_pseudo');
-            if (!savedId || !savedPseudo) return;
-            // Pré-remplir le champ pseudo
+        // Pré-remplir le pseudo depuis localStorage (sans auto-connecter)
+        const savedPseudo = localStorage.getItem('saintex_pseudo');
+        if (savedPseudo) {
             document.getElementById('pseudo-input').value = savedPseudo;
-            // Tenter auto-connexion silencieuse
-            await _connecter(savedPseudo, savedId);
-        })();
+        }
         window.tapperCase = tapperCase;
         window.defier = defier;
         window.annulerDefi = annulerDefi;
