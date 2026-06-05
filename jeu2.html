@@ -1107,6 +1107,7 @@
             if (data.tour_actuel === MON_ROLE && !cMonTour && !partieTerminee) {
                 cMonTour = true;
                 majTour();
+                demarrerTimer(); // Fallback : Realtime trop lent
             }
 
             // Fin de partie — notifier les deux joueurs
@@ -1301,6 +1302,7 @@
         }
         cMonTour = true;
         majTour();
+        demarrerTimer(); // Nouveau tour : réinitialiser le timer
     }
 
     // ── Saisie joueur ──
@@ -1378,6 +1380,7 @@
 
         // Passer le tour
         cMonTour = false;
+        arreterTimer();
         numeroTour++;
         majTour();
 
