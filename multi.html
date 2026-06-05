@@ -442,7 +442,7 @@
         let demandeAmiEnCours = null; // { id, pseudo } de celui qui nous a ajouté
         let canalJoueurs = null;
         let canalInvitations = null;
-        let derniereListeIds = '';
+        let derniereListeIds = null;
 
         const etatLongueur = { '4L': 0, '5L': 0 };
 
@@ -513,7 +513,12 @@
             abonnerInvitations();
             pollingDemandesAmi();
 
-            setInterval(async () => { await afficherJoueurs(); }, 10000);
+            setInterval(async () => { await afficherJoueurs(); }, 3000);
+
+            // Rafraîchir immédiatement quand l'onglet revient au premier plan
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) { derniereListeIds = null; afficherJoueurs(); }
+            });
             setInterval(async () => {
                 await supabase.from('joueurs')
                     .update({ en_ligne: true, last_seen: new Date().toISOString() })
@@ -616,14 +621,14 @@
                 ami_id: amiId,
                 statut: 'en_attente'
             });
-            derniereListeIds = '';
+            derniereListeIds = null;
             await afficherJoueurs();
         }
 
         window.retirerAmi = async function(amiId) {
             await supabase.from('amis')
                 .delete().eq('joueur_id', monJoueur.id).eq('ami_id', amiId);
-            derniereListeIds = '';
+            derniereListeIds = null;
             await afficherJoueurs();
         }
 
@@ -678,7 +683,7 @@
                     ami_id: demandeurId,
                     statut: 'accepte'
                 });
-                derniereListeIds = '';
+                derniereListeIds = null;
                 await afficherJoueurs();
             }
         }
@@ -688,7 +693,7 @@
             if (canalJoueurs) supabase.removeChannel(canalJoueurs);
             canalJoueurs = supabase.channel('joueurs-ligne')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'joueurs' },
-                    () => { derniereListeIds = ''; afficherJoueurs(); })
+                    () => { derniereListeIds = null; afficherJoueurs(); })
                 .subscribe();
         }
 
