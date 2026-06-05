@@ -1259,7 +1259,13 @@
 
         const shortA = MON_PSEUDO.substring(0, 3).toUpperCase();
         const shortB = ADV_PSEUDO.substring(0, 3).toUpperCase();
-        document.getElementById('header-score').textContent = shortA + ' ' + scoreA + ' — ' + shortB + ' ' + scoreB;
+
+        function majScore() {
+            document.getElementById('header-score').textContent =
+                shortA + ' ' + scoreA + ' — ' + shortB + ' ' + scoreB;
+        }
+
+        majScore();
         demarrerTimer();
         majTimerAffichage();
     }
@@ -1282,7 +1288,8 @@
     async function recevoirPropositionAdversaire(proposition, score) {
         await animerScan(proposition, score);
         if (score === LONGUEUR) {
-            scoreB++;
+            if (MON_ROLE === 'a') scoreB++; else scoreA++;
+            majScore();
             finPartie(false, proposition);
             return;
         }
@@ -1358,6 +1365,7 @@
 
         if (score === LONGUEUR) {
             if (MON_ROLE === 'a') scoreA++; else scoreB++;
+            majScore();
             finPartie(true, motAdversaire);
             return;
         }
