@@ -369,10 +369,21 @@
             if (!MON_ID || !ADV_ID) return;
             const btn = document.getElementById('btn-ami');
             btn.disabled = true;
-            btn.textContent = '✓ Demande envoyée';
+            btn.textContent = '✓ Demande envoyée…';
             await supabase.from('amis').insert({
                 joueur_id: MON_ID, ami_id: ADV_ID, statut: 'en_attente'
             });
+            // Surveiller l'acceptation
+            const pollingAcc = setInterval(async () => {
+                const { data } = await supabase.from('amis')
+                    .select('statut')
+                    .eq('joueur_id', MON_ID).eq('ami_id', ADV_ID)
+                    .eq('statut', 'accepte').maybeSingle();
+                if (data) {
+                    clearInterval(pollingAcc);
+                    btn.textContent = '⭐ Ami ajouté !';
+                }
+            }, 3000);
         };
 
         // ── Retour ──
