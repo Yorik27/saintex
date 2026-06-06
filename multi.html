@@ -677,7 +677,7 @@
                         </div>
                         <div class="joueur-info">
                             <div class="point" style="background:${couleur};box-shadow:0 0 5px ${couleur};"></div>
-                            <div class="joueur-nom ${nomClass}">${j.pseudo}${j.longueur_preferee ? `<span class="badge-longueur">${j.longueur_preferee}L</span>` : ""}</div>
+                            <div class="joueur-nom ${nomClass}">${j.pseudo}<span class="badge-longueur">${j.longueur_preferee || 4}L</span></div>
                         </div>`;
                     listeAmis.appendChild(carte);
                 });
@@ -699,7 +699,7 @@
                         </div>
                         <div class="joueur-info">
                             <div class="point" style="background:#00bfff;box-shadow:0 0 5px #00bfff;"></div>
-                            <div class="joueur-nom en-ligne">${j.pseudo}${j.longueur_preferee ? `<span class="badge-longueur">${j.longueur_preferee}L</span>` : ""}</div>
+                            <div class="joueur-nom en-ligne">${j.pseudo}<span class="badge-longueur">${j.longueur_preferee || 4}L</span></div>
                         </div>`;
                     listeEnLigne.appendChild(carte);
                 });
