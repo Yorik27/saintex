@@ -584,7 +584,7 @@
                 .or(`joueur_a.eq.${monJoueur.id},joueur_b.eq.${monJoueur.id}`);
 
             // Nettoyage fantômes (non-amis déconnectés depuis > 2min)
-            const deuxMin = new Date(Date.now() - 2 * 60 * 1000).toISOString();
+            const deuxMin = new Date(Date.now() - 45 * 1000).toISOString();
             const { data: amisData0 } = await supabase
                 .from('amis').select('ami_id').eq('joueur_id', monJoueur.id);
             const amisIds0 = (amisData0 || []).map(a => a.ami_id);
@@ -613,13 +613,14 @@
             });
             setInterval(async () => {
                 await supabase.from('joueurs')
-                    .update({ en_ligne: true, last_seen: new Date().toISOString() })
+                    .update({ en_ligne: true, last_seen: new Date().toISOString(),
+                               longueur_preferee: monJoueur.longueur_preferee || 4 })
                     .eq('id', monJoueur.id);
             }, 30000);
         }
 
         async function afficherJoueurs() {
-            const deuxMin = new Date(Date.now() - 2 * 60 * 1000).toISOString();
+            const deuxMin = new Date(Date.now() - 45 * 1000).toISOString();
 
             // Mes amis (tous statuts)
             const { data: amisData } = await supabase
@@ -974,7 +975,7 @@
 
         // Nettoyer les fantômes dès le chargement (sans attendre la connexion)
         (async () => {
-            const deuxMin = new Date(Date.now() - 2 * 60 * 1000).toISOString();
+            const deuxMin = new Date(Date.now() - 45 * 1000).toISOString();
             await supabase.from('joueurs')
                 .update({ en_ligne: false })
                 .eq('en_ligne', true)
