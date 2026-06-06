@@ -167,6 +167,46 @@
         .joueur-nom.ami-absent { color: #ff5555; }
         .joueur-nom.ami-partie { color: #ff9900; }
 
+        /* Badge longueur préférence */
+        .badge-longueur {
+            display: inline-block;
+            font-size: 0.65rem;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700;
+            color: rgba(0,191,255,0.5);
+            border: 1px solid rgba(0,191,255,0.2);
+            border-radius: 4px;
+            padding: 1px 5px;
+            margin-left: 6px;
+            vertical-align: middle;
+            letter-spacing: 0;
+        }
+
+        /* Toggle longueur dans le header */
+        .toggle-longueur {
+            display: none;
+            align-items: center;
+            gap: 4px;
+            margin-top: 4px;
+        }
+        .toggle-longueur.visible { display: flex; }
+        .tog-btn {
+            font-family: 'Roboto', sans-serif;
+            font-size: 0.68rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(0,191,255,0.25);
+            background: transparent;
+            color: rgba(255,255,255,0.3);
+            cursor: pointer;
+        }
+        .tog-btn.actif {
+            background: rgba(0,191,255,0.15);
+            border-color: rgba(0,191,255,0.6);
+            color: deepskyblue;
+        }
+
         .joueur-statut { display: none; }
 
         /* Actions */
@@ -367,6 +407,10 @@
                 <span id="header-pseudo-nom"></span>
                 <button onclick="changerPseudo()" style="background:none;border:none;color:rgba(255,255,255,0.3);font-size:0.7rem;cursor:pointer;padding:0 0 0 6px;font-family:'Roboto',sans-serif;">changer</button>
             </span>
+            <div class="toggle-longueur" id="toggle-longueur">
+                <button class="tog-btn" id="tog-4" onclick="setLongueurPref(4)">4L</button>
+                <button class="tog-btn" id="tog-5" onclick="setLongueurPref(5)">5L</button>
+            </div>
         </div>
     </div>
 
@@ -522,6 +566,11 @@
             sessionStorage.setItem('joueur_id', monJoueur.id);
             sessionStorage.setItem('mon_pseudo', monJoueur.pseudo);
 
+            // Sauvegarder la préférence de longueur
+            const pref = getLongueurChoisie();
+            await supabase.from('joueurs').update({ longueur_preferee: pref }).eq('id', monJoueur.id);
+            monJoueur.longueur_preferee = pref;
+
             // Nettoyer les données de partie stale dans sessionStorage
             ['partie_id','fin_gagne','fin_mot_adv','fin_coups','fin_lettres',
              'invitation_id','depuis_multi','revanche','longueur',
@@ -547,6 +596,9 @@
             document.getElementById('zone-connecte').style.display = 'block';
             document.getElementById('header-pseudo-nom').textContent = monJoueur.pseudo;
             document.getElementById('header-pseudo').style.display = 'inline';
+            // Toggle longueur
+            document.getElementById('toggle-longueur').classList.add('visible');
+            majToggleLongueur(monJoueur.longueur_preferee || 4);
 
             await afficherJoueurs();
             abonnerJoueursEnLigne();
@@ -625,7 +677,7 @@
                         </div>
                         <div class="joueur-info">
                             <div class="point" style="background:${couleur};box-shadow:0 0 5px ${couleur};"></div>
-                            <div class="joueur-nom ${nomClass}">${j.pseudo}</div>
+                            <div class="joueur-nom ${nomClass}">${j.pseudo}${j.longueur_preferee ? `<span class="badge-longueur">${j.longueur_preferee}L</span>` : ""}</div>
                         </div>`;
                     listeAmis.appendChild(carte);
                 });
@@ -647,7 +699,7 @@
                         </div>
                         <div class="joueur-info">
                             <div class="point" style="background:#00bfff;box-shadow:0 0 5px #00bfff;"></div>
-                            <div class="joueur-nom en-ligne">${j.pseudo}</div>
+                            <div class="joueur-nom en-ligne">${j.pseudo}${j.longueur_preferee ? `<span class="badge-longueur">${j.longueur_preferee}L</span>` : ""}</div>
                         </div>`;
                     listeEnLigne.appendChild(carte);
                 });
@@ -873,6 +925,18 @@
         }
 
         // Exposer sur window
+        function majToggleLongueur(pref) {
+            document.getElementById('tog-4').classList.toggle('actif', pref === 4);
+            document.getElementById('tog-5').classList.toggle('actif', pref === 5);
+        }
+
+        async function setLongueurPref(n) {
+            if (!monJoueur) return;
+            monJoueur.longueur_preferee = n;
+            majToggleLongueur(n);
+            await supabase.from('joueurs').update({ longueur_preferee: n }).eq('id', monJoueur.id);
+        }
+
         function changerPseudo() {
             // Déconnecter : effacer localStorage + sessionStorage + recharger
             localStorage.removeItem('saintex_joueur_id');
@@ -885,6 +949,7 @@
         }
 
         window.seConnecter = seConnecter;
+        window.setLongueurPref = setLongueurPref;
 
         // Pré-remplir le pseudo depuis localStorage (sans auto-connecter)
         const savedPseudo = localStorage.getItem('saintex_pseudo');
