@@ -1,44 +1,31 @@
-const cacheName = "fichier-cache-v4"
+const cacheName = "fichier-cache-v5";
 
-// On ne pré-cache rien — tout est mis en cache dynamiquement au premier accès
-const contentToCache = [];
+// Fichiers essentiels pré-cachés à l'installation
+const contentToCache = [
+    "/",
+    "/index.html",
+    "/saintex.css",
+    "/saintex.js",
+    "/app.js",
+    "/themes.js",
+    "/dicos_saintex.json",
+    "/manifest.webmanifest",
+];
 
-// Installation
+// Installation : pré-cacher les fichiers essentiels
 self.addEventListener("install", (e) => {
-    console.log("Service Worker v4 — installation");
-    self.skipWaiting();
-});
-
-// Fetch : cache dynamique
-self.addEventListener("fetch", (e) => {
-    // Ne pas intercepter les requêtes de navigation (évite la boucle infinie)
-    if (e.request.mode === 'navigate') {
-        e.respondWith(fetch(e.request));
-        return;
-    }
-
-    e.respondWith(
-        caches.match(e.request).then((r) => {
-            return (
-                r ||
-                fetch(e.request, {cache: "no-store"}).then((response) => {
-                    // Ne mettre en cache que les requêtes GET réussies
-                    if (!response || response.status !== 200 || e.request.method !== 'GET') {
-                        return response;
-                    }
-                    return caches.open(cacheName).then((cache) => {
-                        cache.put(e.request, response.clone());
-                        return response;
-                    });
-                })
-            );
-        })
+    console.log("Service Worker v5 — installation");
+    e.waitUntil(
+        caches.open(cacheName).then((cache) => {
+            console.log("Pré-cache des fichiers essentiels");
+            return cache.addAll(contentToCache);
+        }).then(() => self.skipWaiting())
     );
 });
 
 // Activation : supprimer les anciens caches
 self.addEventListener("activate", (e) => {
-    console.log("Service Worker v4 — activation");
+    console.log("Service Worker v5 — activation");
     e.waitUntil(
         caches.keys().then((keyList) => {
             return Promise.all(
@@ -50,5 +37,37 @@ self.addEventListener("activate", (e) => {
                 })
             );
         }).then(() => self.clients.claim())
+    );
+});
+
+// Fetch : réseau d'abord, cache en fallback
+self.addEventListener("fetch", (e) => {
+    // Ignorer les requêtes non-GET et les requêtes externes (Supabase, etc.)
+    if (e.request.method !== "GET") return;
+    const url = new URL(e.request.url);
+    if (url.origin !== self.location.origin) return;
+
+    e.respondWith(
+        fetch(e.request, { cache: "no-store" })
+            .then((response) => {
+                // Succès réseau : mettre en cache et retourner
+                if (response && response.status === 200) {
+                    const responseClone = response.clone();
+                    caches.open(cacheName).then((cache) => {
+                        cache.put(e.request, responseClone);
+                    });
+                }
+                return response;
+            })
+            .catch(() => {
+                // Hors ligne : servir depuis le cache
+                return caches.match(e.request).then((cached) => {
+                    if (cached) return cached;
+                    // Fallback : index.html pour les navigations
+                    if (e.request.mode === "navigate") {
+                        return caches.match("/index.html");
+                    }
+                });
+            })
     );
 });
