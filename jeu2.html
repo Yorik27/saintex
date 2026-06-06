@@ -1295,14 +1295,21 @@
     async function recevoirPropositionAdversaire(proposition, score) {
         await animerScan(proposition, score);
         if (score === LONGUEUR) {
+            cMonTour = false;
+            arreterTimer();
             if (MON_ROLE === 'a') scoreB++; else scoreA++;
             majScore();
-            finPartie(false, proposition);
+            try {
+                await finPartie(false, proposition);
+            } catch(e) {
+                console.error('finPartie erreur:', e);
+                setTimeout(() => { window.location.href = 'fin-perdu.html'; }, 800);
+            }
             return;
         }
         cMonTour = true;
         majTour();
-        demarrerTimer(); // Nouveau tour : réinitialiser le timer
+        demarrerTimer();
     }
 
     // ── Saisie joueur ──
@@ -1372,9 +1379,17 @@
         afficherSaisie();
 
         if (score === LONGUEUR) {
+            cMonTour = false; // bloquer toute nouvelle saisie immédiatement
+            arreterTimer();
             if (MON_ROLE === 'a') scoreA++; else scoreB++;
             majScore();
-            finPartie(true, motAdversaire);
+            try {
+                await finPartie(true, motAdversaire);
+            } catch(e) {
+                console.error('finPartie erreur:', e);
+                // Forcer la redirection même en cas d'erreur
+                setTimeout(() => { window.location.href = 'fin-gagne.html'; }, 800);
+            }
             return;
         }
 
