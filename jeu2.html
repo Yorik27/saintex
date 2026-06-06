@@ -1424,7 +1424,7 @@
         sessionStorage.setItem('fin_coups', numeroTour);
         sessionStorage.setItem('fin_lettres', (motFinal || '').split('').filter((l, i) => (motSecret || '')[i] === l).length);
 
-        setTimeout(() => { window.location.href = gagne ? 'fin-gagne.html' : 'fin-perdu.html'; }, 600);
+        setTimeout(() => { window.location.href = gagne ? 'fin-gagne.html' : 'fin-perdu.html'; }, 1500);
     }
 
     function nettoyerEtRetourner() {
