@@ -1299,12 +1299,7 @@
             arreterTimer();
             if (MON_ROLE === 'a') scoreB++; else scoreA++;
             majScore();
-            try {
-                await finPartie(false, proposition);
-            } catch(e) {
-                console.error('finPartie erreur:', e);
-                setTimeout(() => { window.location.href = 'fin-perdu.html'; }, 800);
-            }
+            finPartie(false, proposition);
             return;
         }
         cMonTour = true;
@@ -1379,17 +1374,11 @@
         afficherSaisie();
 
         if (score === LONGUEUR) {
-            cMonTour = false; // bloquer toute nouvelle saisie immédiatement
+            cMonTour = false;
             arreterTimer();
             if (MON_ROLE === 'a') scoreA++; else scoreB++;
             majScore();
-            try {
-                await finPartie(true, motAdversaire);
-            } catch(e) {
-                console.error('finPartie erreur:', e);
-                // Forcer la redirection même en cas d'erreur
-                setTimeout(() => { window.location.href = 'fin-gagne.html'; }, 800);
-            }
+            finPartie(true, motAdversaire);
             return;
         }
 
@@ -1434,32 +1423,40 @@
         partieTerminee = true;
         arreterTimer();
         if (window._heartbeat) clearInterval(window._heartbeat);
-        if (canalProps) supabase.removeChannel(canalProps);
-        if (canalPartie) supabase.removeChannel(canalPartie);
+        if (canalProps)    supabase.removeChannel(canalProps);
+        if (canalPartie)   supabase.removeChannel(canalPartie);
         if (canalMessages) supabase.removeChannel(canalMessages);
 
-        // Enregistrer la fin de partie dans Supabase
-        if (PARTIE_ID) {
-            await supabase.from('parties')
-                .update({ statut: 'terminee', gagnant: gagne ? MON_ROLE : (MON_ROLE === 'a' ? 'b' : 'a') })
-                .eq('id', PARTIE_ID);
-        }
-
-        // Stocker les données pour fin.html
-        // Si motAdv est vide (chargement pas encore fait), le récupérer depuis Supabase
         let motFinal = motAdv;
-        if ((!motFinal || motFinal === '?????') && PARTIE_ID) {
-            const colAdv = MON_ROLE === 'a' ? 'mot_secret_b' : 'mot_secret_a';
-            const { data: p } = await supabase.from('parties').select(colAdv).eq('id', PARTIE_ID).single();
-            if (p && p[colAdv]) motFinal = p[colAdv];
+
+        try {
+            // Enregistrer la fin de partie
+            if (PARTIE_ID) {
+                await supabase.from('parties')
+                    .update({ statut: 'terminee', gagnant: gagne ? MON_ROLE : (MON_ROLE === 'a' ? 'b' : 'a') })
+                    .eq('id', PARTIE_ID);
+            }
+            // Récupérer le mot adverse si vide
+            if ((!motFinal || motFinal === '?????') && PARTIE_ID) {
+                const colAdv = MON_ROLE === 'a' ? 'mot_secret_b' : 'mot_secret_a';
+                const { data: p } = await supabase.from('parties')
+                    .select(colAdv).eq('id', PARTIE_ID).maybeSingle();
+                if (p && p[colAdv]) motFinal = p[colAdv];
+            }
+        } catch(e) {
+            console.error('finPartie Supabase:', e);
+            // On continue quand même vers la redirection
         }
 
+        // Stocker les résultats — toujours exécuté même si Supabase a échoué
         sessionStorage.setItem('fin_gagne', gagne);
         sessionStorage.setItem('fin_mot_adv', motFinal || '?????');
         sessionStorage.setItem('fin_coups', numeroTour);
-        sessionStorage.setItem('fin_lettres', (motFinal || '').split('').filter((l, i) => (motSecret || '')[i] === l).length);
+        sessionStorage.setItem('fin_lettres',
+            (motFinal || '').split('').filter((l, i) => (motSecret || '')[i] === l).length);
 
-        setTimeout(() => { window.location.href = gagne ? 'fin-gagne.html' : 'fin-perdu.html'; }, 600);
+        // Redirection garantie
+        window.location.href = gagne ? 'fin-gagne.html' : 'fin-perdu.html';
     }
 
     function nettoyerEtRetourner() {
