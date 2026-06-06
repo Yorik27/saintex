@@ -925,6 +925,14 @@
     let cMonTour       = JE_COMMENCE;
     let partieTerminee = false;
     let scoreA = 0, scoreB = 0;
+    let shortA = '', shortB = '';
+    function majScore() {
+        const el = document.getElementById('header-score');
+        if (!el) return;
+        const monScore = MON_ROLE === 'a' ? scoreA : scoreB;
+        const advScore = MON_ROLE === 'a' ? scoreB : scoreA;
+        el.textContent = shortA + ' ' + monScore + ' — ' + shortB + ' ' + advScore;
+    }
     let numeroTour     = 0;
     let canalPartie    = null;
     let canalProps     = null;
@@ -1249,9 +1257,9 @@
             if (!PARTIE_ID) setTimeout(() => simulerAdversaire(), 2000);
         }
 
-        const shortA = MON_PSEUDO.substring(0, 3).toUpperCase();
-        const shortB = ADV_PSEUDO.substring(0, 3).toUpperCase();
-        document.getElementById('header-score').textContent = shortA + ' ' + scoreA + ' — ' + shortB + ' ' + scoreB;
+        shortA = MON_PSEUDO.substring(0, 3).toUpperCase();
+        shortB = ADV_PSEUDO.substring(0, 3).toUpperCase();
+        majScore();
         demarrerTimer();
         majTimerAffichage();
     }
@@ -1274,7 +1282,8 @@
     async function recevoirPropositionAdversaire(proposition, score) {
         await animerScan(proposition, score);
         if (score === LONGUEUR) {
-            scoreB++;
+            if (MON_ROLE === 'a') scoreB++; else scoreA++;
+            majScore();
             finPartie(false, proposition);
             return;
         }
@@ -1349,7 +1358,8 @@
         afficherSaisie();
 
         if (score === LONGUEUR) {
-            scoreA++;
+            if (MON_ROLE === 'a') scoreA++; else scoreB++;
+            majScore();
             finPartie(true, motAdversaire);
             return;
         }
