@@ -104,13 +104,12 @@
         }
         .colonnes {
             display: flex;
-            gap: 12px;
-            align-items: flex-start;
+            flex-direction: column;
+            gap: 16px;
             margin-top: 12px;
         }
         .colonne {
-            flex: 1;
-            min-width: 0;
+            width: 100%;
         }
         .colonne-titre {
             font-family: 'Roboto', sans-serif;
@@ -141,8 +140,15 @@
 
         .joueur-info {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 8px;
+        }
+
+        .joueur-texte {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            min-width: 0;
         }
 
         /* Point statut */
@@ -151,16 +157,14 @@
             height: 9px;
             border-radius: 50%;
             flex-shrink: 0;
+            margin-top: 5px;
         }
 
         .joueur-nom {
             font-family: 'Roboto', sans-serif;
             font-size: 1rem;
             font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            flex: 1;
+            word-break: break-word;
         }
         .joueur-nom.ami-ligne  { color: #00cc66; }
         .joueur-nom.en-ligne   { color: #00bfff; }
@@ -678,7 +682,10 @@
                         </div>
                         <div class="joueur-info">
                             <div class="point" style="background:${couleur};box-shadow:0 0 5px ${couleur};"></div>
-                            <div class="joueur-nom ${nomClass}">${j.pseudo}<span class="badge-longueur">${j.longueur_preferee || 4}L</span></div>
+                            <div class="joueur-texte">
+                                <div class="joueur-nom ${nomClass}">${j.pseudo}</div>
+                                <span class="badge-longueur">${j.longueur_preferee || 4}L</span>
+                            </div>
                         </div>`;
                     listeAmis.appendChild(carte);
                 });
@@ -700,7 +707,10 @@
                         </div>
                         <div class="joueur-info">
                             <div class="point" style="background:#00bfff;box-shadow:0 0 5px #00bfff;"></div>
-                            <div class="joueur-nom en-ligne">${j.pseudo}<span class="badge-longueur">${j.longueur_preferee || 4}L</span></div>
+                            <div class="joueur-texte">
+                                <div class="joueur-nom en-ligne">${j.pseudo}</div>
+                                <span class="badge-longueur">${j.longueur_preferee || 4}L</span>
+                            </div>
                         </div>`;
                     listeEnLigne.appendChild(carte);
                 });
