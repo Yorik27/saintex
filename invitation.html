@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="fr" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
+    <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
+    <meta name="theme-color" content="#111111">
+    <title>SaintEx — Invitation</title>
+    <link rel="stylesheet" href="saintex.css">
+    <style>
+        body {
+            background: #111;
+            color: white;
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            box-sizing: border-box;
+        }
+
+        .invitation-carte {
+            background: #1a1a2e;
+            border: 1px solid rgba(0,191,255,0.25);
+            border-radius: 20px;
+            padding: 32px 24px;
+            text-align: center;
+            max-width: 320px;
+            width: 100%;
+        }
+
+        .logo {
+            height: 48px;
+            margin-bottom: 20px;
+        }
+
+        .invitation-titre {
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1rem;
+            color: rgba(255,255,255,0.45);
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+
+        .invitation-challenger {
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1.5rem;
+            color: deepskyblue;
+            letter-spacing: 2px;
+            margin-bottom: 4px;
+            text-shadow: 0 0 20px rgba(0,191,255,0.3);
+        }
+
+        .invitation-sous {
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.35);
+            margin-bottom: 28px;
+        }
+
+        .invitation-longueur-titre {
+            font-size: 0.8rem;
+            color: rgba(0,191,255,0.6);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+
+        .longueur-boutons {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .btn-longueur {
+            width: 100px;
+            height: 100px;
+            border-radius: 16px;
+            border: 2px solid rgba(0,191,255,0.4);
+            background: rgba(0,191,255,0.06);
+            color: deepskyblue;
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1.6rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+        .btn-longueur span {
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            color: rgba(0,191,255,0.5);
+            font-family: 'Roboto', sans-serif;
+        }
+        .btn-longueur:hover {
+            background: rgba(0,191,255,0.15);
+            border-color: deepskyblue;
+            box-shadow: 0 0 20px rgba(0,191,255,0.2);
+            transform: scale(1.03);
+        }
+        .btn-longueur.prefere {
+            border-color: #00cc66;
+            color: #00cc66;
+            background: rgba(0,204,102,0.08);
+        }
+        .btn-longueur.prefere span { color: rgba(0,204,102,0.5); }
+
+        .btn-refuser {
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.25);
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-family: 'Roboto', sans-serif;
+            padding: 8px;
+            text-decoration: underline;
+        }
+        .btn-refuser:hover { color: rgba(255,68,68,0.6); }
+
+        /* Mode revanche */
+        .badge-revanche {
+            display: inline-block;
+            background: rgba(255,153,0,0.15);
+            border: 1px solid rgba(255,153,0,0.4);
+            color: #ff9900;
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            padding: 3px 10px;
+            border-radius: 50px;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="invitation-carte">
+        <img class="logo" src="Images/Logo.png" alt="Logo SaintEx">
+
+        <!-- Badge revanche (affiché si revanche) -->
+        <div class="badge-revanche" id="badge-revanche" style="display:none;">⚔ Revanche</div>
+
+        <div class="invitation-titre">Invitation de</div>
+        <div class="invitation-challenger" id="challenger-nom">Joueur A</div>
+        <div class="invitation-sous" id="invitation-sous"></div>
+
+        <!-- Vue invité : choisir la longueur -->
+        <div id="vue-invite">
+            <div class="invitation-longueur-titre">Choisis la longueur du mot</div>
+            <div class="longueur-boutons">
+                <button class="btn-longueur" id="btn-4L" onclick="accepter(4)">
+                    4L
+                    <span>4 lettres</span>
+                </button>
+                <button class="btn-longueur" id="btn-5L" onclick="accepter(5)">
+                    5L
+                    <span>5 lettres</span>
+                </button>
+            </div>
+            <button class="btn-refuser" onclick="refuser()">Décliner l'invitation</button>
+        </div>
+
+        <!-- Vue invitant : attendre la réponse -->
+        <div id="vue-invitant" style="display:none;">
+            <div class="invitation-longueur-titre" style="color:rgba(255,255,255,0.4);">En attente de réponse…</div>
+            <div style="margin:20px 0;">
+                <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:deepskyblue;animation:pulse 1.2s ease-in-out infinite;margin:0 3px;"></span>
+                <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:deepskyblue;animation:pulse 1.2s ease-in-out infinite 0.2s;margin:0 3px;"></span>
+                <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:deepskyblue;animation:pulse 1.2s ease-in-out infinite 0.4s;margin:0 3px;"></span>
+            </div>
+            <button class="btn-refuser" onclick="refuser()">Annuler</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        const SUPABASE_URL = 'https://vrdjytcbiddvvvielcdz.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_f8VIFlJD4LasEWwLgSttZw_Gn7RFwLz';
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Simulation si pas de vraie session
+        const estSimulation = !sessionStorage.getItem('depuis_multi');
+        if (estSimulation) {
+            sessionStorage.setItem('adv_pseudo', 'Léonie');
+            sessionStorage.setItem('mon_pseudo', 'François');
+            sessionStorage.setItem('longueur_preferee', '4');
+            sessionStorage.setItem('je_commence', 'true');
+        }
+
+        const challengerNom = sessionStorage.getItem('adv_pseudo');
+        const monPseudo     = sessionStorage.getItem('mon_pseudo');
+        const longueurPref  = parseInt(sessionStorage.getItem('longueur_preferee') || '4');
+        const estRevanche   = sessionStorage.getItem('revanche') === 'true';
+        const invitationId  = sessionStorage.getItem('invitation_id');
+
+        // Affichage
+        document.getElementById('challenger-nom').textContent = challengerNom;
+
+        // Afficher la bonne vue selon le rôle
+        const jeCommence = sessionStorage.getItem('je_commence') !== 'false';
+        if (jeCommence) {
+            // Je suis l'invitant — attendre la réponse
+            document.getElementById('vue-invite').style.display = 'none';
+            document.getElementById('vue-invitant').style.display = 'block';
+            document.getElementById('invitation-sous').textContent = '';
+        }
+
+        if (estRevanche) {
+            document.getElementById('badge-revanche').style.display = 'inline-block';
+            document.getElementById('invitation-sous').textContent = 'veut sa revanche !';
+        }
+
+        const btnPref = document.getElementById('btn-' + longueurPref + 'L');
+        if (btnPref) {
+            btnPref.classList.add('prefere');
+            btnPref.querySelector('span').textContent = longueurPref + ' lettres ★';
+        }
+
+        // ── Accepter ──
+        window.accepter = async function(longueur) {
+            sessionStorage.setItem('longueur', longueur);
+            sessionStorage.removeItem('revanche');
+
+            if (invitationId && !estSimulation) {
+                // Créer la partie dans Supabase
+                const joueurId = sessionStorage.getItem('joueur_id');
+                const advId    = sessionStorage.getItem('adv_id');
+
+                const { data: partie } = await supabase.from('parties').insert({
+                    joueur_a: advId,       // A = celui qui a défié
+                    joueur_b: joueurId,    // B = moi (l'invité)
+                    pseudo_a: challengerNom,
+                    pseudo_b: monPseudo,
+                    longueur: longueur,
+                    tour_actuel: 'a',      // le challenger commence
+                    statut: 'en_cours'
+                }).select().single();
+
+                // Mettre à jour l'invitation
+                await supabase.from('invitations')
+                    .update({ statut: 'acceptee', partie_id: partie.id })
+                    .eq('id', invitationId);
+
+                // Marquer les deux joueurs comme en partie
+                await supabase.from('joueurs')
+                    .update({ statut: 'en_partie' })
+                    .in('id', [advId, joueurId]);
+
+                sessionStorage.setItem('partie_id', partie.id);
+                sessionStorage.setItem('je_commence', 'false'); // B ne commence pas
+            } else {
+                sessionStorage.setItem('je_commence', 'false');
+            }
+
+            window.location.href = 'jeu2.html';
+        };
+
+        // ── Refuser ──
+        window.refuser = async function() {
+            if (invitationId && !estSimulation) {
+                await supabase.from('invitations')
+                    .update({ statut: 'refusee' })
+                    .eq('id', invitationId);
+                sessionStorage.removeItem('invitation_id');
+            }
+            // Nettoyer sessionStorage
+            ['adv_pseudo', 'adv_id', 'partie_id', 'depuis_multi', 'revanche',
+             'invitation_id', 'longueur', 'longueur_preferee'].forEach(k =>
+                sessionStorage.removeItem(k));
+            window.location.href = 'multi.html';
+        };
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,1724 @@
+<!DOCTYPE html>
+<html lang="fr" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
+    <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
+    <meta name="theme-color" content="#111111">
+    <title>SaintEx — Défi Humain</title>
+    <link rel="stylesheet" href="saintex.css">
+    <style>
+        body {
+            background: #111;
+            color: white;
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* ── Header ── */
+        .header-jeu2 {
+            position: fixed;
+            top: 10px; left: 12px; right: 12px;
+            height: 52px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 14px;
+            border: 1px solid rgba(0,191,255,0.15);
+            border-radius: 16px;
+            background: rgba(17,17,17,0.95);
+            z-index: 30;
+            gap: 10px;
+        }
+        .header-jeu2 .logo { height: 40px; flex-shrink: 0; }
+        .header-centre {
+            flex: 1;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .header-tour {
+            font-family: 'Roboto', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            padding: 5px 14px;
+            border-radius: 50px;
+            white-space: nowrap;
+        }
+        .tour-moi {
+            background: rgba(0,204,102,0.15);
+            border: 1px solid rgba(0,204,102,0.4);
+            color: #00cc66;
+        }
+        .tour-adversaire {
+            background: rgba(255,153,0,0.12);
+            border: 1px solid rgba(255,153,0,0.35);
+            color: #ff9900;
+        }
+        #header-timer {
+            font-family: 'Roboto', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: rgba(0,191,255,0.8);
+            letter-spacing: 2px;
+            white-space: nowrap;
+        }
+        .header-droite {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .header-score {
+            font-family: 'Roboto', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.5);
+            white-space: nowrap;
+        }
+        .btn-abandon-header {
+            background: transparent;
+            border: 1px solid rgba(255,68,68,0.35);
+            color: rgba(255,68,68,0.8);
+            font-family: 'Roboto', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            padding: 5px 11px;
+            border-radius: 50px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        /* ── Zone principale ── */
+        .zone-principale {
+            position: fixed;
+            top: 72px;
+            left: 0; right: 0;
+            bottom: 196px;
+            overflow-y: auto;
+            padding: 8px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        /* ── Mon mot secret ── */
+        .section-label {
+            font-size: 0.72rem;
+            color: rgba(0,191,255,0.5);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .cases-mot {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+        }
+
+        .case-mot-secret {
+            width: 44px;
+            height: 44px;
+            border: 1.5px solid rgba(0,191,255,0.4);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: deepskyblue;
+            background: rgba(0,191,255,0.06);
+            transition: background 0.15s, border-color 0.15s, color 0.15s;
+        }
+        .case-mot-secret.scan {
+            background: rgba(255,153,0,0.25);
+            border-color: rgba(255,153,0,0.8);
+            color: #ff9900;
+        }
+
+        /* ── Proposition adversaire ── */
+        .zone-adversaire {
+            background: rgba(0,191,255,0.05);
+            border: 1px solid rgba(0,191,255,0.2);
+            border-radius: 12px;
+            padding: 8px 14px;
+        }
+        .adversaire-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .adversaire-derniere {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .adversaire-mot {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: deepskyblue;
+            letter-spacing: 2px;
+        }
+        .adversaire-score {
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1.1rem;
+        }
+
+        /* Cases vides adversaire */
+        .cases-adversaire {
+            display: flex;
+            gap: 4px;
+        }
+        .case-adv {
+            width: 22px;
+            height: 22px;
+            border: 1.5px solid rgba(0,191,255,0.2);
+            border-radius: 5px;
+            background: rgba(0,191,255,0.04);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700;
+            font-size: 0.7rem;
+            color: transparent;
+            transition: all 0.4s;
+            box-sizing: border-box;
+        }
+        .case-adv.decouverte {
+            border-color: #00cc66;
+            background: rgba(0,204,102,0.15);
+            color: #00cc66;
+            box-shadow: 0 0 6px rgba(0,204,102,0.3);
+        }
+
+        /* ── Mes propositions ── */
+        .zone-propositions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px 8px;
+            max-height: 80px;
+            overflow-y: auto;
+        }
+        .ligne-prop {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            border-bottom: none;
+            padding: 0;
+        }
+        .prop-mot {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 600;
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.8);
+            letter-spacing: 1px;
+        }
+        .prop-score {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700;
+            font-size: 0.82rem;
+        }
+        .score-0 { color: rgba(255,255,255,0.3); }
+        .score-1 { color: #fff700; }
+        .score-2 { color: #ff9900; }
+        .score-3 { color: #ff6600; }
+        .score-4 { color: #ff3300; }
+        .score-5 { color: #ff0000; }
+        .score-gagne { color: #00cc66; }
+
+        /* ── Affichage mot en saisie ── */
+        .zone-saisie {
+            position: fixed;
+            bottom: 136px;
+            left: 0; right: 0;
+            background: #111;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 54px;
+            padding: 6px 0;
+            z-index: 20;
+            border-top: 1px solid rgba(0,191,255,0.08);
+        }
+
+        /* ── Clavier ── */
+        .zone-clavier {
+            position: fixed;
+            bottom: 0;
+            left: 0; right: 0;
+            background: #111;
+            padding: 2px 0 6px;
+            z-index: 20;
+        }
+
+        /* ── Message tour ── */
+        .msg-attente {
+            text-align: center;
+            color: rgba(255,153,0,0.7);
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            padding: 8px;
+            animation: clignoter 1.5s ease-in-out infinite;
+        }
+        @keyframes clignoter {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        /* ── Saisie du mot secret (phase init) ── */
+        #phase-init {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            padding: 20px;
+            gap: 16px;
+        }
+        .init-titre {
+            font-family: 'Roboto', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: deepskyblue;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+        .init-sous {
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.4);
+            text-align: center;
+        }
+        .init-adversaire {
+            font-size: 0.85rem;
+            color: rgba(255,153,0,0.7);
+            text-align: center;
+        }
+
+        /* ── Fin de partie ── */
+        .btn-fin-ami {
+            display: block;
+            width: 100%;
+            margin: 8px 0 0;
+            background: rgba(255,200,0,0.08);
+            border: 1px solid rgba(255,200,0,0.3);
+            color: rgba(255,200,0,0.8);
+            padding: 9px 24px;
+            border-radius: 50px;
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 0.88rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-fin-ami:hover { background: rgba(255,200,0,0.15); border-color: gold; color: gold; }
+        .btn-fin-ami:disabled { opacity: 0.35; cursor: default; }
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.88);
+            z-index: 50;
+            align-items: center;
+            justify-content: center;
+        }
+        .overlay-fin.visible { display: flex; }
+        .fin-contenu {
+            background: #1a1a2e;
+            border: 1px solid rgba(0,191,255,0.3);
+            border-radius: 20px;
+            padding: 32px 24px;
+            text-align: center;
+            max-width: 300px;
+            width: 90%;
+        }
+        .fin-titre {
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1.6rem;
+            letter-spacing: 3px;
+            margin-bottom: 8px;
+        }
+        .fin-gagne { color: #00cc66; }
+        .fin-perdu { color: #ff4444; }
+        .fin-info {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.45);
+            margin-bottom: 20px;
+        }
+        .fin-mot-secret {
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1.3rem;
+            color: deepskyblue;
+            letter-spacing: 4px;
+            margin-bottom: 20px;
+        }
+        .btn-fin {
+            background: rgba(0,191,255,0.12);
+            border: 1px solid rgba(0,191,255,0.4);
+            color: deepskyblue;
+            padding: 10px 24px;
+            border-radius: 50px;
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+        .btn-fin:hover { background: rgba(0,191,255,0.2); }
+        .btn-fin-retour {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.4);
+            padding: 8px 24px;
+            border-radius: 50px;
+            font-family: 'Roboto', sans-serif;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+        }
+
+        #phase-jeu { display: none; }
+
+        /* Lettres bien placées en vert pendant scan */
+        .case-mot-secret.scan-ok {
+            background: rgba(0,204,102,0.25) !important;
+            border-color: rgba(0,204,102,0.9) !important;
+            color: #00cc66 !important;
+        }
+
+        /* Phase init - attente adversaire */
+        .init-attente {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 20px;
+        }
+        .init-attente-titre {
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1rem;
+            color: #00cc66;
+            letter-spacing: 2px;
+        }
+        .init-attente-info {
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.4);
+            text-align: center;
+        }
+        .init-adversaire-statut {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: 1px solid rgba(255,153,0,0.3);
+            border-radius: 50px;
+            font-size: 0.85rem;
+        }
+        .init-adversaire-statut.pret {
+            border-color: rgba(0,204,102,0.5);
+            color: #00cc66;
+        }
+        .init-adversaire-statut.attente {
+            border-color: rgba(255,153,0,0.3);
+            color: rgba(255,153,0,0.7);
+        }
+        .dot-anim {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #ff9900;
+            animation: pulse 1s ease-in-out infinite;
+        }
+        .dot-anim.pret { background: #00cc66; animation: none; }
+
+        /* Modal timeout/abandon */
+        .modal-timeout {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.88);
+            z-index: 60;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-timeout.visible { display: flex; }
+        .modal-timeout-contenu {
+            background: #1a1a2e;
+            border: 1px solid rgba(255,68,68,0.3);
+            border-radius: 20px;
+            padding: 28px 24px;
+            text-align: center;
+            max-width: 280px;
+            width: 90%;
+        }
+        .modal-timeout-titre {
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1.1rem;
+            color: #ff4444;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+        .modal-timeout-info {
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 20px;
+        }
+        .btn-timeout {
+            background: rgba(0,191,255,0.12);
+            border: 1px solid rgba(0,191,255,0.4);
+            color: deepskyblue;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+        .btn-abandon {
+            background: transparent;
+            border: 1px solid rgba(255,68,68,0.3);
+            color: rgba(255,68,68,0.7);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-family: 'Roboto', sans-serif;
+            font-size: 0.82rem;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+        }
+
+        /* Bouton flottant chat */
+        .btn-chat-flottant {
+            position: fixed;
+            bottom: 130px;
+            right: 10px;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: rgba(0,191,255,0.15);
+            border: 1.5px solid rgba(0,191,255,0.5);
+            color: deepskyblue;
+            font-size: 1.3rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 40;
+            box-shadow: 0 0 16px rgba(0,191,255,0.2);
+            transition: background 0.2s;
+        }
+        .btn-chat-flottant:hover { background: rgba(0,191,255,0.25); }
+        .badge-chat {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #ff4444;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Roboto', sans-serif;
+        }
+        .badge-chat.visible { display: flex; }
+
+        /* Popup chat */
+        .popup-chat {
+            position: fixed;
+            bottom: 180px;
+            right: 10px;
+            width: min(300px, calc(100vw - 20px));
+            background: #1a1a2e;
+            border: 1px solid rgba(0,191,255,0.3);
+            border-radius: 16px;
+            z-index: 45;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+            overflow: hidden;
+        }
+        .popup-chat.visible { display: flex; }
+
+        .popup-chat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            border-bottom: 1px solid rgba(0,191,255,0.12);
+        }
+        .popup-chat-titre {
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 0.85rem;
+            color: deepskyblue;
+            letter-spacing: 1px;
+        }
+        .btn-fermer-chat {
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.4);
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 0 4px;
+        }
+
+        .dialogue-messages {
+            max-height: 140px;
+            overflow-y: auto;
+            padding: 8px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .msg-ligne {
+            font-size: 0.78rem;
+            line-height: 1.4;
+            padding: 4px 8px;
+            border-radius: 8px;
+            max-width: 85%;
+        }
+        .msg-moi {
+            color: white;
+            background: rgba(0,191,255,0.15);
+            align-self: flex-end;
+            text-align: right;
+        }
+        .msg-adv {
+            color: white;
+            background: rgba(255,153,0,0.12);
+            align-self: flex-start;
+        }
+        .msg-pseudo {
+            font-weight: 700;
+            font-size: 0.7rem;
+            display: block;
+            margin-bottom: 1px;
+            opacity: 0.7;
+        }
+        .msg-moi .msg-pseudo { color: deepskyblue; }
+        .msg-adv .msg-pseudo { color: #ff9900; }
+
+        .reactions {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            padding: 6px 12px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        .btn-reaction {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50px;
+            padding: 3px 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .btn-reaction:hover { background: rgba(0,191,255,0.15); }
+
+        .dialogue-input-zone {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            padding: 8px 12px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        .dialogue-input {
+            flex: 1;
+            background: transparent;
+            border: 1px solid rgba(0,191,255,0.3);
+            border-radius: 50px;
+            padding: 5px 12px;
+            color: white;
+            font-family: 'Roboto', sans-serif;
+            font-size: 0.82rem;
+            outline: none;
+        }
+        .dialogue-input:focus { border-color: deepskyblue; }
+        .btn-envoyer {
+            background: rgba(0,191,255,0.15);
+            border: 1px solid rgba(0,191,255,0.4);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            color: deepskyblue;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .zone-principale { overflow-y: auto; padding: 8px 14px; gap: 8px; max-height: 45vh; }
+
+        /* Case active saisie désordre */
+        .case-saisie-active {
+            border-color: #ff4444 !important;
+            box-shadow: 0 0 8px rgba(255,68,68,0.5) !important;
+        }
+
+        /* Override clavier jeu2 */
+        #clavier-jeu .clavier-rangee,
+        #clavier-init .clavier-rangee {
+            gap: 3px !important;
+            padding: 2px 4px !important;
+        }
+        #clavier-jeu .touche,
+        #clavier-init .touche {
+            background: #111 !important;
+            border: 1.5px solid rgba(0,191,255,0.5) !important;
+            color: white !important;
+            font-weight: 700 !important;
+            font-family: 'Roboto', sans-serif !important;
+            width: 32px !important;
+            height: 32px !important;
+            min-width: 32px !important;
+            padding: 0 !important;
+            font-size: 0.85rem !important;
+            border-radius: 6px !important;
+            flex: none !important;
+        }
+        #clavier-jeu .touche-large,
+        #clavier-init .touche-large {
+            width: 44px !important;
+            min-width: 44px !important;
+        }
+        #clavier-jeu .touche:active,
+        #clavier-init .touche:active {
+            background: rgba(0,191,255,0.15) !important;
+        }
+        #clavier-jeu .touche-ok,
+        #clavier-init .touche-ok {
+            background: rgba(0,191,255,0.2) !important;
+            border-color: deepskyblue !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header-jeu2">
+        <img class="logo" src="Images/Logo.png" alt="Logo SaintEx">
+        <div class="header-centre">
+            <div class="header-tour tour-moi" id="header-tour">Ton tour</div>
+            <div id="header-timer">2:00</div>
+        </div>
+        <div class="header-droite">
+            <div class="header-score" id="header-score"></div>
+            <button class="btn-abandon-header" onclick="proposerAbandon()">Abandon</button>
+        </div>
+    </div>
+        </div>
+    </div>
+
+    <!-- Phase init : saisie du mot secret -->
+    <div id="phase-init">
+        <div class="init-titre">Choisis ton mot secret</div>
+        <div class="init-sous" id="init-sous">Ton adversaire ne le verra pas</div>
+        <div class="init-adversaire" id="init-adversaire"></div>
+
+        <!-- Cases de saisie du mot secret -->
+        <div id="cases-init" class="cases-mot"></div>
+
+        <!-- Clavier pour saisir le mot secret -->
+        <div class="clavier" id="clavier-init">
+            <div class="clavier-rangee">
+                <button class="touche" onclick="ajouterLettreInit('A')">A</button>
+                <button class="touche" onclick="ajouterLettreInit('Z')">Z</button>
+                <button class="touche" onclick="ajouterLettreInit('E')">E</button>
+                <button class="touche" onclick="ajouterLettreInit('R')">R</button>
+                <button class="touche" onclick="ajouterLettreInit('T')">T</button>
+                <button class="touche" onclick="ajouterLettreInit('Y')">Y</button>
+                <button class="touche" onclick="ajouterLettreInit('U')">U</button>
+                <button class="touche" onclick="ajouterLettreInit('I')">I</button>
+                <button class="touche" onclick="ajouterLettreInit('O')">O</button>
+                <button class="touche" onclick="ajouterLettreInit('P')">P</button>
+            </div>
+            <div class="clavier-rangee">
+                <button class="touche" onclick="ajouterLettreInit('Q')">Q</button>
+                <button class="touche" onclick="ajouterLettreInit('S')">S</button>
+                <button class="touche" onclick="ajouterLettreInit('D')">D</button>
+                <button class="touche" onclick="ajouterLettreInit('F')">F</button>
+                <button class="touche" onclick="ajouterLettreInit('G')">G</button>
+                <button class="touche" onclick="ajouterLettreInit('H')">H</button>
+                <button class="touche" onclick="ajouterLettreInit('J')">J</button>
+                <button class="touche" onclick="ajouterLettreInit('K')">K</button>
+                <button class="touche" onclick="ajouterLettreInit('L')">L</button>
+                <button class="touche" onclick="ajouterLettreInit('M')">M</button>
+            </div>
+            <div class="clavier-rangee">
+                <button class="touche touche-large" onclick="effacerInit()">⌫</button>
+                <button class="touche" onclick="ajouterLettreInit('W')">W</button>
+                <button class="touche" onclick="ajouterLettreInit('X')">X</button>
+                <button class="touche" onclick="ajouterLettreInit('C')">C</button>
+                <button class="touche" onclick="ajouterLettreInit('V')">V</button>
+                <button class="touche" onclick="ajouterLettreInit('B')">B</button>
+                <button class="touche" onclick="ajouterLettreInit('N')">N</button>
+                <button class="touche touche-large touche-ok" onclick="validerMotSecret()">✓</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phase jeu -->
+    <div id="phase-jeu">
+
+        <div class="zone-principale">
+
+            <!-- Mon mot secret -->
+            <div>
+                <div class="section-label">Mon mot</div>
+                <div class="cases-mot" id="cases-mon-mot"></div>
+            </div>
+
+            <!-- Avancement adversaire -->
+            <div class="zone-adversaire">
+                <div class="adversaire-header">
+                    <div class="section-label" id="label-adversaire" style="margin-bottom:0;">Adversaire</div>
+                    <div class="cases-adversaire" id="cases-adv"></div>
+                    <div class="adv-nb" id="adv-nb" style="font-size:0.7rem; color:rgba(0,191,255,0.4); margin-left:auto;">0 lettre</div>
+                </div>
+            </div>
+
+            <!-- Mes propositions -->
+            <div>
+                <div class="section-label">Mes propositions</div>
+                <div class="zone-propositions" id="liste-props"></div>
+            </div>
+
+        </div>
+
+        <!-- Affichage mot en saisie -->
+        <div class="zone-saisie">
+            <div id="affichage-saisie" class="cases-mot"></div>
+            <div id="msg-attente" class="msg-attente" style="display:none;">Tour de l'adversaire…</div>
+            <div id="error-jeu2" style="display:none; color:#ff4444; text-align:center; font-size:0.85rem; padding:4px;"></div>
+        </div>
+
+        <!-- Clavier jeu -->
+        <div class="zone-clavier">
+            <div class="clavier" id="clavier-jeu">
+                <div class="clavier-rangee">
+                    <button class="touche" onclick="ajouterLettre('A')">A</button>
+                    <button class="touche" onclick="ajouterLettre('Z')">Z</button>
+                    <button class="touche" onclick="ajouterLettre('E')">E</button>
+                    <button class="touche" onclick="ajouterLettre('R')">R</button>
+                    <button class="touche" onclick="ajouterLettre('T')">T</button>
+                    <button class="touche" onclick="ajouterLettre('Y')">Y</button>
+                    <button class="touche" onclick="ajouterLettre('U')">U</button>
+                    <button class="touche" onclick="ajouterLettre('I')">I</button>
+                    <button class="touche" onclick="ajouterLettre('O')">O</button>
+                    <button class="touche" onclick="ajouterLettre('P')">P</button>
+                </div>
+                <div class="clavier-rangee">
+                    <button class="touche" onclick="ajouterLettre('Q')">Q</button>
+                    <button class="touche" onclick="ajouterLettre('S')">S</button>
+                    <button class="touche" onclick="ajouterLettre('D')">D</button>
+                    <button class="touche" onclick="ajouterLettre('F')">F</button>
+                    <button class="touche" onclick="ajouterLettre('G')">G</button>
+                    <button class="touche" onclick="ajouterLettre('H')">H</button>
+                    <button class="touche" onclick="ajouterLettre('J')">J</button>
+                    <button class="touche" onclick="ajouterLettre('K')">K</button>
+                    <button class="touche" onclick="ajouterLettre('L')">L</button>
+                    <button class="touche" onclick="ajouterLettre('M')">M</button>
+                </div>
+                <div class="clavier-rangee">
+                    <button class="touche touche-large" onclick="effacer()">⌫</button>
+                    <button class="touche" onclick="ajouterLettre('W')">W</button>
+                    <button class="touche" onclick="ajouterLettre('X')">X</button>
+                    <button class="touche" onclick="ajouterLettre('C')">C</button>
+                    <button class="touche" onclick="ajouterLettre('V')">V</button>
+                    <button class="touche" onclick="ajouterLettre('B')">B</button>
+                    <button class="touche" onclick="ajouterLettre('N')">N</button>
+                    <button class="touche touche-large touche-ok" onclick="valider()">✓</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bouton flottant chat -->
+    <button class="btn-chat-flottant" id="btn-chat-flottant" style="display:none;" onclick="toggleChat()">
+        💬
+        <span class="badge-chat" id="badge-chat"></span>
+    </button>
+
+    <!-- Popup chat -->
+    <div id="overlay-chat" onclick="toggleChat()" style="display:none; position:fixed; inset:0; z-index:44; background:rgba(0,0,0,0.4);"></div>
+    <div class="popup-chat" id="popup-chat">
+        <div class="popup-chat-header">
+            <span class="popup-chat-titre">💬 Discussion</span>
+            <button class="btn-fermer-chat" onclick="toggleChat()">✕</button>
+        </div>
+        <div class="dialogue-messages" id="dialogue-messages"></div>
+        <div class="reactions">
+            <button class="btn-reaction" onclick="envoyerReaction('👍 Bien joué !')">👍</button>
+            <button class="btn-reaction" onclick="envoyerReaction('😅 Presque !')">😅</button>
+            <button class="btn-reaction" onclick="envoyerReaction('🤔 Hmm...')">🤔</button>
+            <button class="btn-reaction" onclick="envoyerReaction('😈 Tu chauffes !')">😈</button>
+            <button class="btn-reaction" onclick="envoyerReaction('🎯 Chaud !')">🎯</button>
+            <button class="btn-reaction" onclick="envoyerReaction('😂 Raté !')">😂</button>
+        </div>
+        <div class="dialogue-input-zone">
+            <input class="dialogue-input" id="dialogue-input" type="text"
+                   placeholder="Message…" maxlength="150"
+                   onkeydown="if(event.key==='Enter') envoyerMessage()">
+            <button class="btn-envoyer" onclick="envoyerMessage()">➤</button>
+        </div>
+    </div>
+
+    <!-- Modal timeout/abandon -->
+    <div class="modal-timeout" id="modal-timeout">
+        <div class="modal-timeout-contenu">
+            <div class="modal-timeout-titre" id="timeout-titre">Temps écoulé</div>
+            <div class="modal-timeout-info" id="timeout-info">Ton adversaire n'a pas joué à temps.</div>
+            <button class="btn-timeout" onclick="window.location.href='multi.html'">Nouvelle partie</button>
+            <button class="btn-abandon" onclick="confirmerAbandon()">Abandonner la partie</button>
+        </div>
+    </div>
+
+    <!-- Overlay fin de partie -->
+    <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+    const SUPABASE_URL = 'https://vrdjytcbiddvvvielcdz.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_f8VIFlJD4LasEWwLgSttZw_Gn7RFwLz';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // ── Paramètres de la partie ──
+    const LONGUEUR    = parseInt(sessionStorage.getItem('longueur') || '4');
+    const MON_PSEUDO  = sessionStorage.getItem('mon_pseudo') || 'Joueur A';
+    const ADV_PSEUDO  = sessionStorage.getItem('adv_pseudo') || 'Joueur B';
+    const JE_COMMENCE = sessionStorage.getItem('je_commence') !== 'false';
+    const PARTIE_ID   = sessionStorage.getItem('partie_id');
+    const MON_ROLE    = JE_COMMENCE ? 'a' : 'b';
+    const MON_ID      = sessionStorage.getItem('joueur_id');
+    const ADV_ID      = sessionStorage.getItem('adv_id');
+
+    // ── État ──
+    let motSecret      = '';
+    let motAdversaire  = ''; // sera révélé à la fin
+    let saisieInit     = '';
+    let saisieEnCours  = '';
+    let positionActive2 = null;
+    let cMonTour       = JE_COMMENCE;
+    let partieTerminee = false;
+    let scoreA = 0, scoreB = 0;
+    let shortA = '', shortB = '';
+    function majScore() {
+        const el = document.getElementById('header-score');
+        if (!el) return;
+        const monScore = MON_ROLE === 'a' ? scoreA : scoreB;
+        const advScore = MON_ROLE === 'a' ? scoreB : scoreA;
+        el.textContent = shortA + ' ' + monScore + ' — ' + shortB + ' ' + advScore;
+    }
+    let numeroTour     = 0;
+    let canalPartie    = null;
+    let canalProps     = null;
+    let canalMessages  = null;
+    let partieDemarree = false;
+    let partieEnCours  = false; // true dès qu'on lit statut='en_cours' en base
+
+    // ── Init ──
+    document.getElementById('init-adversaire').textContent = 'Contre : ' + ADV_PSEUDO;
+    document.getElementById('label-adversaire').textContent = ADV_PSEUDO;
+    afficherCasesInit();
+
+    function afficherCasesInit() {
+        const el = document.getElementById('cases-init');
+        el.innerHTML = '';
+        for (let i = 0; i < LONGUEUR; i++) {
+            const div = document.createElement('div');
+            div.classList.add('case-mot-secret');
+            div.textContent = saisieInit[i] || '';
+            el.appendChild(div);
+        }
+    }
+
+    function ajouterLettreInit(l) {
+        if (saisieInit.length < LONGUEUR) {
+            saisieInit += l;
+            afficherCasesInit();
+        }
+    }
+
+    function effacerInit() {
+        saisieInit = saisieInit.slice(0, -1);
+        afficherCasesInit();
+    }
+
+    async function validerMotSecret() {
+        if (saisieInit.length !== LONGUEUR) return;
+        if (!(saisieInit in (window.DICO || {})) && Object.keys(window.DICO || {}).length > 0) {
+            document.getElementById('init-sous').textContent = 'Mot inconnu du dictionnaire';
+            document.getElementById('init-sous').style.color = '#ff4444';
+            return;
+        }
+        motSecret = saisieInit;
+
+        // Enregistrer le mot secret dans Supabase
+        if (PARTIE_ID) {
+            const col = MON_ROLE === 'a' ? 'mot_secret_a' : 'mot_secret_b';
+            await supabase.from('parties')
+                .update({ [col]: motSecret })
+                .eq('id', PARTIE_ID);
+
+            // Vérifier si l'adversaire a déjà choisi son mot
+            const colAdv = MON_ROLE === 'a' ? 'mot_secret_b' : 'mot_secret_a';
+            const { data } = await supabase.from('parties')
+                .select(colAdv)
+                .eq('id', PARTIE_ID)
+                .single();
+
+            if (data && data[colAdv]) {
+                // L'adversaire a déjà son mot → démarrer tout de suite
+                motAdversaire = data[colAdv];
+                demarrerPartie();
+            } else {
+                // Attendre que l'adversaire choisisse son mot (polling 2s)
+                afficherAttenteMotAdverse();
+                const intervalInit = setInterval(async () => {
+                    if (partieDemarree) { clearInterval(intervalInit); return; }
+                    const { data: d } = await supabase.from('parties')
+                        .select(colAdv)
+                        .eq('id', PARTIE_ID)
+                        .single();
+                    if (d && d[colAdv]) {
+                        clearInterval(intervalInit);
+                        if (!partieDemarree) {
+                            motAdversaire = d[colAdv];
+                            demarrerPartie();
+                        }
+                    }
+                }, 2000);
+            }
+        } else {
+            // Pas de Supabase (simulation) → démarrer directement
+            demarrerPartie();
+        }
+    }
+
+    function afficherAttenteMotAdverse() {
+        const sous = document.getElementById('init-sous');
+        sous.style.color = 'rgba(255,153,0,0.8)';
+        sous.textContent = ADV_PSEUDO + ' choisit son mot…';
+        // Désactiver le clavier pour éviter toute interaction
+        document.getElementById('phase-init').style.pointerEvents = 'none';
+        document.getElementById('phase-init').style.opacity = '0.5';
+    }
+
+    function demarrerPartie() {
+        if (partieDemarree) return;
+        partieDemarree = true;
+
+        // Marquer les deux joueurs comme en partie
+        if (MON_ID && ADV_ID) {
+            supabase.from('joueurs')
+                .update({ statut: 'en_partie' })
+                .in('id', [MON_ID, ADV_ID])
+                .then(({ error }) => { if (error) console.error('statut en_partie:', error); });
+        }
+
+        // Heartbeat 30s pendant la partie — maintient en_ligne ET statut en_partie
+        if (MON_ID) {
+            window._heartbeat = setInterval(async () => {
+                await supabase.from('joueurs')
+                    .update({ en_ligne: true, last_seen: new Date().toISOString(), statut: 'en_partie' })
+                    .eq('id', MON_ID);
+            }, 30000);
+        }
+        document.getElementById('label-adversaire').textContent = ADV_PSEUDO;
+        document.getElementById('phase-init').style.display = 'none';
+        document.getElementById('phase-jeu').style.display = 'block';
+        document.getElementById('btn-chat-flottant').style.display = 'flex';
+        afficherMonMot();
+        afficherCasesAdv();
+        afficherSaisie();
+        majTour();
+
+        // Écouter les propositions adversaire en temps réel
+        if (PARTIE_ID) {
+            abonnerPropositions();
+            abonnerPartie();
+            abonnerMessages();
+        }
+    }
+
+    function abonnerPropositions() {
+        const roleAdv = MON_ROLE === 'a' ? 'b' : 'a';
+        canalProps = supabase.channel('props-' + PARTIE_ID)
+            .on('postgres_changes', {
+                event: 'INSERT', schema: 'public', table: 'propositions',
+                filter: `partie_id=eq.${PARTIE_ID}`
+            }, payload => {
+                const prop = payload.new;
+                if (prop.joueur === roleAdv) {
+                    recevoirPropositionAdversaire(prop.mot, prop.score);
+                }
+            })
+            .subscribe();
+    }
+
+    function abonnerPartie() {
+        // Polling 2s pour le changement de tour et la fin de partie
+        // (Realtime sur la clé primaire de 'parties' non fiable dans cette config)
+        const intervalPartie = setInterval(async () => {
+            if (partieTerminee) { clearInterval(intervalPartie); return; }
+            const { data } = await supabase.from('parties')
+                .select('tour_actuel, statut, gagnant, mot_secret_a, mot_secret_b, chat_actif')
+                .eq('id', PARTIE_ID)
+                .single();
+            if (!data) return;
+
+            // Marquer la partie comme en cours dès qu'on le confirme
+            if (data.statut === 'en_cours') partieEnCours = true;
+
+            // Synchronisation chat : l'adversaire a ouvert/fermé le chat
+            if (!chatOuvert && data.chat_actif !== undefined) {
+                if (data.chat_actif) {
+                    arreterTimer();
+                } else if (cMonTour && !partieTerminee && partieDemarree && !timerTour) {
+                    demarrerTimer();
+                }
+            }
+
+            // Changement de tour
+            if (data.tour_actuel === MON_ROLE && !cMonTour && !partieTerminee) {
+                cMonTour = true;
+                majTour();
+            }
+
+            // Fin de partie — notifier le perdant
+            // Délai 1s : laisse abonnerPropositions (Realtime) arriver en premier
+            // avec le bon mot. Fallback si Realtime échoue.
+            if (data.statut === 'terminee' && !partieTerminee && partieEnCours) {
+                const colAdv = MON_ROLE === 'a' ? 'mot_secret_b' : 'mot_secret_a';
+                if (!motAdversaire) motAdversaire = data[colAdv] || '?????';
+                if (data.gagnant && data.gagnant !== MON_ROLE) {
+                    clearInterval(intervalPartie);
+                    setTimeout(() => {
+                        if (!partieTerminee) finPartie(false, motAdversaire);
+                    }, 1000);
+                }
+            }
+        }, 2000);
+    }
+
+    // ── Affichage mon mot secret ──
+    function afficherMonMot() {
+        const el = document.getElementById('cases-mon-mot');
+        el.innerHTML = '';
+        for (let i = 0; i < LONGUEUR; i++) {
+            const div = document.createElement('div');
+            div.classList.add('case-mot-secret');
+            div.id = 'mon-mot-' + i;
+            div.textContent = motSecret[i];
+            el.appendChild(div);
+        }
+    }
+
+    // ── Animation scan quand l'adversaire propose ──
+    function animerScan(proposition, score) {
+        return new Promise(resolve => {
+            // Identifier les positions bien placées
+            const bienPlacees = [];
+            for (let i = 0; i < LONGUEUR; i++) {
+                if (proposition[i] === motSecret[i]) bienPlacees.push(i);
+            }
+            for (let i = 0; i < LONGUEUR; i++) {
+                const el = document.getElementById('mon-mot-' + i);
+                if (!el) continue;
+                setTimeout(() => {
+                    if (bienPlacees.includes(i)) {
+                        el.classList.add('scan-ok');
+                        setTimeout(() => el.classList.remove('scan-ok'), 800);
+                    } else {
+                        el.classList.add('scan');
+                        setTimeout(() => el.classList.remove('scan'), 500);
+                    }
+                }, i * 150);
+            }
+            setTimeout(() => {
+                afficherDerniereAdvProp(proposition, score);
+                resolve();
+            }, LONGUEUR * 150 + 700);
+        });
+    }
+
+    function afficherDerniereAdvProp(proposition, score) {
+        // Mettre à jour les lettres découvertes par l'adversaire
+        for (let i = 0; i < LONGUEUR; i++) {
+            if (proposition[i] === motSecret[i]) {
+                advDecouvertes[i] = proposition[i];
+            }
+        }
+        majAffichageAdv();
+    }
+
+    // ── Avancement adversaire ──
+    const advDecouvertes = new Array(LONGUEUR).fill(null); // lettres bien placées découvertes
+
+    function afficherCasesAdv() {
+        // Cases lettres
+        const el = document.getElementById('cases-adv');
+        el.innerHTML = '';
+        for (let i = 0; i < LONGUEUR; i++) {
+            const div = document.createElement('div');
+            div.classList.add('case-adv');
+            div.id = 'adv-case-' + i;
+            el.appendChild(div);
+        }
+        majAffichageAdv();
+    }
+
+    function majAffichageAdv() {
+        let nb = 0;
+        for (let i = 0; i < LONGUEUR; i++) {
+            const caseEl = document.getElementById('adv-case-' + i);
+            const ptEl = document.getElementById('adv-pt-' + i);
+            if (advDecouvertes[i]) {
+                if (caseEl) { caseEl.classList.add('decouverte'); caseEl.textContent = advDecouvertes[i]; }
+                if (ptEl) ptEl.classList.add('trouve');
+                nb++;
+            }
+        }
+        const nbEl = document.getElementById('adv-nb');
+        if (nbEl) nbEl.textContent = nb === 0 ? 'Aucune lettre trouvée'
+            : nb === 1 ? '1 lettre trouvée'
+            : nb + ' lettres trouvées';
+    }
+
+    // ── Affichage saisie ──
+    function afficherSaisie() {
+        const el = document.getElementById('affichage-saisie');
+        el.innerHTML = '';
+        for (let i = 0; i < LONGUEUR; i++) {
+            const div = document.createElement('div');
+            div.classList.add('case-lettre');
+            if (saisieEnCours[i] && saisieEnCours[i] !== ' ') {
+                div.classList.add('case-saisie');
+                div.textContent = saisieEnCours[i];
+            } else {
+                div.classList.add('case-vide');
+            }
+            if (positionActive2 === i) div.classList.add('case-saisie-active');
+            div.addEventListener('click', () => {
+                if (!cMonTour || partieTerminee) return;
+                positionActive2 = i;
+                afficherSaisie();
+            });
+            el.appendChild(div);
+        }
+    }
+
+    // ── Tour ──
+    function majTour() {
+        const tourEl = document.getElementById('header-tour');
+        const clavier = document.getElementById('clavier-jeu');
+        const saisieEl = document.getElementById('affichage-saisie');
+        const msgEl = document.getElementById('msg-attente');
+
+        if (cMonTour) {
+            tourEl.textContent = 'Ton tour';
+            tourEl.className = 'header-tour tour-moi';
+            clavier.style.opacity = '1';
+            clavier.style.pointerEvents = 'all';
+            saisieEl.style.display = 'flex';
+            msgEl.style.display = 'none';
+        } else {
+            tourEl.textContent = 'Tour de ' + ADV_PSEUDO;
+            tourEl.className = 'header-tour tour-adversaire';
+            clavier.style.opacity = '0.3';
+            clavier.style.pointerEvents = 'none';
+            saisieEl.style.display = 'none';
+            msgEl.style.display = 'block';
+            // Simulation seulement si pas de vraie partie Supabase
+            if (!PARTIE_ID) setTimeout(() => simulerAdversaire(), 2000);
+        }
+
+        shortA = MON_PSEUDO.substring(0, 3).toUpperCase();
+        shortB = ADV_PSEUDO.substring(0, 3).toUpperCase();
+        majScore();
+        demarrerTimer();
+        majTimerAffichage();
+    }
+
+    // ── Simulation adversaire (fallback si pas de Supabase) ──
+    const propositionsAdv = ['ABAT', 'BALS', 'CAVE', 'DARD', 'GAIN', 'LAIT'];
+    let indexAdv = 0;
+
+    function simulerAdversaire() {
+        if (partieTerminee) return;
+        const prop = propositionsAdv[indexAdv % propositionsAdv.length];
+        indexAdv++;
+        let score = 0;
+        for (let i = 0; i < LONGUEUR; i++) {
+            if (prop[i] === motSecret[i]) score++;
+        }
+        recevoirPropositionAdversaire(prop, score);
+    }
+
+    async function recevoirPropositionAdversaire(proposition, score) {
+        await animerScan(proposition, score);
+        if (score === LONGUEUR) {
+            if (MON_ROLE === 'a') scoreB++; else scoreA++;
+            majScore();
+            finPartie(false, proposition);
+            return;
+        }
+        cMonTour = true;
+        majTour();
+    }
+
+    // ── Saisie joueur ──
+    function ajouterLettre(l) {
+        if (!cMonTour || partieTerminee || chatOuvert) return;
+        if (positionActive2 !== null) {
+            const arr = saisieEnCours.padEnd(LONGUEUR, ' ').split('');
+            arr[positionActive2] = l;
+            saisieEnCours = arr.join('').replace(/\s+$/, '');
+            let next = null;
+            for (let i = positionActive2 + 1; i < LONGUEUR; i++) {
+                if (!saisieEnCours[i] || saisieEnCours[i] === ' ') { next = i; break; }
+            }
+            if (next === null) for (let i = 0; i < positionActive2; i++) {
+                if (!saisieEnCours[i] || saisieEnCours[i] === ' ') { next = i; break; }
+            }
+            positionActive2 = next;
+        } else {
+            if (saisieEnCours.length < LONGUEUR) saisieEnCours += l;
+        }
+        afficherSaisie();
+    }
+
+    function effacer() {
+        if (!cMonTour || partieTerminee || chatOuvert) return;
+        if (positionActive2 !== null) {
+            const arr = saisieEnCours.padEnd(LONGUEUR, ' ').split('');
+            arr[positionActive2] = ' ';
+            saisieEnCours = arr.join('').replace(/\s+$/, '');
+        } else {
+            saisieEnCours = saisieEnCours.slice(0, -1);
+        }
+        afficherSaisie();
+    }
+
+    async function valider() {
+        if (!cMonTour || partieTerminee) return;
+        const prop = saisieEnCours.toUpperCase();
+        const errEl = document.getElementById('error-jeu2');
+
+        if (prop.length !== LONGUEUR) {
+            errEl.textContent = 'Mot trop court';
+            errEl.style.display = 'block';
+            setTimeout(() => errEl.style.display = 'none', 1500);
+            return;
+        }
+
+        if (Object.keys(window.DICO || {}).length > 0 && !(prop in window.DICO)) {
+            errEl.textContent = 'Mot inconnu du dictionnaire';
+            errEl.style.display = 'block';
+            setTimeout(() => errEl.style.display = 'none', 1500);
+            return;
+        }
+
+        errEl.style.display = 'none';
+
+        // Compter lettres bien placées contre le mot de l'adversaire
+        let score = 0;
+        for (let i = 0; i < LONGUEUR; i++) {
+            if (prop[i] === motAdversaire[i]) score++;
+        }
+
+        // Ajouter à mes propositions
+        ajouterLigneProp(prop, score);
+        saisieEnCours = '';
+        positionActive2 = null;
+        afficherSaisie();
+
+        if (score === LONGUEUR) {
+            if (MON_ROLE === 'a') scoreA++; else scoreB++;
+            majScore();
+            finPartie(true, motAdversaire);
+            return;
+        }
+
+        // Passer le tour
+        cMonTour = false;
+        numeroTour++;
+        majTour();
+
+        // Envoyer la proposition à Supabase
+        if (PARTIE_ID) {
+            await supabase.from('propositions').insert({
+                partie_id: PARTIE_ID,
+                joueur: MON_ROLE,
+                mot: prop,
+                score: score,
+                numero_tour: numeroTour
+            });
+            // Passer le tour dans la table parties
+            const prochainTour = MON_ROLE === 'a' ? 'b' : 'a';
+            await supabase.from('parties')
+                .update({ tour_actuel: prochainTour, updated_at: new Date().toISOString() })
+                .eq('id', PARTIE_ID);
+        }
+    }
+
+    function ajouterLigneProp(mot, score) {
+        const liste = document.getElementById('liste-props');
+        const ligne = document.createElement('div');
+        ligne.classList.add('ligne-prop');
+        const cls = score === LONGUEUR ? 'score-gagne' : 'score-' + score;
+        ligne.innerHTML = `
+            <span class="prop-mot">${mot}</span>
+            <span class="prop-score ${cls}">${score === LONGUEUR ? '🏆' : score}</span>
+        `;
+        liste.appendChild(ligne);
+        liste.scrollTop = liste.scrollHeight;
+    }
+
+    // ── Fin de partie ──
+    async function finPartie(gagne, motAdv) {
+        partieTerminee = true;
+        arreterTimer();
+        if (window._heartbeat) clearInterval(window._heartbeat);
+        if (canalProps) supabase.removeChannel(canalProps);
+        if (canalPartie) supabase.removeChannel(canalPartie);
+        if (canalMessages) supabase.removeChannel(canalMessages);
+
+        // Remettre le statut libre
+        if (MON_ID) {
+            await supabase.from('joueurs').update({ statut: 'libre' }).eq('id', MON_ID);
+        }
+
+        // Enregistrer la fin de partie dans Supabase
+        if (PARTIE_ID) {
+            await supabase.from('parties')
+                .update({ statut: 'terminee', gagnant: gagne ? MON_ROLE : (MON_ROLE === 'a' ? 'b' : 'a') })
+                .eq('id', PARTIE_ID);
+        }
+
+        // Stocker les données pour fin.html
+        // Si motAdv est vide (chargement pas encore fait), le récupérer depuis Supabase
+        let motFinal = motAdv;
+        if ((!motFinal || motFinal === '?????') && PARTIE_ID) {
+            const colAdv = MON_ROLE === 'a' ? 'mot_secret_b' : 'mot_secret_a';
+            const { data: p } = await supabase.from('parties').select(colAdv).eq('id', PARTIE_ID).single();
+            if (p && p[colAdv]) motFinal = p[colAdv];
+        }
+
+        sessionStorage.setItem('fin_gagne', gagne);
+        sessionStorage.setItem('fin_mot_adv', motFinal || '?????');
+        sessionStorage.setItem('fin_coups', numeroTour);
+        sessionStorage.setItem('fin_lettres', (motFinal || '').split('').filter((l, i) => (motSecret || '')[i] === l).length);
+
+        setTimeout(() => { window.location.href = gagne ? 'fin-gagne.html' : 'fin-perdu.html'; }, 1500);
+    }
+
+    function nettoyerEtRetourner() {
+        ['partie_id', 'invitation_id', 'depuis_multi', 'revanche',
+         'longueur', 'longueur_preferee', 'adv_pseudo', 'je_commence'].forEach(k =>
+            sessionStorage.removeItem(k));
+        window.location.href = 'multi.html';
+    }
+
+    window.demanderRevanche = async function() {
+        if (!MON_ID || !ADV_ID) {
+            window.location.href = 'multi.html';
+            return;
+        }
+
+        const btn = document.querySelector('.btn-fin');
+        if (btn) { btn.disabled = true; btn.textContent = 'En attente…'; }
+
+        const { data: inv, error } = await supabase.from('invitations').insert({
+            de_joueur_id: MON_ID,
+            vers_joueur_id: ADV_ID,
+            de_pseudo: MON_PSEUDO,
+            vers_pseudo: ADV_PSEUDO,
+            longueur_preferee: LONGUEUR,
+            statut: 'en_attente'
+        }).select().maybeSingle();
+
+        if (error || !inv) {
+            if (btn) { btn.disabled = false; btn.textContent = 'Revanche ⚔'; }
+            return;
+        }
+
+        // Écouter la réponse (polling car Realtime filtre id non fiable)
+        const intervalRep = setInterval(async () => {
+            const { data } = await supabase.from('invitations')
+                .select('statut, partie_id').eq('id', inv.id).single();
+            if (!data) return;
+            if (data.statut === 'acceptee') {
+                clearInterval(intervalRep);
+                sessionStorage.setItem('partie_id', data.partie_id);
+                sessionStorage.setItem('adv_pseudo', ADV_PSEUDO);
+                sessionStorage.setItem('adv_id', ADV_ID);
+                sessionStorage.setItem('je_commence', 'true');
+                sessionStorage.setItem('longueur', LONGUEUR);
+                sessionStorage.removeItem('revanche');
+                window.location.href = 'jeu2.html';
+            } else if (data.statut === 'refusee') {
+                clearInterval(intervalRep);
+                if (btn) { btn.disabled = false; btn.textContent = 'Revanche ⚔'; }
+            }
+        }, 2000);
+    }
+
+    // Clavier physique
+    document.addEventListener('keydown', e => {
+        // Ne pas intercepter si le chat est ouvert ou si le focus est sur l'input chat
+        if (chatOuvert) return;
+        if (document.activeElement === document.getElementById('dialogue-input')) return;
+
+        if (document.getElementById('phase-init').style.display !== 'none') {
+            if (e.key === 'Enter') validerMotSecret();
+            else if (e.key === 'Backspace') effacerInit();
+            else if (/^[a-zA-Z]$/.test(e.key)) ajouterLettreInit(e.key.toUpperCase());
+        } else {
+            if (e.key === 'Enter') valider();
+            else if (e.key === 'Backspace') effacer();
+            else if (/^[a-zA-Z]$/.test(e.key)) ajouterLettre(e.key.toUpperCase());
+        }
+    });
+
+    function abonnerMessages() {
+        canalMessages = supabase.channel('messages-' + PARTIE_ID)
+            .on('postgres_changes', {
+                event: 'INSERT', schema: 'public', table: 'messages',
+                filter: `partie_id=eq.${PARTIE_ID}`
+            }, payload => {
+                const m = payload.new;
+                if (m.joueur !== MON_ROLE) {
+                    ajouterMessage(m.contenu, false);
+                }
+            })
+            .subscribe();
+    }
+
+    // ── Dialogue ──
+    let messagesNonLus = 0;
+    let chatOuvert = false;
+
+    function toggleChat() {
+        const popup = document.getElementById('popup-chat');
+        const ov = document.getElementById('overlay-chat');
+        chatOuvert = !chatOuvert;
+        popup.classList.toggle('visible', chatOuvert);
+        if (ov) ov.style.display = chatOuvert ? 'block' : 'none';
+
+        // Synchroniser l'état du chat dans Supabase
+        if (PARTIE_ID) {
+            supabase.from('parties')
+                .update({ chat_actif: chatOuvert })
+                .eq('id', PARTIE_ID);
+        }
+
+        if (chatOuvert) {
+            arreterTimer();
+            messagesNonLus = 0;
+            const badge = document.getElementById('badge-chat');
+            badge.textContent = '';
+            badge.classList.remove('visible');
+            const zone = document.getElementById('dialogue-messages');
+            zone.scrollTop = zone.scrollHeight;
+            const estMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+            if (!estMobile) {
+                document.getElementById('dialogue-input').focus();
+            }
+        } else {
+            if (!partieTerminee && cMonTour) demarrerTimer();
+        }
+    }
+
+    async function envoyerReaction(msg) {
+        ajouterMessage(msg, true);
+        if (PARTIE_ID) {
+            await supabase.from('messages').insert({
+                partie_id: PARTIE_ID,
+                joueur: MON_ROLE,
+                pseudo: MON_PSEUDO,
+                contenu: msg
+            });
+        }
+    }
+
+    async function envoyerMessage() {
+        const input = document.getElementById('dialogue-input');
+        const msg = input.value.trim().slice(0, 150);
+        if (!msg) return;
+        ajouterMessage(msg, true);
+        input.value = '';
+        if (PARTIE_ID) {
+            await supabase.from('messages').insert({
+                partie_id: PARTIE_ID,
+                joueur: MON_ROLE,
+                pseudo: MON_PSEUDO,
+                contenu: msg
+            });
+        }
+    }
+
+    function ajouterMessage(msg, estMoi) {
+        const zone = document.getElementById('dialogue-messages');
+        const ligne = document.createElement('div');
+        ligne.classList.add('msg-ligne', estMoi ? 'msg-moi' : 'msg-adv');
+        const pseudo = estMoi ? MON_PSEUDO : ADV_PSEUDO;
+        ligne.innerHTML = `<span class="msg-pseudo">${pseudo}</span>${msg}`;
+        zone.appendChild(ligne);
+        if (chatOuvert) {
+            zone.scrollTop = zone.scrollHeight;
+        } else if (!estMoi) {
+            // Message reçu + chat fermé → badge
+            messagesNonLus++;
+            const badge = document.getElementById('badge-chat');
+            badge.textContent = messagesNonLus;
+            badge.classList.add('visible');
+        }
+    }
+
+    window.afficherDebug = function() {
+        const sb = window._supabase || supabase;
+        const pid = PARTIE_ID;
+        const info = [
+            'ROLE: ' + MON_ROLE,
+            'MON_TOUR: ' + cMonTour,
+            'PARTIE_ID: ' + (pid ? pid.substring(0,8)+'…' : 'null'),
+            'MOT_ADV: ' + (motAdversaire || '(vide)'),
+            'PARTIE_DEMARREE: ' + partieDemarree,
+            'TERMINE: ' + partieTerminee,
+        ].join('\n');
+
+        // Fetch tour_actuel depuis Supabase
+        if (pid) {
+            supabase.from('parties').select('tour_actuel,statut,mot_secret_a,mot_secret_b')
+                .eq('id', pid).single()
+                .then(({ data, error }) => {
+                    const extra = data
+                        ? '\n--- SUPABASE ---\ntour_actuel: ' + data.tour_actuel
+                          + '\nstatut: ' + data.statut
+                          + '\nmot_a: ' + (data.mot_secret_a || '(vide)')
+                          + '\nmot_b: ' + (data.mot_secret_b || '(vide)')
+                        : '\nSUPABASE ERROR: ' + (error?.message || '?');
+                    alert(info + extra);
+                });
+        } else {
+            alert(info);
+        }
+    }
+
+    // ── Timeout et abandon ──
+    const TIMEOUT_TOUR = 120; // secondes
+    let timerTour = null;
+    let secondesRestantes = TIMEOUT_TOUR;
+
+    function majTimerAffichage() {
+        const el = document.getElementById('header-timer');
+        if (!el) return;
+        const m = Math.floor(secondesRestantes / 60);
+        const s = secondesRestantes % 60;
+        el.textContent = m + ':' + String(s).padStart(2, '0');
+        if (secondesRestantes <= 30) { el.style.color = '#ff4444'; el.style.fontWeight = '700'; }
+        else if (secondesRestantes <= 60) { el.style.color = '#ff9900'; el.style.fontWeight = '600'; }
+        else { el.style.color = 'rgba(0,191,255,0.7)'; el.style.fontWeight = '400'; }
+    }
+
+    function demarrerTimer() {
+        arreterTimer();
+        secondesRestantes = TIMEOUT_TOUR;
+        timerTour = setInterval(() => {
+            secondesRestantes--;
+            majTimerAffichage();
+            if (secondesRestantes <= 0) {
+                arreterTimer();
+                afficherTimeout();
+            }
+        }, 1000);
+    }
+
+    function arreterTimer() {
+        if (timerTour) { clearInterval(timerTour); timerTour = null; }
+    }
+
+    function afficherTimeout() {
+        const modal = document.getElementById('modal-timeout');
+        const titre = document.getElementById('timeout-titre');
+        const info = document.getElementById('timeout-info');
+        if (cMonTour) {
+            titre.textContent = 'Temps écoulé !';
+            info.textContent = 'Tu as mis trop de temps à jouer.';
+        } else {
+            titre.textContent = 'Adversaire inactif';
+            info.textContent = ADV_PSEUDO + ' n\'a pas joué dans les temps.';
+        }
+        modal.classList.add('visible');
+    }
+
+    function proposerAbandon() {
+        arreterTimer();
+        const modal = document.getElementById('modal-timeout');
+        document.getElementById('timeout-titre').textContent = 'Abandonner ?';
+        document.getElementById('timeout-info').textContent = 'Tu vas quitter la partie en cours.';
+        modal.classList.add('visible');
+    }
+
+    async function confirmerAbandon() {
+        document.getElementById('modal-timeout').classList.remove('visible');
+        if (MON_ID) {
+            await supabase.from('joueurs').update({ statut: 'libre' }).eq('id', MON_ID);
+        }
+        if (PARTIE_ID) {
+            await supabase.from('parties')
+                .update({ statut: 'terminee', gagnant: MON_ROLE === 'a' ? 'b' : 'a' })
+                .eq('id', PARTIE_ID);
+        }
+        window.location.href = 'multi.html';
+    }
+
+    // Exposer les fonctions sur window (nécessaire avec type="module")
+    window.ajouterLettre = ajouterLettre;
+    window.ajouterLettreInit = ajouterLettreInit;
+    window.effacer = effacer;
+    window.effacerInit = effacerInit;
+    window.valider = valider;
+    window.validerMotSecret = validerMotSecret;
+    window.toggleChat = toggleChat;
+    window.envoyerReaction = envoyerReaction;
+    window.envoyerMessage = envoyerMessage;
+    window.nettoyerEtRetourner = nettoyerEtRetourner;
+    window.proposerAbandon = proposerAbandon;
+    window.confirmerAbandon = confirmerAbandon;
+
+    // Charger le dico
+    window.DICO = {};
+    fetch('dicos_saintex.json')
+        .then(r => r.json())
+        .then(d => { window.DICO = d; })
+        .catch(() => {});
+    </script>
+
+</body>
+</html>

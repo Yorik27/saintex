@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="fr" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
+    <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
+    <meta name="theme-color" content="#111111">
+    <title>SaintEx — Défi humain</title>
+    <link rel="stylesheet" href="saintex.css">
+    <style>
+        body {
+            background: #111;
+            color: white;
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .multi-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            border-bottom: 1px solid rgba(0,191,255,0.15);
+            gap: 12px;
+        }
+        .multi-header .logo { height: 44px; flex-shrink: 0; }
+        .multi-header h1 {
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1.2rem;
+            color: deepskyblue;
+            margin: 0;
+            letter-spacing: 2px;
+            flex: 1;
+            text-align: center;
+        }
+        .btn-retour-multi {
+            background: transparent;
+            border: 1px solid rgba(0,191,255,0.4);
+            color: deepskyblue;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 0.85rem;
+            cursor: pointer;
+            letter-spacing: 1px;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+        .btn-retour-multi:hover { background: rgba(0,191,255,0.1); }
+
+        /* Pseudo */
+        .pseudo-section {
+            padding: 24px 16px 8px;
+            text-align: center;
+        }
+        .pseudo-section label {
+            font-size: 0.85rem;
+            color: rgba(0,191,255,0.7);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .pseudo-input {
+            background: transparent;
+            border: 1px solid rgba(0,191,255,0.4);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-family: 'Roboto', sans-serif;
+            font-size: 1rem;
+            width: 200px;
+            text-align: center;
+            outline: none;
+        }
+        .pseudo-input:focus {
+            border-color: deepskyblue;
+            box-shadow: 0 0 8px rgba(0,191,255,0.3);
+        }
+        .btn-connecter {
+            display: block;
+            margin: 10px auto 0;
+            background: rgba(0,191,255,0.12);
+            border: 1px solid rgba(0,191,255,0.5);
+            color: deepskyblue;
+            padding: 8px 24px;
+            border-radius: 50px;
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+        }
+        .btn-connecter:hover { background: rgba(0,191,255,0.2); }
+
+        /* Zone connectée : deux colonnes */
+        #zone-connecte {
+            display: none;
+            flex: 1;
+            padding: 0 12px 16px;
+        }
+        .colonnes {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 12px;
+        }
+        .colonne {
+            width: 100%;
+        }
+        .colonne-titre {
+            font-family: 'Roboto', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: rgba(0,191,255,0.7);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            padding-left: 4px;
+        }
+        .colonne-titre.titre-amis { color: rgba(255,200,0,0.8); }
+
+        /* Carte joueur */
+        .joueur-carte {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            gap: 6px;
+        }
+        .joueur-carte.carte-ami-ligne  { border-color: rgba(0,204,102,0.2); }
+        .joueur-carte.carte-ami-absent { border-color: rgba(255,51,51,0.15); }
+
+        .joueur-info {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .joueur-texte {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            min-width: 0;
+        }
+
+        /* Point statut */
+        .point {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 5px;
+        }
+
+        .joueur-nom {
+            font-family: 'Roboto', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            word-break: break-word;
+        }
+        .joueur-nom.ami-ligne  { color: #00cc66; }
+        .joueur-nom.en-ligne   { color: #00bfff; }
+        .joueur-nom.ami-absent { color: #ff5555; }
+        .joueur-nom.ami-partie { color: #ff9900; }
+
+        /* Badge longueur préférence */
+        .badge-longueur {
+            display: inline-block;
+            font-size: 0.65rem;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700;
+            color: rgba(0,191,255,0.5);
+            border: 1px solid rgba(0,191,255,0.2);
+            border-radius: 4px;
+            padding: 1px 5px;
+            margin-left: 6px;
+            vertical-align: middle;
+            letter-spacing: 0;
+        }
+
+        /* Toggle longueur dans le header */
+        .toggle-longueur {
+            display: none;
+            align-items: center;
+            gap: 4px;
+            margin-top: 4px;
+        }
+        .toggle-longueur.visible { display: flex; }
+        .tog-btn {
+            font-family: 'Roboto', sans-serif;
+            font-size: 0.68rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(0,191,255,0.25);
+            background: transparent;
+            color: rgba(255,255,255,0.3);
+            cursor: pointer;
+        }
+        .tog-btn.actif {
+            background: rgba(0,191,255,0.15);
+            border-color: rgba(0,191,255,0.6);
+            color: deepskyblue;
+        }
+
+        .joueur-statut { display: none; }
+
+        /* Actions */
+        .joueur-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-defier {
+            background: rgba(0,191,255,0.1);
+            border: 1.5px solid rgba(0,191,255,0.6);
+            color: deepskyblue;
+            padding: 7px 16px;
+            border-radius: 50px;
+            font-family: 'Roboto', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        .btn-defier:hover { background: rgba(0,191,255,0.2); }
+        .btn-defier:disabled { opacity: 0.3; cursor: default; background: transparent; }
+
+        .btn-ami {
+            background: transparent;
+            border: 1px solid rgba(255,200,0,0.3);
+            color: rgba(255,200,0,0.5);
+            border-radius: 8px;
+            padding: 4px 7px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            line-height: 1;
+        }
+        .btn-ami:hover { border-color: gold; color: gold; }
+        .btn-ami.actif { color: gold; border-color: gold; }
+
+        .liste-vide {
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.25);
+            text-align: center;
+            padding: 12px 4px;
+            font-style: italic;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30,30,50,0.97);
+            border: 1px solid rgba(0,191,255,0.3);
+            border-radius: 12px;
+            padding: 12px 20px;
+            font-size: 0.88rem;
+            color: white;
+            text-align: center;
+            max-width: 290px;
+            width: 90%;
+            z-index: 200;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .toast.visible { opacity: 1; pointer-events: all; }
+        .toast .toast-nom { color: deepskyblue; font-weight: bold; }
+        .toast-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .btn-toast {
+            padding: 5px 14px;
+            border-radius: 50px;
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            border: 1px solid;
+        }
+        .btn-toast-oui { background: rgba(0,204,102,0.15); border-color: rgba(0,204,102,0.5); color: #00cc66; }
+        .btn-toast-non { background: rgba(255,51,51,0.1); border-color: rgba(255,51,51,0.4); color: #ff5555; }
+
+        /* Modal attente défi */
+        .modal-attente {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-attente.visible { display: flex; }
+        .modal-contenu {
+            background: #1a1a2e;
+            border: 1px solid rgba(0,191,255,0.3);
+            border-radius: 20px;
+            padding: 32px 24px;
+            text-align: center;
+            max-width: 300px;
+            width: 90%;
+        }
+        .modal-titre {
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1.2rem;
+            color: deepskyblue;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+        .modal-adversaire { font-size: 1rem; color: white; margin-bottom: 20px; }
+        .modal-info { font-size: 0.82rem; color: rgba(255,255,255,0.4); margin-bottom: 20px; }
+        .pulse {
+            display: inline-block;
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: deepskyblue;
+            animation: pulse 1.2s ease-in-out infinite;
+            margin: 0 3px;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        .pulse:nth-child(2) { animation-delay: 0.2s; }
+        .pulse:nth-child(3) { animation-delay: 0.4s; }
+        .btn-annuler {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.4);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-family: 'Roboto', sans-serif;
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-top: 16px;
+        }
+
+        /* Choix longueur */
+        .longueur-section { margin-top: 14px; text-align: center; }
+        .longueur-section label {
+            font-size: 0.85rem;
+            color: rgba(0,191,255,0.7);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .longueur-cases { display: flex; gap: 12px; justify-content: center; }
+        .case-longueur {
+            width: 56px; height: 56px;
+            border-radius: 12px;
+            border: 2px solid rgba(0,191,255,0.3);
+            background: transparent;
+            color: rgba(255,255,255,0.4);
+            font-family: 'bigelowrules', Georgia, serif;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            position: relative;
+            user-select: none;
+        }
+        .case-longueur.colorie { border-color: rgba(0,191,255,0.7); background: rgba(0,191,255,0.12); color: deepskyblue; }
+        .case-longueur.coche { border-color: #00cc66; background: rgba(0,204,102,0.15); color: #00cc66; box-shadow: 0 0 12px rgba(0,204,102,0.3); }
+        .case-longueur.coche::after {
+            content: '✓';
+            position: absolute; top: -8px; right: -8px;
+            background: #00cc66; color: #111;
+            border-radius: 50%; width: 16px; height: 16px;
+            font-size: 0.65rem;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Roboto', sans-serif; font-weight: 700;
+        }
+        .longueur-hint { font-size: 0.75rem; color: rgba(255,255,255,0.55); margin-top: 10px; font-family: 'Roboto', sans-serif; line-height: 1.5; }
+
+        footer { padding: 12px; text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.2); border-top: 1px solid rgba(0,191,255,0.08); margin-top: auto; }
+
+        #zone-non-connecte { display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="multi-header">
+        <img class="logo" src="Images/Logo.png" alt="Logo SaintEx">
+        <h1>Défi Humain</h1>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;">
+            <button class="btn-retour-multi" onclick="window.location.href='index.html'">← Accueil</button>
+            <span id="header-pseudo" style="font-size:0.7rem;color:rgba(0,191,255,0.5);font-family:'Roboto',sans-serif;display:none;">
+                <span id="header-pseudo-nom"></span>
+                <button onclick="changerPseudo()" style="background:none;border:none;color:rgba(255,255,255,0.3);font-size:0.7rem;cursor:pointer;padding:0 0 0 6px;font-family:'Roboto',sans-serif;">changer</button>
+            </span>
+            <div class="toggle-longueur" id="toggle-longueur">
+                <button class="tog-btn" id="tog-4" onclick="setLongueurPref(4)">4L</button>
+                <button class="tog-btn" id="tog-5" onclick="setLongueurPref(5)">5L</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Non connecté -->
+    <div id="zone-non-connecte">
+        <div class="pseudo-section">
+            <label>Ton pseudo</label>
+            <input class="pseudo-input" type="text" id="pseudo-input" placeholder="Ex : Léonie" maxlength="16">
+        </div>
+        <div class="longueur-section">
+            <label>Longueur du mot</label>
+            <div class="longueur-cases">
+                <div class="case-longueur" id="case-4L">4L</div>
+                <div class="case-longueur" id="case-5L">5L</div>
+            </div>
+            <div class="longueur-hint">
+                1 tap = accepté &nbsp;·&nbsp; 2 taps = prioritaire ✓<br>3 taps = effacer
+            </div>
+        </div>
+        <div class="pseudo-section" style="padding-top:8px;">
+            <button class="btn-connecter" onclick="seConnecter()">Entrer</button>
+        </div>
+    </div>
+
+    <!-- Connecté : deux colonnes -->
+    <div id="zone-connecte">
+        <div class="colonnes">
+            <!-- Colonne Amis -->
+            <div class="colonne">
+                <div class="colonne-titre titre-amis">⭐ Amis</div>
+                <div id="liste-amis"></div>
+            </div>
+            <!-- Colonne En ligne -->
+            <div class="colonne">
+                <div class="colonne-titre">En ligne</div>
+                <div id="liste-enligne"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast demande ami -->
+    <div class="toast" id="toast-ami" style="display:none;">
+        <div><span class="toast-nom" id="toast-nom-ami"></span> vous a ajouté en ami</div>
+        <div class="toast-actions">
+            <button class="btn-toast btn-toast-oui" onclick="repondreDemandeAmi(true)">Ajouter aussi</button>
+            <button class="btn-toast btn-toast-non" onclick="repondreDemandeAmi(false)">Non merci</button>
+        </div>
+    </div>
+
+    <!-- Toast réponse -->
+    <div class="toast" id="toast-reponse"></div>
+
+    <!-- Modal attente -->
+    <div class="modal-attente" id="modal-attente">
+        <div class="modal-contenu">
+            <div class="modal-titre">Invitation envoyée</div>
+            <div class="modal-adversaire" id="modal-adversaire-nom"></div>
+            <div class="modal-info">En attente de réponse…</div>
+            <div>
+                <span class="pulse"></span>
+                <span class="pulse"></span>
+                <span class="pulse"></span>
+            </div>
+            <button class="btn-annuler" onclick="annulerDefi()">Annuler</button>
+        </div>
+    </div>
+
+    <footer>© EspritJeu 2026 — <a href="/cgu.html" style="color:inherit;">CGU</a></footer>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        const SUPABASE_URL = 'https://vrdjytcbiddvvvielcdz.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_f8VIFlJD4LasEWwLgSttZw_Gn7RFwLz';
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let monJoueur = null;
+        let invitationEnCours = null;
+        let demandeAmiEnCours = null; // { id, pseudo } de celui qui nous a ajouté
+        let canalJoueurs = null;
+        let canalInvitations = null;
+        let derniereListeIds = null;
+
+        const etatLongueur = { '4L': 0, '5L': 0 };
+
+        function tapperCase(id) {
+            etatLongueur[id] = (etatLongueur[id] + 1) % 3;
+            const el = document.getElementById('case-' + id);
+            el.classList.remove('colorie', 'coche');
+            if (etatLongueur[id] === 1) el.classList.add('colorie');
+            else if (etatLongueur[id] === 2) el.classList.add('coche');
+        }
+
+        function getLongueurChoisie() {
+            if (etatLongueur['4L'] === 2) return 4;
+            if (etatLongueur['5L'] === 2) return 5;
+            if (etatLongueur['4L'] === 1) return 4;
+            if (etatLongueur['5L'] === 1) return 5;
+            return 4;
+        }
+
+        async function seConnecter() {
+            const input = document.getElementById('pseudo-input');
+            const pseudo = input.value.trim();
+            if (!pseudo || pseudo.length < 2) {
+                input.style.borderColor = '#ff4444';
+                setTimeout(() => input.style.borderColor = '', 1000);
+                return;
+            }
+            await _connecter(pseudo);
+        }
+
+        // Cœur de la connexion — réutilisé par seConnecter et autoConnexion
+        async function _connecter(pseudo, idSauvegarde = null) {
+
+            // Si on a un ID sauvegardé, essayer de le réutiliser directement
+            if (idSauvegarde) {
+                const { data: joueurSauve } = await supabase
+                    .from('joueurs').select('*').eq('id', idSauvegarde).maybeSingle();
+                if (joueurSauve) {
+                    await supabase.from('joueurs')
+                        .update({ en_ligne: true, last_seen: new Date().toISOString(), statut: 'libre' })
+                        .eq('id', idSauvegarde);
+                    monJoueur = { ...joueurSauve, en_ligne: true, statut: 'libre' };
+                } else {
+                    // ID périmé (DB vidée) → effacer localStorage et continuer normalement
+                    localStorage.removeItem('saintex_joueur_id');
+                    localStorage.removeItem('saintex_pseudo');
+                    idSauvegarde = null;
+                }
+            }
+
+            // Connexion normale si pas d'ID sauvegardé valide
+            if (!monJoueur) {
+                let { data: existing } = await supabase
+                    .from('joueurs').select('*').eq('pseudo', pseudo).maybeSingle();
+                if (existing) {
+                    await supabase.from('joueurs')
+                        .update({ en_ligne: true, last_seen: new Date().toISOString(), statut: 'libre' })
+                        .eq('id', existing.id);
+                    monJoueur = { ...existing, en_ligne: true, statut: 'libre' };
+                } else {
+                    const { data } = await supabase.from('joueurs')
+                        .insert({ pseudo, en_ligne: true, statut: 'libre', last_seen: new Date().toISOString() })
+                        .select().maybeSingle();
+                    monJoueur = data;
+                }
+            }
+
+            // Persister l'identité dans localStorage ET sessionStorage
+            localStorage.setItem('saintex_joueur_id', monJoueur.id);
+            localStorage.setItem('saintex_pseudo', monJoueur.pseudo);
+            sessionStorage.setItem('joueur_id', monJoueur.id);
+            sessionStorage.setItem('mon_pseudo', monJoueur.pseudo);
+
+            // Sauvegarder la préférence de longueur
+            const pref = getLongueurChoisie();
+            await supabase.from('joueurs').update({ longueur_preferee: pref }).eq('id', monJoueur.id);
+            monJoueur.longueur_preferee = pref;
+
+            // Nettoyer les données de partie stale dans sessionStorage
+            ['partie_id','fin_gagne','fin_mot_adv','fin_coups','fin_lettres',
+             'invitation_id','depuis_multi','revanche','longueur',
+             'longueur_preferee','adv_pseudo','adv_id','je_commence']
+                .forEach(k => sessionStorage.removeItem(k));
+
+            // Terminer toutes les parties en_cours de ce joueur (il est sur le lobby = pas en jeu)
+            await supabase.from('parties')
+                .update({ statut: 'terminee' })
+                .eq('statut', 'en_cours')
+                .or(`joueur_a.eq.${monJoueur.id},joueur_b.eq.${monJoueur.id}`);
+
+            // Nettoyage fantômes (non-amis déconnectés depuis > 2min)
+            const deuxMin = new Date(Date.now() - 45 * 1000).toISOString();
+            const { data: amisData0 } = await supabase
+                .from('amis').select('ami_id').eq('joueur_id', monJoueur.id);
+            const amisIds0 = (amisData0 || []).map(a => a.ami_id);
+            let q = supabase.from('joueurs').delete().eq('en_ligne', false).lt('last_seen', deuxMin);
+            if (amisIds0.length > 0) q = q.not('id', 'in', `(${amisIds0.join(',')})`);
+            await q;
+
+            document.getElementById('zone-non-connecte').style.display = 'none';
+            document.getElementById('zone-connecte').style.display = 'block';
+            document.getElementById('header-pseudo-nom').textContent = monJoueur.pseudo;
+            document.getElementById('header-pseudo').style.display = 'inline';
+            // Toggle longueur
+            document.getElementById('toggle-longueur').classList.add('visible');
+            majToggleLongueur(monJoueur.longueur_preferee || 4);
+
+            await afficherJoueurs();
+            abonnerJoueursEnLigne();
+            abonnerInvitations();
+            pollingDemandesAmi();
+
+            setInterval(async () => { await afficherJoueurs(); }, 3000);
+
+            // Rafraîchir immédiatement quand l'onglet revient au premier plan
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) { derniereListeIds = null; afficherJoueurs(); }
+            });
+            setInterval(async () => {
+                await supabase.from('joueurs')
+                    .update({ en_ligne: true, last_seen: new Date().toISOString(),
+                               longueur_preferee: monJoueur.longueur_preferee || 4 })
+                    .eq('id', monJoueur.id);
+            }, 30000);
+        }
+
+        async function afficherJoueurs() {
+            const deuxMin = new Date(Date.now() - 45 * 1000).toISOString();
+
+            // Mes amis (tous statuts)
+            const { data: amisData } = await supabase
+                .from('amis').select('ami_id, statut').eq('joueur_id', monJoueur.id);
+            const amisIds = (amisData || []).map(a => a.ami_id);
+
+            // Connectés ET libres
+            const { data: connectes } = await supabase
+                .from('joueurs').select('*')
+                .eq('en_ligne', true).eq('statut', 'libre').gte('last_seen', deuxMin)
+                .neq('id', monJoueur.id).order('pseudo');
+
+            // Amis déconnectés OU en partie
+            let amisAbsents = [];
+            if (amisIds.length > 0) {
+                const { data: adData } = await supabase
+                    .from('joueurs').select('*').in('id', amisIds)
+                    .neq('id', monJoueur.id)
+                    .or(`en_ligne.eq.false,last_seen.lt.${deuxMin},statut.eq.en_partie`)
+                    .order('pseudo');
+                amisAbsents = adData || [];
+            }
+
+            const connectesIds = (connectes || []).map(j => j.id);
+            const amisConnectes = (connectes || []).filter(j => amisIds.includes(j.id));
+            const anonymesConnectes = (connectes || []).filter(j => !amisIds.includes(j.id));
+
+            const nouvelleIds = [
+                ...amisConnectes, ...amisAbsents, ...anonymesConnectes
+            ].map(j => j.id).join(',') + amisIds.join('');
+            if (nouvelleIds === derniereListeIds) return;
+            derniereListeIds = nouvelleIds;
+
+            // ── Colonne Amis ──
+            const listeAmis = document.getElementById('liste-amis');
+            listeAmis.innerHTML = '';
+            const tousAmis = [...amisConnectes, ...amisAbsents];
+            if (tousAmis.length === 0) {
+                listeAmis.innerHTML = '<div class="liste-vide">Aucun ami</div>';
+            } else {
+                tousAmis.forEach(j => {
+                    const estLa = connectesIds.includes(j.id);
+                    const estEnPartie = j.statut === 'en_partie';
+                    const couleur = estLa ? '#00cc66' : estEnPartie ? '#ff9900' : '#ff4444';
+                    const nomClass = estLa ? 'ami-ligne' : estEnPartie ? 'ami-partie' : 'ami-absent';
+                    const carte = document.createElement('div');
+                    carte.className = 'joueur-carte ' + (estLa ? 'carte-ami-ligne' : 'carte-ami-absent');
+                    carte.innerHTML = `
+                        <div class="joueur-actions">
+                            ${estLa
+                                ? `<button class="btn-defier" onclick="defier('${j.pseudo}','${j.id}')">Défier</button>`
+                                : `<button class="btn-defier" disabled>${estEnPartie ? 'En partie' : 'Hors ligne'}</button>`
+                            }
+                            <button class="btn-ami actif" onclick="retirerAmi('${j.id}')" title="Retirer">⭐</button>
+                        </div>
+                        <div class="joueur-info">
+                            <div class="point" style="background:${couleur};box-shadow:0 0 5px ${couleur};"></div>
+                            <div class="joueur-texte">
+                                <div class="joueur-nom ${nomClass}">${j.pseudo}</div>
+                                <span class="badge-longueur">${j.longueur_preferee || 4}L</span>
+                            </div>
+                        </div>`;
+                    listeAmis.appendChild(carte);
+                });
+            }
+
+            // ── Colonne En ligne ──
+            const listeEnLigne = document.getElementById('liste-enligne');
+            listeEnLigne.innerHTML = '';
+            if (anonymesConnectes.length === 0) {
+                listeEnLigne.innerHTML = '<div class="liste-vide">Aucun joueur</div>';
+            } else {
+                anonymesConnectes.forEach(j => {
+                    const carte = document.createElement('div');
+                    carte.className = 'joueur-carte';
+                    carte.innerHTML = `
+                        <div class="joueur-actions">
+                            <button class="btn-defier" onclick="defier('${j.pseudo}','${j.id}')">Défier</button>
+                            <button class="btn-ami" onclick="ajouterAmi('${j.id}')" title="Ajouter en ami">☆</button>
+                        </div>
+                        <div class="joueur-info">
+                            <div class="point" style="background:#00bfff;box-shadow:0 0 5px #00bfff;"></div>
+                            <div class="joueur-texte">
+                                <div class="joueur-nom en-ligne">${j.pseudo}</div>
+                                <span class="badge-longueur">${j.longueur_preferee || 4}L</span>
+                            </div>
+                        </div>`;
+                    listeEnLigne.appendChild(carte);
+                });
+            }
+        }
+
+        // ── Amis ──
+        window.ajouterAmi = async function(amiId) {
+            await supabase.from('amis').insert({
+                joueur_id: monJoueur.id,
+                ami_id: amiId,
+                statut: 'en_attente'
+            });
+            derniereListeIds = null;
+            await afficherJoueurs();
+        }
+
+        window.retirerAmi = async function(amiId) {
+            await supabase.from('amis')
+                .delete().eq('joueur_id', monJoueur.id).eq('ami_id', amiId);
+            derniereListeIds = null;
+            await afficherJoueurs();
+        }
+
+        // Polling demandes ami entrantes (toutes les 10s)
+        function pollingDemandesAmi() {
+            setInterval(async () => {
+                if (!monJoueur) return;
+                const { data } = await supabase
+                    .from('amis')
+                    .select('joueur_id, statut')
+                    .eq('ami_id', monJoueur.id)
+                    .eq('statut', 'en_attente');
+                if (!data || data.length === 0) return;
+                // Prendre la première demande non encore affichée
+                const demande = data[0];
+                if (demandeAmiEnCours && demandeAmiEnCours.id === demande.joueur_id) return;
+                // Récupérer le pseudo
+                const { data: j } = await supabase
+                    .from('joueurs').select('pseudo').eq('id', demande.joueur_id).single();
+                if (!j) return;
+                demandeAmiEnCours = { id: demande.joueur_id, pseudo: j.pseudo };
+                afficherToastAmi(j.pseudo);
+            }, 10000);
+        }
+
+        function afficherToastAmi(pseudo) {
+            document.getElementById('toast-nom-ami').textContent = pseudo;
+            const toast = document.getElementById('toast-ami');
+            toast.style.display = 'block';
+            setTimeout(() => toast.classList.add('visible'), 10);
+        }
+
+        window.repondreDemandeAmi = async function(accepte) {
+            const toast = document.getElementById('toast-ami');
+            toast.classList.remove('visible');
+            setTimeout(() => { toast.style.display = 'none'; }, 300);
+
+            if (!demandeAmiEnCours) return;
+            const { id: demandeurId } = demandeAmiEnCours;
+            demandeAmiEnCours = null;
+
+            // Marquer la demande comme acceptée ou refusée
+            await supabase.from('amis')
+                .update({ statut: accepte ? 'accepte' : 'refuse' })
+                .eq('joueur_id', demandeurId)
+                .eq('ami_id', monJoueur.id);
+
+            if (accepte) {
+                // Ajout réciproque
+                await supabase.from('amis').insert({
+                    joueur_id: monJoueur.id,
+                    ami_id: demandeurId,
+                    statut: 'accepte'
+                });
+                derniereListeIds = null;
+                await afficherJoueurs();
+            }
+        }
+
+        // ── Joueurs en ligne ──
+        function abonnerJoueursEnLigne() {
+            if (canalJoueurs) supabase.removeChannel(canalJoueurs);
+            canalJoueurs = supabase.channel('joueurs-ligne')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'joueurs' },
+                    () => { derniereListeIds = null; afficherJoueurs(); })
+                .subscribe();
+        }
+
+        // ── Invitations ──
+        function abonnerInvitations() {
+            if (!monJoueur) return;
+            if (canalInvitations) supabase.removeChannel(canalInvitations);
+            canalInvitations = supabase.channel('invitations-' + monJoueur.id)
+                .on('postgres_changes', {
+                    event: 'INSERT', schema: 'public', table: 'invitations',
+                    filter: `vers_joueur_id=eq.${monJoueur.id}`
+                }, payload => recevoirInvitation(payload.new))
+                .subscribe();
+        }
+
+        function recevoirInvitation(inv) {
+            invitationEnCours = inv;
+            const toast = document.getElementById('toast-reponse');
+            toast.innerHTML = `
+                <div><span class="toast-nom">${inv.de_pseudo}</span> t'invite à jouer !</div>
+                <div class="toast-actions">
+                    <button class="btn-toast btn-toast-oui" onclick="repondreInvitation(true)">Accepter</button>
+                    <button class="btn-toast btn-toast-non" onclick="repondreInvitation(false)">Refuser</button>
+                </div>`;
+            toast.classList.add('visible');
+        }
+
+        window.repondreInvitation = async function(accepte) {
+            const toast = document.getElementById('toast-reponse');
+            toast.classList.remove('visible');
+            if (!invitationEnCours) return;
+            const inv = invitationEnCours;
+            invitationEnCours = null;
+
+            if (accepte) {
+                const { data: partie } = await supabase.from('parties').insert({
+                    joueur_a: inv.de_joueur_id,
+                    joueur_b: monJoueur.id,
+                    pseudo_a: inv.de_pseudo,
+                    pseudo_b: monJoueur.pseudo,
+                    longueur: inv.longueur_preferee,
+                    tour_actuel: 'a',
+                    statut: 'en_cours'
+                }).select().maybeSingle();
+
+                await supabase.from('invitations')
+                    .update({ statut: 'acceptee', partie_id: partie.id })
+                    .eq('id', inv.id);
+
+                // Marquer moi comme en partie (BB est déjà en_partie depuis defier())
+                await supabase.from('joueurs')
+                    .update({ statut: 'en_partie' })
+                    .eq('id', monJoueur.id);
+                monJoueur.statut = 'en_partie';
+
+                sessionStorage.setItem('adv_pseudo', inv.de_pseudo);
+                sessionStorage.setItem('adv_id', inv.de_joueur_id);
+                sessionStorage.setItem('mon_pseudo', monJoueur.pseudo);
+                sessionStorage.setItem('je_commence', 'false');
+                sessionStorage.setItem('partie_id', partie.id);
+                sessionStorage.setItem('longueur', inv.longueur_preferee);
+                sessionStorage.setItem('depuis_multi', 'true');
+                window.location.href = 'jeu2.html';
+            } else {
+                await supabase.from('invitations')
+                    .update({ statut: 'refusee' }).eq('id', inv.id);
+                afficherToastReponse(inv.de_pseudo + ' : invitation déclinée.');
+            }
+        }
+
+        function afficherToastReponse(msg) {
+            const toast = document.getElementById('toast-reponse');
+            toast.innerHTML = msg;
+            toast.classList.add('visible');
+            setTimeout(() => toast.classList.remove('visible'), 3000);
+        }
+
+        async function defier(pseudo, advId) {
+            document.getElementById('modal-adversaire-nom').textContent = pseudo;
+            document.getElementById('modal-attente').classList.add('visible');
+
+            // A est désormais occupé
+            await supabase.from('joueurs').update({ statut: 'en_partie' }).eq('id', monJoueur.id);
+            monJoueur.statut = 'en_partie'; // évite le beforeunload en_ligne=false
+
+            const { data: inv, error } = await supabase.from('invitations').insert({
+                de_joueur_id: monJoueur.id,
+                vers_joueur_id: advId,
+                de_pseudo: monJoueur.pseudo,
+                vers_pseudo: pseudo,
+                longueur_preferee: getLongueurChoisie(),
+                statut: 'en_attente'
+            }).select().maybeSingle();
+
+            if (error) {
+                document.getElementById('modal-attente').classList.remove('visible');
+                return;
+            }
+
+            sessionStorage.setItem('adv_pseudo', pseudo);
+            sessionStorage.setItem('mon_pseudo', monJoueur.pseudo);
+            sessionStorage.setItem('je_commence', 'true');
+            sessionStorage.setItem('longueur_preferee', getLongueurChoisie());
+            sessionStorage.setItem('longueur', getLongueurChoisie());
+            sessionStorage.setItem('depuis_multi', 'true');
+            sessionStorage.setItem('invitation_id', inv.id);
+            sessionStorage.setItem('adv_id', advId);
+
+            const canal = supabase.channel('inv-rep-' + inv.id)
+                .on('postgres_changes', {
+                    event: 'UPDATE', schema: 'public', table: 'invitations',
+                    filter: 'id=eq.' + inv.id
+                }, payload => {
+                    const statut = payload.new.statut;
+                    if (statut === 'acceptee') {
+                        sessionStorage.setItem('partie_id', payload.new.partie_id);
+                        document.getElementById('modal-attente').classList.remove('visible');
+                        supabase.removeChannel(canal);
+                        window.location.href = 'jeu2.html';
+                    } else if (statut === 'refusee') {
+                        document.getElementById('modal-attente').classList.remove('visible');
+                        afficherToastReponse(pseudo + ' a refusé ton invitation.');
+                        supabase.removeChannel(canal);
+                    }
+                })
+                .subscribe();
+        }
+
+        function annulerDefi() {
+            document.getElementById('modal-attente').classList.remove('visible');
+            supabase.from('joueurs').update({ statut: 'libre' }).eq('id', monJoueur.id);
+            const invId = sessionStorage.getItem('invitation_id');
+            if (invId) {
+                supabase.from('invitations').update({ statut: 'refusee' }).eq('id', invId);
+                sessionStorage.removeItem('invitation_id');
+            }
+        }
+
+        // Exposer sur window
+        function majToggleLongueur(pref) {
+            document.getElementById('tog-4').classList.toggle('actif', pref === 4);
+            document.getElementById('tog-5').classList.toggle('actif', pref === 5);
+        }
+
+        async function setLongueurPref(n) {
+            if (!monJoueur) return;
+            monJoueur.longueur_preferee = n;
+            majToggleLongueur(n);
+            await supabase.from('joueurs').update({ longueur_preferee: n }).eq('id', monJoueur.id);
+        }
+
+        function changerPseudo() {
+            // Déconnecter : effacer localStorage + sessionStorage + recharger
+            localStorage.removeItem('saintex_joueur_id');
+            localStorage.removeItem('saintex_pseudo');
+            sessionStorage.clear();
+            if (monJoueur) {
+                supabase.from('joueurs').update({ en_ligne: false }).eq('id', monJoueur.id);
+            }
+            window.location.reload();
+        }
+
+        window.seConnecter = seConnecter;
+        window.setLongueurPref = setLongueurPref;
+
+        // Pré-remplir le pseudo depuis localStorage (sans auto-connecter)
+        const savedPseudo = localStorage.getItem('saintex_pseudo');
+        if (savedPseudo) {
+            document.getElementById('pseudo-input').value = savedPseudo;
+        }
+        window.tapperCase = tapperCase;
+        window.defier = defier;
+        window.annulerDefi = annulerDefi;
+
+        document.getElementById('case-4L').addEventListener('click', () => tapperCase('4L'));
+        document.getElementById('case-5L').addEventListener('click', () => tapperCase('5L'));
+        document.getElementById('pseudo-input').addEventListener('keydown', e => {
+            if (e.key === 'Enter') seConnecter();
+        });
+
+        // Pré-remplir le pseudo si connu
+        const pseudoMemo = sessionStorage.getItem('mon_pseudo');
+        if (pseudoMemo) {
+            document.getElementById('pseudo-input').value = pseudoMemo;
+        }
+
+        // Nettoyer les fantômes dès le chargement (sans attendre la connexion)
+        (async () => {
+            const deuxMin = new Date(Date.now() - 45 * 1000).toISOString();
+            await supabase.from('joueurs')
+                .update({ en_ligne: false })
+                .eq('en_ligne', true)
+                .lt('last_seen', deuxMin);
+        })();
+
+        window.addEventListener('beforeunload', () => {
+            if (monJoueur && monJoueur.statut !== 'en_partie') {
+                supabase.from('joueurs').update({ en_ligne: false }).eq('id', monJoueur.id);
+            }
+        });
+    </script>
+
+</body>
+</html>
