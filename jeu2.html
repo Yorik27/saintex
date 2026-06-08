@@ -203,27 +203,26 @@
             box-sizing: border-box;
         }
         /* 1 ou 2 fois bien placée : jaune */
-        /* 1ère apparition : blanc */
-        .case-adv.nouvelle {
-            border-color: rgba(255,255,255,0.9);
-            background: rgba(255,255,255,0.15);
-            color: white;
-            transform: scale(1.25);
-            box-shadow: 0 0 10px rgba(255,255,255,0.4);
-        }
-        /* 1-3 fois bien placée : jaune */
+        /* 1-2 fois bien placée : blanc */
         .case-adv.decouverte {
-            border-color: rgba(255,200,0,0.8);
-            background: rgba(255,200,0,0.15);
-            color: rgba(255,200,0,0.95);
-            box-shadow: 0 0 6px rgba(255,200,0,0.3);
+            border-color: rgba(255,255,255,0.8);
+            background: rgba(255,255,255,0.12);
+            color: white;
+            box-shadow: 0 0 6px rgba(255,255,255,0.3);
         }
-        /* 4+ fois bien placée : vert */
+        /* 3 fois bien placée : jaune */
+        .case-adv.nouvelle {
+            border-color: rgba(255,200,0,0.9);
+            background: rgba(255,200,0,0.15);
+            color: rgba(255,200,0,1);
+            box-shadow: 0 0 8px rgba(255,200,0,0.4);
+        }
+        /* 4+ fois bien placée : rouge */
         .case-adv.confirme {
-            border-color: #00cc66;
-            background: rgba(0,204,102,0.2);
-            color: #00cc66;
-            box-shadow: 0 0 10px rgba(0,204,102,0.5);
+            border-color: #ff4444;
+            background: rgba(255,68,68,0.2);
+            color: #ff6666;
+            box-shadow: 0 0 10px rgba(255,68,68,0.5);
         }
         /* Animation scan */
         .case-adv.scan-pulse {
@@ -1105,6 +1104,10 @@
 
         // Heartbeat 30s pendant la partie — maintient en_ligne ET statut en_partie
         if (MON_ID) {
+            // Mise à jour immédiate de last_seen pour éviter faux positif surveillance
+            if (MON_ID) supabase.from('joueurs')
+                .update({ en_ligne: true, last_seen: new Date().toISOString(), statut: 'en_partie' })
+                .eq('id', MON_ID);
             window._heartbeat = setInterval(async () => {
                 await supabase.from('joueurs')
                     .update({ en_ligne: true, last_seen: new Date().toISOString(), statut: 'en_partie' })
@@ -1154,10 +1157,10 @@
             const { data: adv } = await supabase.from('joueurs')
                 .select('en_ligne, last_seen').eq('id', ADV_ID).maybeSingle();
             if (!adv) return;
-            const seuilStale = new Date(Date.now() - 35 * 1000).toISOString();
+            const seuilStale = new Date(Date.now() - 50 * 1000).toISOString();
             const absent = !adv.en_ligne || adv.last_seen < seuilStale;
             if (absent) { advAbsent++; } else { advAbsent = 0; }
-            if (advAbsent >= 2 && !partieTerminee) {
+            if (advAbsent >= 3 && !partieTerminee) {
                 // Adversaire disparu : on gagne par forfait
                 if (PARTIE_ID) {
                     await supabase.from('parties')
@@ -1313,16 +1316,13 @@
                 if (caseEl) {
                     caseEl.textContent = advDecouvertes[i];
                     const cnt = advCompteCorrect[i];
-                    caseEl.classList.remove('nouvelle', 'decouverte', 'confirme');
+                    caseEl.classList.remove('decouverte', 'nouvelle', 'confirme');
                     if (cnt >= 4) {
-                        caseEl.classList.add('confirme');
+                        caseEl.classList.add('confirme');       // rouge
+                    } else if (cnt >= 3) {
+                        caseEl.classList.add('nouvelle');       // jaune
                     } else {
-                        caseEl.classList.add('decouverte');
-                    }
-                    // Flash blanc à la première découverte
-                    if (cnt === 1) {
-                        caseEl.classList.add('nouvelle');
-                        setTimeout(() => caseEl.classList.remove('nouvelle'), 400);
+                        caseEl.classList.add('decouverte');     // blanc
                     }
                 }
                 if (ptEl) ptEl.classList.add('trouve');
