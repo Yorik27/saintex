@@ -206,7 +206,7 @@
             font-weight: 700;
             font-size: 0.7rem;
             color: transparent;
-            transition: all 0.4s;
+            transition: all 0.3s, transform 0.15s;
             box-sizing: border-box;
         }
         /* 1 ou 2 fois bien placée : jaune */
@@ -222,6 +222,17 @@
             background: rgba(0,204,102,0.2);
             color: #00cc66;
             box-shadow: 0 0 8px rgba(0,204,102,0.4);
+        }
+        /* Animation scan sur cases adversaire */
+        .case-adv.scan-pulse {
+            border-color: rgba(255,153,0,0.9);
+            background: rgba(255,153,0,0.2);
+            transform: scale(1.15);
+        }
+        .case-adv.scan-found {
+            border-color: rgba(0,204,102,0.9);
+            background: rgba(0,204,102,0.3);
+            transform: scale(1.2);
         }
 
         /* Mon Mot compact après début de partie */
@@ -812,8 +823,8 @@
 
         <div class="zone-principale">
 
-            <!-- Mon mot secret -->
-            <div>
+            <!-- Mon mot secret — caché pendant la partie -->
+            <div id="zone-mon-mot">
                 <div class="section-label">Mon mot</div>
                 <div class="cases-mot" id="cases-mon-mot"></div>
             </div>
@@ -1088,6 +1099,7 @@
         }
         document.getElementById('label-adversaire').textContent = ADV_PSEUDO;
         document.getElementById('phase-init').style.display = 'none';
+        document.getElementById('zone-mon-mot').style.display = 'none';
         document.getElementById('phase-jeu').style.display = 'block';
         document.getElementById('btn-chat-flottant').style.display = 'flex';
         const btnAbandonJeu = document.getElementById('btn-abandon-jeu');
@@ -1213,24 +1225,23 @@
         }
     }
 
-    // ── Animation scan quand l'adversaire propose ──
+    // ── Animation scan sur les cases adversaire ──
     function animerScan(proposition, score) {
         return new Promise(resolve => {
-            // Identifier les positions bien placées
             const bienPlacees = [];
             for (let i = 0; i < LONGUEUR; i++) {
                 if (proposition[i] === motSecret[i]) bienPlacees.push(i);
             }
             for (let i = 0; i < LONGUEUR; i++) {
-                const el = document.getElementById('mon-mot-' + i);
+                const el = document.getElementById('adv-case-' + i);
                 if (!el) continue;
                 setTimeout(() => {
                     if (bienPlacees.includes(i)) {
-                        el.classList.add('scan-ok');
-                        setTimeout(() => el.classList.remove('scan-ok'), 800);
+                        el.classList.add('scan-found');
+                        setTimeout(() => el.classList.remove('scan-found'), 800);
                     } else {
-                        el.classList.add('scan');
-                        setTimeout(() => el.classList.remove('scan'), 500);
+                        el.classList.add('scan-pulse');
+                        setTimeout(() => el.classList.remove('scan-pulse'), 500);
                     }
                 }, i * 150);
             }
