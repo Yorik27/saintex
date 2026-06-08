@@ -199,11 +199,27 @@
             transition: all 0.4s;
             box-sizing: border-box;
         }
+        /* 1 ou 2 fois bien placée : jaune */
         .case-adv.decouverte {
+            border-color: rgba(255,200,0,0.7);
+            background: rgba(255,200,0,0.12);
+            color: rgba(255,200,0,0.9);
+            box-shadow: 0 0 5px rgba(255,200,0,0.2);
+        }
+        /* 3 fois bien placée : vert confirmé */
+        .case-adv.confirme {
             border-color: #00cc66;
-            background: rgba(0,204,102,0.15);
+            background: rgba(0,204,102,0.2);
             color: #00cc66;
-            box-shadow: 0 0 6px rgba(0,204,102,0.3);
+            box-shadow: 0 0 8px rgba(0,204,102,0.4);
+        }
+
+        /* Mon Mot compact après début de partie */
+        .case-mot-secret.compact {
+            width: 26px;
+            height: 26px;
+            font-size: 0.8rem;
+            border-radius: 5px;
         }
 
         /* ── Mes propositions ── */
@@ -814,6 +830,10 @@
             <div id="affichage-saisie" class="cases-mot"></div>
             <div id="msg-attente" class="msg-attente" style="display:none;">Tour de l'adversaire…</div>
             <div id="error-jeu2" style="display:none; color:#ff4444; text-align:center; font-size:0.85rem; padding:4px;"></div>
+            <button id="btn-abandon-jeu" onclick="proposerAbandon()"
+                style="display:none; margin:6px auto 0; background:transparent; border:1px solid rgba(255,68,68,0.3);
+                color:rgba(255,68,68,0.6); font-family:'Roboto',sans-serif; font-size:0.75rem; padding:4px 14px;
+                border-radius:50px; cursor:pointer; letter-spacing:0.5px;">Abandonner</button>
         </div>
 
         <!-- Clavier jeu -->
@@ -1052,7 +1072,12 @@
         document.getElementById('phase-init').style.display = 'none';
         document.getElementById('phase-jeu').style.display = 'block';
         document.getElementById('btn-chat-flottant').style.display = 'flex';
+        const btnAbandonJeu = document.getElementById('btn-abandon-jeu');
+        if (btnAbandonJeu) btnAbandonJeu.style.display = 'block';
         afficherMonMot();
+        // Réduire la taille de Mon Mot une fois la partie démarrée
+        document.querySelectorAll('#cases-mon-mot .case-mot-secret')
+            .forEach(el => el.classList.add('compact'));
         afficherCasesAdv();
         afficherSaisie();
         majTour();
@@ -1088,10 +1113,10 @@
             const { data: adv } = await supabase.from('joueurs')
                 .select('en_ligne, last_seen').eq('id', ADV_ID).maybeSingle();
             if (!adv) return;
-            const seuilStale = new Date(Date.now() - 45 * 1000).toISOString();
+            const seuilStale = new Date(Date.now() - 35 * 1000).toISOString();
             const absent = !adv.en_ligne || adv.last_seen < seuilStale;
             if (absent) { advAbsent++; } else { advAbsent = 0; }
-            if (advAbsent >= 3 && !partieTerminee) {
+            if (advAbsent >= 2 && !partieTerminee) {
                 // Adversaire disparu : on gagne par forfait
                 if (PARTIE_ID) {
                     await supabase.from('parties')
@@ -1191,13 +1216,15 @@
         for (let i = 0; i < LONGUEUR; i++) {
             if (proposition[i] === motSecret[i]) {
                 advDecouvertes[i] = proposition[i];
+                advCompteCorrect[i]++;
             }
         }
         majAffichageAdv();
     }
 
     // ── Avancement adversaire ──
-    const advDecouvertes = new Array(LONGUEUR).fill(null); // lettres bien placées découvertes
+    const advDecouvertes   = new Array(LONGUEUR).fill(null); // lettres bien placées découvertes
+    const advCompteCorrect = new Array(LONGUEUR).fill(0);    // nb de fois bien placées
 
     function afficherCasesAdv() {
         // Cases lettres
@@ -1218,7 +1245,15 @@
             const caseEl = document.getElementById('adv-case-' + i);
             const ptEl = document.getElementById('adv-pt-' + i);
             if (advDecouvertes[i]) {
-                if (caseEl) { caseEl.classList.add('decouverte'); caseEl.textContent = advDecouvertes[i]; }
+                if (caseEl) {
+                    caseEl.textContent = advDecouvertes[i];
+                    if (advCompteCorrect[i] >= 3) {
+                        caseEl.classList.remove('decouverte');
+                        caseEl.classList.add('confirme');
+                    } else {
+                        caseEl.classList.add('decouverte');
+                    }
+                }
                 if (ptEl) ptEl.classList.add('trouve');
                 nb++;
             }
@@ -1731,6 +1766,15 @@
     window.nettoyerEtRetourner = nettoyerEtRetourner;
     window.proposerAbandon = proposerAbandon;
     window.confirmerAbandon = confirmerAbandon;
+
+    // Abandon implicite : fermeture onglet/app sans cliquer Abandonner
+    window.addEventListener('beforeunload', () => {
+        if (partieTerminee) return;
+        if (MON_ID) supabase.from('joueurs').update({ en_ligne: false, statut: 'libre' }).eq('id', MON_ID);
+        if (PARTIE_ID) supabase.from('parties')
+            .update({ statut: 'terminee', gagnant: MON_ROLE === 'a' ? 'b' : 'a' })
+            .eq('id', PARTIE_ID);
+    });
 
     // Charger le dico
     window.DICO = {};
