@@ -1167,7 +1167,7 @@
             }
 
             // Fin de partie — notifier gagnant ET perdant
-            if (data.statut === 'terminee' && !partieTerminee && partieEnCours) {
+            if (data.statut === 'terminee' && !partieTerminee && partieDemarree) {
                 const colAdv = MON_ROLE === 'a' ? 'mot_secret_b' : 'mot_secret_a';
                 if (!motAdversaire) motAdversaire = data[colAdv] || '?????';
                 if (data.gagnant) {
