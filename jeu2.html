@@ -249,28 +249,28 @@
         .zone-propositions {
             display: flex;
             flex-wrap: wrap;
-            gap: 2px 8px;
-            max-height: 80px;
+            gap: clamp(2px, 0.5vw, 4px) clamp(6px, 2vw, 12px);
+            max-height: clamp(90px, 22vw, 130px);
             overflow-y: auto;
         }
         .ligne-prop {
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: clamp(4px, 1vw, 6px);
             border-bottom: none;
             padding: 0;
         }
         .prop-mot {
             font-family: 'Roboto', sans-serif;
-            font-weight: 600;
-            font-size: 0.82rem;
-            color: rgba(255,255,255,0.8);
-            letter-spacing: 1px;
+            font-weight: 700;
+            font-size: clamp(0.95rem, 3.5vw, 1.2rem);
+            color: rgba(255,255,255,0.85);
+            letter-spacing: clamp(1px, 0.3vw, 2px);
         }
         .prop-score {
             font-family: 'Roboto', sans-serif;
             font-weight: 700;
-            font-size: 0.82rem;
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
         }
         .score-0 { color: rgba(255,255,255,0.3); }
         .score-1 { color: #fff700; }
