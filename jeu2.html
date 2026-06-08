@@ -1782,7 +1782,7 @@
             majTimerAffichage();
             if (secondesRestantes <= 0) {
                 arreterTimer();
-                afficherTimeout();
+                finParTimeout();
             }
         }, 1000);
     }
@@ -1791,18 +1791,27 @@
         if (timerTour) { clearInterval(timerTour); timerTour = null; }
     }
 
-    function afficherTimeout() {
+    // Timer = 0 → fin automatique, plus de modal
+    async function finParTimeout() {
+        if (partieTerminee) return;
+        partieTerminee = true;
         const modal = document.getElementById('modal-timeout');
         const titre = document.getElementById('timeout-titre');
-        const info = document.getElementById('timeout-info');
-        if (cMonTour) {
-            titre.textContent = 'Temps écoulé !';
-            info.textContent = 'Tu as mis trop de temps à jouer.';
-        } else {
-            titre.textContent = 'Adversaire inactif';
-            info.textContent = ADV_PSEUDO + ' n\'a pas joué dans les temps.';
-        }
+        const info  = document.getElementById('timeout-info');
+        titre.textContent = 'Temps écoulé !';
+        info.textContent  = 'La partie se termine automatiquement.';
         modal.classList.add('visible');
+        if (MON_ID) supabase.from('joueurs').update({ statut: 'libre' }).eq('id', MON_ID);
+        if (PARTIE_ID) await supabase.from('parties')
+            .update({ statut: 'terminee', gagnant: 'abandon' })
+            .eq('id', PARTIE_ID);
+        setTimeout(() => {
+            ['partie_id','invitation_id','depuis_multi','revanche','longueur',
+             'longueur_preferee','adv_pseudo','adv_id','je_commence',
+             'fin_gagne','fin_mot_adv','fin_coups','fin_lettres']
+                .forEach(k => sessionStorage.removeItem(k));
+            window.location.href = 'multi.html';
+        }, 2000);
     }
 
     function proposerAbandon() {
