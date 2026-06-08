@@ -123,6 +123,13 @@
             text-transform: uppercase;
             margin-bottom: 4px;
         }
+        /* Mon Mot compact en jeu (ne touche pas la phase init) */
+        #cases-mon-mot .case-mot-secret {
+            width: 28px !important;
+            height: 28px !important;
+            font-size: 0.82rem !important;
+            border-radius: 6px !important;
+        }
 
         .cases-mot {
             display: flex;
@@ -833,21 +840,18 @@
             <div id="affichage-saisie" class="cases-mot"></div>
             <div id="msg-attente" class="msg-attente" style="display:none;">Tour de l'adversaire…</div>
             <div id="error-jeu2" style="display:none; color:#ff4444; text-align:center; font-size:0.85rem; padding:4px;"></div>
-            <button id="btn-abandon-jeu-old" onclick="proposerAbandon()"
-                style="display:none; margin:6px auto 2px; background:transparent;
+            <button id="btn-abandon-jeu" onclick="proposerAbandon()"
+                style="display:none; margin-top:4px; background:transparent;
                 border:1px solid rgba(255,68,68,0.4); color:rgba(255,68,68,0.7);
-                font-family:'Roboto',sans-serif; font-size:0.75rem; padding:5px 16px;
-                border-radius:50px; cursor:pointer; letter-spacing:0.5px;
-                width:fit-content; display:none;">Abandonner</button>
+                font-family:'Roboto',sans-serif; font-size:0.72rem; padding:4px 14px;
+                border-radius:50px; cursor:pointer; letter-spacing:0.5px;">Abandonner</button>
         </div>
 
-        <!-- Bouton Abandon juste au-dessus du clavier -->
-        <div style="text-align:center; padding:4px 0;">
-            <button id="btn-abandon-jeu" onclick="proposerAbandon()"
-                style="display:none; background:transparent;
-                border:1px solid rgba(255,68,68,0.4); color:rgba(255,68,68,0.7);
-                font-family:'Roboto',sans-serif; font-size:0.75rem; padding:5px 16px;
-                border-radius:50px; cursor:pointer; letter-spacing:0.5px;">Abandonner</button>
+        <!-- Toast adversaire abandonné -->
+        <div id="toast-abandon" style="display:none; position:fixed; top:70px; left:50%; transform:translateX(-50%);
+            background:rgba(255,100,0,0.9); color:white; font-family:'Roboto',sans-serif; font-size:0.85rem;
+            padding:10px 20px; border-radius:50px; z-index:99; white-space:nowrap;">
+            Adversaire a abandonné…
         </div>
 
         <!-- Clavier jeu -->
@@ -1172,10 +1176,19 @@
                 if (!motAdversaire) motAdversaire = data[colAdv] || '?????';
                 if (data.gagnant) {
                     clearInterval(intervalPartie);
-                    const jeGagne = data.gagnant === MON_ROLE;
-                    setTimeout(() => {
-                        if (!partieTerminee) finPartie(jeGagne, motAdversaire);
-                    }, 1000);
+                    if (data.gagnant === 'abandon') {
+                        // Adversaire a abandonné → notification + retour multi
+                        partieTerminee = true;
+                        arreterTimer();
+                        const toast = document.getElementById('toast-abandon');
+                        if (toast) { toast.style.display = 'block'; }
+                        setTimeout(() => { window.location.href = 'multi.html'; }, 2500);
+                    } else {
+                        // Fin normale → fin-gagne ou fin-perdu
+                        const jeGagne = data.gagnant === MON_ROLE;
+                        setTimeout(() => {
+                            if (!partieTerminee) finPartie(jeGagne, motAdversaire);
+                        }, 1000);
                 }
             }
         }, 2000);
@@ -1331,7 +1344,7 @@
 
         shortA = MON_PSEUDO.substring(0, 3).toUpperCase();
         shortB = ADV_PSEUDO.substring(0, 3).toUpperCase();
-        majScore();
+        // majScore(); // désactivé temporairement
         demarrerTimer();
         majTimerAffichage();
     }
@@ -1355,7 +1368,7 @@
         await animerScan(proposition, score);
         if (score === LONGUEUR) {
             if (MON_ROLE === 'a') scoreB++; else scoreA++;
-            majScore();
+            // majScore(); // désactivé temporairement
             finPartie(false, proposition);
             return;
         }
@@ -1431,7 +1444,7 @@
 
         if (score === LONGUEUR) {
             if (MON_ROLE === 'a') scoreA++; else scoreB++;
-            majScore();
+            // majScore(); // désactivé temporairement
             finPartie(true, motAdversaire);
             return;
         }
@@ -1763,8 +1776,9 @@
             await supabase.from('joueurs').update({ statut: 'libre' }).eq('id', MON_ID);
         }
         if (PARTIE_ID) {
+            // gagnant='abandon' signale à l'adversaire que c'est un abandon (pas une fin normale)
             await supabase.from('parties')
-                .update({ statut: 'terminee', gagnant: MON_ROLE === 'a' ? 'b' : 'a' })
+                .update({ statut: 'terminee', gagnant: 'abandon' })
                 .eq('id', PARTIE_ID);
         }
         window.location.href = 'multi.html';
