@@ -1081,6 +1081,27 @@
     }
 
     function abonnerPartie() {
+        // Surveillance adversaire : si absent 30s → fin de partie
+        let advAbsent = 0;
+        setInterval(async () => {
+            if (partieTerminee || !ADV_ID) return;
+            const { data: adv } = await supabase.from('joueurs')
+                .select('en_ligne, last_seen').eq('id', ADV_ID).maybeSingle();
+            if (!adv) return;
+            const seuilStale = new Date(Date.now() - 45 * 1000).toISOString();
+            const absent = !adv.en_ligne || adv.last_seen < seuilStale;
+            if (absent) { advAbsent++; } else { advAbsent = 0; }
+            if (advAbsent >= 3 && !partieTerminee) {
+                // Adversaire disparu : on gagne par forfait
+                if (PARTIE_ID) {
+                    await supabase.from('parties')
+                        .update({ statut: 'terminee', gagnant: MON_ROLE })
+                        .eq('id', PARTIE_ID);
+                }
+                finPartie(true, motAdversaire);
+            }
+        }, 10000);
+
         // Polling 2s pour le changement de tour et la fin de partie
         // (Realtime sur la clé primaire de 'parties' non fiable dans cette config)
         const intervalPartie = setInterval(async () => {
@@ -1109,16 +1130,15 @@
                 majTour();
             }
 
-            // Fin de partie — notifier le perdant
-            // Délai 1s : laisse abonnerPropositions (Realtime) arriver en premier
-            // avec le bon mot. Fallback si Realtime échoue.
+            // Fin de partie — notifier gagnant ET perdant
             if (data.statut === 'terminee' && !partieTerminee && partieEnCours) {
                 const colAdv = MON_ROLE === 'a' ? 'mot_secret_b' : 'mot_secret_a';
                 if (!motAdversaire) motAdversaire = data[colAdv] || '?????';
-                if (data.gagnant && data.gagnant !== MON_ROLE) {
+                if (data.gagnant) {
                     clearInterval(intervalPartie);
+                    const jeGagne = data.gagnant === MON_ROLE;
                     setTimeout(() => {
-                        if (!partieTerminee) finPartie(false, motAdversaire);
+                        if (!partieTerminee) finPartie(jeGagne, motAdversaire);
                     }, 1000);
                 }
             }
@@ -1434,7 +1454,7 @@
         sessionStorage.setItem('fin_coups', numeroTour);
         sessionStorage.setItem('fin_lettres', (motFinal || '').split('').filter((l, i) => (motSecret || '')[i] === l).length);
 
-        setTimeout(() => { window.location.href = gagne ? 'fin-gagne.html' : 'fin-perdu.html'; }, 1500);
+        setTimeout(() => { window.location.href = gagne ? 'fin-gagne.html' : 'fin-perdu.html'; }, 3000);
     }
 
     function nettoyerEtRetourner() {
