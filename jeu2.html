@@ -80,10 +80,13 @@
         }
         .header-score {
             font-family: 'Roboto', sans-serif;
-            font-size: 0.82rem;
+            font-size: 0.72rem;
             font-weight: 600;
             color: rgba(255,255,255,0.5);
             white-space: nowrap;
+            max-width: 90px;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .btn-abandon-header {
             background: transparent;
@@ -215,11 +218,11 @@
         }
 
         /* Mon Mot compact après début de partie */
-        .case-mot-secret.compact {
-            width: 26px;
-            height: 26px;
-            font-size: 0.8rem;
-            border-radius: 5px;
+        #cases-mon-mot.compact .case-mot-secret {
+            width: 26px !important;
+            height: 26px !important;
+            font-size: 0.8rem !important;
+            border-radius: 5px !important;
         }
 
         /* ── Mes propositions ── */
@@ -830,9 +833,20 @@
             <div id="affichage-saisie" class="cases-mot"></div>
             <div id="msg-attente" class="msg-attente" style="display:none;">Tour de l'adversaire…</div>
             <div id="error-jeu2" style="display:none; color:#ff4444; text-align:center; font-size:0.85rem; padding:4px;"></div>
+            <button id="btn-abandon-jeu-old" onclick="proposerAbandon()"
+                style="display:none; margin:6px auto 2px; background:transparent;
+                border:1px solid rgba(255,68,68,0.4); color:rgba(255,68,68,0.7);
+                font-family:'Roboto',sans-serif; font-size:0.75rem; padding:5px 16px;
+                border-radius:50px; cursor:pointer; letter-spacing:0.5px;
+                width:fit-content; display:none;">Abandonner</button>
+        </div>
+
+        <!-- Bouton Abandon juste au-dessus du clavier -->
+        <div style="text-align:center; padding:4px 0;">
             <button id="btn-abandon-jeu" onclick="proposerAbandon()"
-                style="display:none; margin:6px auto 0; background:transparent; border:1px solid rgba(255,68,68,0.3);
-                color:rgba(255,68,68,0.6); font-family:'Roboto',sans-serif; font-size:0.75rem; padding:4px 14px;
+                style="display:none; background:transparent;
+                border:1px solid rgba(255,68,68,0.4); color:rgba(255,68,68,0.7);
+                font-family:'Roboto',sans-serif; font-size:0.75rem; padding:5px 16px;
                 border-radius:50px; cursor:pointer; letter-spacing:0.5px;">Abandonner</button>
         </div>
 
@@ -1074,10 +1088,7 @@
         document.getElementById('btn-chat-flottant').style.display = 'flex';
         const btnAbandonJeu = document.getElementById('btn-abandon-jeu');
         if (btnAbandonJeu) btnAbandonJeu.style.display = 'block';
-        afficherMonMot();
-        // Réduire la taille de Mon Mot une fois la partie démarrée
-        document.querySelectorAll('#cases-mon-mot .case-mot-secret')
-            .forEach(el => el.classList.add('compact'));
+        afficherMonMot(true); // compact = true
         afficherCasesAdv();
         afficherSaisie();
         majTour();
@@ -1171,7 +1182,7 @@
     }
 
     // ── Affichage mon mot secret ──
-    function afficherMonMot() {
+    function afficherMonMot(compact = false) {
         const el = document.getElementById('cases-mon-mot');
         el.innerHTML = '';
         for (let i = 0; i < LONGUEUR; i++) {
@@ -1179,6 +1190,12 @@
             div.classList.add('case-mot-secret');
             div.id = 'mon-mot-' + i;
             div.textContent = motSecret[i];
+            if (compact) {
+                div.style.width = '28px';
+                div.style.height = '28px';
+                div.style.fontSize = '0.82rem';
+                div.style.borderRadius = '6px';
+            }
             el.appendChild(div);
         }
     }
