@@ -1157,10 +1157,12 @@
             const { data: adv } = await supabase.from('joueurs')
                 .select('en_ligne, last_seen').eq('id', ADV_ID).maybeSingle();
             if (!adv) return;
-            const seuilStale = new Date(Date.now() - 50 * 1000).toISOString();
+            const seuilStale = new Date(Date.now() - 90 * 1000).toISOString();
+            // en_ligne=false = quitte volontairement (beforeunload)
+            // last_seen > 90s = heartbeat arrêté (app killée)
             const absent = !adv.en_ligne || adv.last_seen < seuilStale;
             if (absent) { advAbsent++; } else { advAbsent = 0; }
-            if (advAbsent >= 3 && !partieTerminee) {
+            if (advAbsent >= 5 && !partieTerminee) {
                 // Adversaire disparu : on gagne par forfait
                 if (PARTIE_ID) {
                     await supabase.from('parties')
