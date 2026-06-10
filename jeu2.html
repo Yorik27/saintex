@@ -11,7 +11,7 @@
         :root {
             /* Hauteur du clavier : s'adapte à la largeur écran */
             --clavier-h: clamp(124px, 34vw, 162px);
-            --saisie-h:  68px;
+            --saisie-h:  90px;
         }
 
         body {
@@ -110,15 +110,13 @@
 
         /* ── Zone principale ── */
         .zone-principale {
-            position: fixed;
-            top: 72px;
-            left: 0; right: 0;
-            bottom: calc(var(--clavier-h) + var(--saisie-h));
+            flex: 1;
             overflow-y: auto;
             padding: 8px 14px;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
+            min-height: 0;
         }
 
         /* ── Mon mot secret ── */
@@ -288,9 +286,7 @@
 
         /* ── Affichage mot en saisie ── */
         .zone-saisie {
-            position: fixed;
-            bottom: var(--clavier-h);
-            left: 0; right: 0;
+            flex-shrink: 0;
             background: #111;
             display: flex;
             flex-direction: column;
@@ -303,6 +299,17 @@
         }
 
         /* ── Clavier ── */
+        /* Wrapper flex entre header et clavier */
+        #contenu-jeu {
+            position: fixed;
+            top: 62px;
+            bottom: var(--clavier-h);
+            left: 0; right: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
         .zone-clavier {
             position: fixed;
             bottom: 0;
@@ -554,7 +561,7 @@
         /* Bouton flottant chat */
         .btn-chat-flottant {
             position: fixed;
-            bottom: calc(var(--clavier-h) + var(--saisie-h) - 8px);
+            bottom: calc(var(--clavier-h) + 64px);
             right: 10px;
             width: 46px;
             height: 46px;
@@ -716,7 +723,6 @@
             justify-content: center;
             flex-shrink: 0;
         }
-        .zone-principale { overflow-y: auto; padding: 8px 14px; gap: 8px; max-height: 45vh; }
 
         /* Case active saisie désordre */
         .case-saisie-active {
@@ -828,6 +834,7 @@
     <!-- Phase jeu -->
     <div id="phase-jeu">
 
+        <div id="contenu-jeu">
         <div class="zone-principale">
 
             <!-- Mon mot secret — masqué une fois la partie démarrée -->
@@ -874,6 +881,8 @@
                 font-family:'Roboto',sans-serif; font-size:0.75rem; padding:5px 16px;
                 border-radius:50px; cursor:pointer; letter-spacing:0.5px;">Abandonner</button>
         </div>
+
+        </div><!-- fin #contenu-jeu -->
 
         <!-- Clavier jeu -->
         <div class="zone-clavier">
