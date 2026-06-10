@@ -131,8 +131,8 @@
         }
 
         .case-mot-secret {
-            width: 44px;
-            height: 44px;
+            width: clamp(44px, 12vw, 56px);
+            height: clamp(44px, 12vw, 56px);
             border: 1.5px solid rgba(0,191,255,0.4);
             border-radius: 8px;
             display: flex;
@@ -140,7 +140,7 @@
             justify-content: center;
             font-family: 'Roboto', sans-serif;
             font-weight: 700;
-            font-size: 1.2rem;
+            font-size: clamp(1.1rem, 3.5vw, 1.4rem);
             color: deepskyblue;
             background: rgba(0,191,255,0.06);
             transition: background 0.15s, border-color 0.15s, color 0.15s;
@@ -721,8 +721,8 @@
         /* Override clavier jeu2 */
         #clavier-jeu .clavier-rangee,
         #clavier-init .clavier-rangee {
-            gap: 3px !important;
-            padding: 2px 4px !important;
+            gap: clamp(2px, 0.7vw, 4px) !important;
+            padding: 2px clamp(2px, 1vw, 6px) !important;
         }
         #clavier-jeu .touche,
         #clavier-init .touche {
@@ -731,18 +731,18 @@
             color: white !important;
             font-weight: 700 !important;
             font-family: 'Roboto', sans-serif !important;
-            width: 32px !important;
-            height: 32px !important;
-            min-width: 32px !important;
+            width: clamp(30px, 8.8vw, 40px) !important;
+            height: clamp(34px, 9.5vw, 44px) !important;
+            min-width: clamp(30px, 8.8vw, 40px) !important;
             padding: 0 !important;
-            font-size: 0.85rem !important;
+            font-size: clamp(0.78rem, 2.8vw, 0.98rem) !important;
             border-radius: 6px !important;
             flex: none !important;
         }
         #clavier-jeu .touche-large,
         #clavier-init .touche-large {
-            width: 44px !important;
-            min-width: 44px !important;
+            width: clamp(40px, 11.5vw, 52px) !important;
+            min-width: clamp(40px, 11.5vw, 52px) !important;
         }
         #clavier-jeu .touche:active,
         #clavier-init .touche:active {
