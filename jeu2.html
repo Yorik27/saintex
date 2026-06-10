@@ -1789,6 +1789,8 @@
 
     function arreterTimer() {
         if (timerTour) { clearInterval(timerTour); timerTour = null; }
+        secondesRestantes = TIMEOUT_TOUR;
+        majTimerAffichage();
     }
 
     // Timer = 0 → fin automatique, plus de modal
